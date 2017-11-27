@@ -1,0 +1,22 @@
+//
+// Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+// GPLv3, see LICENSE
+//
+// @author Fred Neumann <fred.neumann@fau.de>
+// @version $Id$
+//
+
+<!-- language file start -->
+edit_archive_settings#:#Archiv-Einstellungen bearbeiten
+archive_settings_saves#:#Die Archiv-Einstellungen wurden gespeichert
+status#:#Archivierungs-Status
+status_inactive#:#Keine Archiv-Erzeugung geplant
+status_planned#:#Archiv-Erzeugung geplant
+status_finished#:#Archiv erzeugt
+schedule#:#Erzeugung ab
+pass_selection#:#Testlauf-Auswahl
+pass_scored#:#Bewerteter Testlauf
+pass_best#:#Bester Testlauf
+pass_last#:#Letzter Testlauf
+pass_all#:#Alle Testläufe
+settings_saved#:#Die Archivierung-Einstellungen wurden gespeichert
