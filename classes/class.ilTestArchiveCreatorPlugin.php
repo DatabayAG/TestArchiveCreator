@@ -37,11 +37,22 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	public function getSettings($obj_id)
 	{
 		if (!isset($this->settings[$obj_id])) {
-			$this->includeClass('ilTestArchiveCreatorSettings');
+			$this->includeClass('class.ilTestArchiveCreatorSettings.php');
 			$this->settings[$obj_id] = new ilTestArchiveCreatorSettings($this, $obj_id);
 		}
+		return $this->settings[$obj_id];
 	}
 
+	/**
+	 * Get the archive creator
+	 * @param $obj_id
+	 * @return ilTestArchiveCreator
+	 */
+	public function getArchiveCreator($obj_id)
+	{
+		$this->includeClass('class.ilTestArchiveCreator.php');
+		return new ilTestArchiveCreator($this, $obj_id);
+	}
 
 	/**
 	 * Get a user preference
@@ -75,7 +86,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	 * @param   string  $a_default_value
 	 * @return string	value
 	 */
-	public static function getConfig($a_key, $a_default_value = '')
+	public static function getConfigValue($a_key, $a_default_value = '')
 	{
 		return self::$config->get($a_key, $a_default_value);
 
@@ -86,7 +97,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	 * @param string  $a_key
 	 * @param string  $a_value
 	 */
-	public static function setConfig($a_key, $a_value)
+	public static function setConfigValue($a_key, $a_value)
 	{
 		self::_readConfig();
 		self::$config->set($a_key, $a_value);

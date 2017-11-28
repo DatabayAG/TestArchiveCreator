@@ -46,6 +46,7 @@ class ilTestArchiveCreatorSettings
 		$this->pluin = $plugin;
 		$this->db = $DIC->database();
 		$this->obj_id = $obj_id;
+		$this->read();
 	}
 
 	/**

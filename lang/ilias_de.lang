@@ -7,12 +7,16 @@
 //
 
 <!-- language file start -->
-edit_archive_settings#:#Archiv-Einstellungen bearbeiten
-archive_settings_saves#:#Die Archiv-Einstellungen wurden gespeichert
+tb_archive_label#:#Archiv-Erstellung:
+tb_archive_inactive#:#nicht geplant
+tb_archive_planned#:#ab %s
+rb_archive_finished#:#beendet
+edit_archive_settings#:#Archivierungs-Einstellungen bearbeiten
+archive_settings_saves#:#Die Archivierungs-Einstellungen wurden gespeichert
 status#:#Archivierungs-Status
-status_inactive#:#Keine Archiv-Erzeugung geplant
-status_planned#:#Archiv-Erzeugung geplant
-status_finished#:#Archiv erzeugt
+status_inactive#:#Keine Archiv-Erstellung geplant
+status_planned#:#Archiv-Erstellung geplant
+status_finished#:#Archiv erstellt
 schedule#:#Erzeugung ab
 pass_selection#:#Testlauf-Auswahl
 pass_scored#:#Bewerteter Testlauf
@@ -20,3 +24,9 @@ pass_best#:#Bester Testlauf
 pass_last#:#Letzter Testlauf
 pass_all#:#Alle Testläufe
 settings_saved#:#Die Archivierung-Einstellungen wurden gespeichert
+questions#:#Fragen
+question_id#:#ID
+question_title#:#Titel
+question_type#:#Typ
+max_points#:#Maximale Punktzahl
+files#:#Dateien

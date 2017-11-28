@@ -54,7 +54,6 @@ class ilTestArchiveCreatorSettingsGUI
 		$this->lng->loadLanguageModule('assessment');
 
 		$this->plugin = ilPlugin::getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'TestArchiveCreator');
-
 		$this->testObj = new ilObjTest($_GET['ref_id'], true);
     }
 
@@ -64,16 +63,43 @@ class ilTestArchiveCreatorSettingsGUI
 	 */
 	public function modifyExportToolbar()
 	{
+
+		if (empty($this->toolbar->getItems()))
+		{
+			// e.g delete confirmation is shown
+			return;
+		}
 		$this->toolbar->addSeparator();
 
 		// set the return target
 		$this->ctrl->saveParameter($this, 'ref_id');
-		//$this->ctrl->setParameter($this, 'return', urlencode($_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING']));
+
+		$text = $this->plugin->txt('tb_archive_label'). ' ';
+		$settings = $this->plugin->getSettings($this->testObj->getId());
+		switch ($settings->status) {
+			case ilTestArchiveCreatorSettings::STATUS_PLANNED:
+				$text .= sprintf($this->plugin->txt('tb_archive_planned'), ilDatePresentation::formatDate($settings->schedule));
+				break;
+			case ilTestArchiveCreatorSettings::STATUS_FINISHED:
+				$text .= $this->plugin->txt('tb_archive_finished');
+				break;
+			case ilTestArchiveCreatorSettings::STATUS_INACTIVE:
+			default:
+				$text .= $this->plugin->txt('tb_archive_inactive');
+				break;
+		}
+		$this->toolbar->addText($text);
 
 		include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
 		$button = ilLinkButton::getInstance();
 		$button->setCaption($this->lng->txt('settings'), false);
 		$button->setUrl($this->getLinkTarget('editSettings'));
+		$this->toolbar->addButtonInstance($button);
+
+		include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
+		$button = ilLinkButton::getInstance();
+		$button->setCaption($this->lng->txt('create'), false);
+		$button->setUrl($this->getLinkTarget('createArchive'));
 		$this->toolbar->addButtonInstance($button);
 	}
 
@@ -115,15 +141,6 @@ class ilTestArchiveCreatorSettingsGUI
 		}
 	}
 
-	/**
-	 * Get the plugin object
-	 * @return ilUILimitedMediaControlPlugin|null
-	 */
-	public function getPlugin()
-	{
-		return $this->plugin;
-	}
-
 
     /**
 	 * Prepare the test header, tabs etc.
@@ -159,34 +176,33 @@ class ilTestArchiveCreatorSettingsGUI
 		$form->setFormAction($this->ctrl->getFormAction($this, 'editSettings'));
 		$form->setTitle($this->plugin->txt('edit_archive_settings'));
 
-		$status = new ilRadioGroupInputGUI($this->plugin->txt('status'), 'status');
-		$status->setValue($settings->status);
-		$form->addItem($status);
-
 		$st_inactive = new ilRadioOption($this->plugin->txt('status_inactive'), ilTestArchiveCreatorSettings::STATUS_INACTIVE);
 		$st_planned = new ilRadioOption($this->plugin->txt('status_planned'), ilTestArchiveCreatorSettings::STATUS_PLANNED);
 		$st_finished = new ilRadioOption($this->plugin->txt('status_finished'), ilTestArchiveCreatorSettings::STATUS_FINISHED);
 		$st_finished->setDisabled(true);
 
+		$status = new ilRadioGroupInputGUI($this->plugin->txt('status'), 'status');
 		$status->addOption($st_inactive);
 		$status->addOption($st_planned);
 		$status->addOption($st_finished);
+		$status->setValue($settings->status);
+		$form->addItem($status);
 
 		$schedule = new ilDateTimeInputGUI($this->plugin->txt('schedule'), 'schedule');
 		$schedule->setShowTime(true);
 		$schedule->setShowSeconds(false);
-		$schedule->setMinuteStepSize(5);
+		$schedule->setMinuteStepSize(10);
 		$schedule->setDate($settings->schedule);
 		$st_planned->addSubItem($schedule);
 
-		$pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'));
-		$pass_selection->setValue($settings->pass_selection);
+		$pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
 		$pass_selection->setOptions(array(
-			ilTestArchiveCreatorSettings::PASS_SCORED, $this->plugin->txt('pass_scored'),
-			ilTestArchiveCreatorSettings::PASS_BEST, $this->plugin->txt('pass_best'),
-			ilTestArchiveCreatorSettings::PASS_LAST, $this->plugin->txt('pass_last'),
-			ilTestArchiveCreatorSettings::PASS_ALL, $this->plugin->txt('pass_all'),
+			ilTestArchiveCreatorSettings::PASS_SCORED => $this->plugin->txt('pass_scored'),
+			ilTestArchiveCreatorSettings::PASS_BEST => $this->plugin->txt('pass_best'),
+			ilTestArchiveCreatorSettings::PASS_LAST => $this->plugin->txt('pass_last'),
+			ilTestArchiveCreatorSettings::PASS_ALL => $this->plugin->txt('pass_all'),
 		));
+		$pass_selection->setValue($settings->pass_selection);
 		$form->addItem($pass_selection);
 
 		$form->addCommandButton('saveSettings', $this->lng->txt('save'));
@@ -205,6 +221,7 @@ class ilTestArchiveCreatorSettingsGUI
         $this->tpl->setContent($form->getHTML());
         $this->tpl->show();
     }
+
 
     /**
      * Save the archive settings
@@ -241,10 +258,12 @@ class ilTestArchiveCreatorSettingsGUI
 
 
 	/**
-     * Call the archive cration
+     * Call the archive creation
      */
     protected function createArchive()
     {
+    	$creator = $this->plugin->getArchiveCreator($this->testObj->getId());
+    	$creator->createArchive();
 		$this->returnToExport();
     }
 
