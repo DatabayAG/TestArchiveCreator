@@ -1,0 +1,43 @@
+/**
+* fim: [pdf] new stylesheet for phantomjs rendered pdf
+*/
+
+/**
+ * Set correct size
+ */
+body {
+    zoom:0.70;
+    color: black;
+    background: white;
+}
+
+svg {
+    zoom: 1.1;
+}
+
+/**
+* Hide some styles or elements
+*/
+.noprint, .submit {
+    visibility: hidden;
+    display: none;
+}
+
+div.questionPrintview {
+    border: none;
+}
+
+/**
+ * Show student and best solution below each other
+ */
+.lcol, .rcol,
+.participant.solution,
+.rcol.solution {
+      width: 100%;
+      float: none;
+      overflow-x: visible;
+}
+.rcol {
+    margin-top: 1em;
+}
+

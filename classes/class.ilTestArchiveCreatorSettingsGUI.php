@@ -10,6 +10,7 @@ require_once('./Modules/Test/classes/class.ilObjTest.php');
  * @version $Id$
  *
  * @ilCtrl_IsCalledBy ilTestArchiveCreatorSettingsGUI: ilUIPluginRouterGUI
+ * @ilCtrl_Calls ilTestArchiveCreatorSettingsGUI: ilAssQuestionPageGUI, ilTestEvaluationGUI
  */
 class ilTestArchiveCreatorSettingsGUI
 {

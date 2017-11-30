@@ -1,36 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        html, body, th, td {
-            font-family: sans-serif;
-        }
-        td, th {
-            padding: 0.5em;
-        }
-        table, td, th {
-            border: 1px solid grey;
-            border-collapse: collapse;
-        }
-    </style>
-</head>
-<body>
 <h1>{TITLE}</h1>
-<table>
-    <tr>
+<table class="table">
+<thead>
+    <tr class="">
         <!-- BEGIN header_column -->
-        <th>{CONTENT}</th>
+        <th class="">{CONTENT}</th>
         <!-- END header_column -->
     </tr>
+</thead>
+<tbody>
     <!-- BEGIN data_row -->
-    <tr>
+    <tr class="table-striped">
         <!-- BEGIN data_column -->
-        <td>{CONTENT}</td>
+        <td class="">{CONTENT}&nbsp;</td>
         <!-- END data_column -->
     </tr>
     <!-- END data_row -->
+</tbody>
 </table>
-</body>
-</html>
 

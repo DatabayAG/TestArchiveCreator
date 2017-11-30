@@ -94,7 +94,7 @@ class ilTestArchiveCreatorList
 					$content = implode('<br />', $content);
 				}
 				$tpl->setCurrentBlock('data_column');
-				$tpl->setVariable('CONTENT', $content);
+				$tpl->setVariable('CONTENT', (string) $content);
 				$tpl->parseCurrentBlock();
 
 			}

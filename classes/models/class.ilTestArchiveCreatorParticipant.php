@@ -49,11 +49,14 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 	 */
 	function getColumns()
 	{
+		global $DIC;
+		$this->lng = $DIC->language();
+
 		return array(
-			'question_id' => $this->plugin->txt('question_id'),
-			'title' => $this->plugin->txt('question_title'),
-			'type' => $this->plugin->txt('question_type'),
-			'max_points' => $this->plugin->txt('max_points'),
+			'firstname' => $this->lng->txt('firstname'),
+			'lastname' => $this->lng->txt('lastname'),
+			'login' => $this->lng->txt('login'),
+			'matriculation' => $this->lng->txt('matriculation'),
 			'files' => $this->plugin->txt('files')
 		);
 	}
@@ -66,6 +69,10 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 	function getRowData()
 	{
 		return array(
+			'firstname' => $this->firstname,
+			'lastname' => $this->lastname,
+			'login' => $this->login,
+			'matriculation' => $this->matriculation,
 			'files' => $this->files,
 		);
 	}
