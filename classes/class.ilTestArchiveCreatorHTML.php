@@ -10,16 +10,28 @@ class ilTestArchiveCreatorHTML
 	/** @var ilTestArchiveCreatorSettings $settings */
 	public $settings;
 
+	/** @var  string base tag for the header */
+	public $base;
+
+	/** @var  ilObjectTest */
+	public $testObj;
+
 	/**
 	 * constructor.
 	 * @param $plugin
 	 * @param $settings
+	 * @param $base
 	 */
-	public function __construct($plugin, $settings) {
+	public function __construct($plugin, $settings, $base = '') {
 		$this->plugin = $plugin;
 		$this->settings = $settings;
+		$this->base = $base;
 	}
 
+	public function addTestInfo($testObj)
+	{
+		$this->testObj = $testObj;
+	}
 
 	public function build($content)
 	{
@@ -29,9 +41,18 @@ class ilTestArchiveCreatorHTML
 			.file_get_contents('Modules/Test/templates/default/ta.css')	. "\n"			// Test
 			. file_get_contents($this->plugin->getDirectory().'/css/test_phantomjs.css');	// PDF
 
-		$tpl->setVariable('BASE', ILIAS_HTTP_PATH);
+		if ($this->base)
+		{
+			$tpl->setVariable('BASE', $this->base);
+		}
 		$tpl->setVariable('CSS', $css);
 		$tpl->setVariable('CONTENT', $content);
+
+		// test info should be added
+		if (isset($this->testObj))
+		{
+
+		}
 
 		return $tpl->get();
 	}

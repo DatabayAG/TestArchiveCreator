@@ -13,8 +13,8 @@ abstract class ilTestArchiveCreatorElement
 
 	/**
 	 * list of files that are created for this element
-	 * The file names are given with relative paths from the root directory of the archive
-	 * @var array
+	 * The files are given with relative paths from the root directory of the archive
+	 * @var array file => display title
 	 */
 	public $files = [];
 

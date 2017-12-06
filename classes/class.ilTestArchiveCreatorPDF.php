@@ -33,23 +33,30 @@ class ilTestArchiveCreatorPDF
 	/**
 	 * @var string
 	 */
-	protected $jobsPath;
+	protected $workdir;
 
 	/**
 	 * @var string job number
 	 */
 	protected $jobsid = '';
 
+	/**
+	 * @var string time for the footer
+	 */
+	protected $time;
 
 	/**
 	 * constructor.
 	 * @param $plugin
 	 * @param $settings
 	 */
-	public function __construct($plugin, $settings, $jobsPath) {
+	public function __construct($plugin, $settings, $workdir) {
 		$this->plugin = $plugin;
 		$this->settings = $settings;
-		$this->jobsPath = $jobsPath;
+		$this->workdir = $workdir;
+
+		ilDatePresentation::setUseRelativeDates(false);
+		$this->time = ilDatePresentation::formatDate(new ilDateTime(time(), IL_CAL_UNIX));
 	}
 
 
@@ -59,17 +66,21 @@ class ilTestArchiveCreatorPDF
 	 *
 	 * @param string    $sourceFile
 	 * @param string	$targetFile
+	 * @param string	$title
 	 * @return array    job data
 	 */
-	public function addJob($sourceFile, $targetFile)
+	public function addJob($sourceFile, $targetFile, $title = '')
 	{
+
 		if (empty($this->jobsid)) {
 			$this->jobsid = date('Y-m-d_H-i-s_') . (string)rand(0, 9999);
 		}
 
 		$job = [
-			'sourceFile' => $sourceFile,        					// file must exist
-			'targetFile' => $targetFile,
+			'sourceFile' => $this->workdir.'/'.$sourceFile,      // file must exist
+			'targetFile' => $this->workdir.'/'.$targetFile,
+			'title' => $title,
+			'time' => $this->plugin->txt('label_generated') . ' '. $this->time,
 			'zoomFactor' => $this->phantomJsZoomFactor
 		];
 		$this->jobs[] = $job;
@@ -84,7 +95,7 @@ class ilTestArchiveCreatorPDF
 	{
 		$phantomJs = $this->phantomJsPath;
 		$scriptFile = $this->plugin->getDirectory() . '/js/doPhantomJobs.js';
-		$jobsFile = $this->jobsPath . '/' . $this->jobsid . '.json';
+		$jobsFile = $this->workdir . '/' . $this->jobsid . '.json';
 
 		file_put_contents($jobsFile, json_encode($this->jobs));
 		if (is_executable($phantomJs)) {
@@ -92,14 +103,12 @@ class ilTestArchiveCreatorPDF
 		}
 	}
 
-
+	/**
+	 * Remove the job files and clear the variables
+	 */
 	public function clearJobs()
 	{
-//		foreach ($this->jobs as $job) {
-//			@unlink($job['sourceFile']);
-//			@unlink($job['targetFile']);
-//		}
-		@unlink($this->jobsPath . '/' . $this->jobsid . '.json');
+		@unlink($this->workdir . '/' . $this->jobsid . '.json');
 
 		$this->jobs = [];
 		$this->jobsid = '';

@@ -14,6 +14,7 @@ class ilTestArchiveCreatorList
 	/** @var array ilTestArchiveCreatorElement[] */
 	protected $elements = array();
 
+	/** @var  string */
 	protected $title;
 
 	/**
@@ -28,7 +29,7 @@ class ilTestArchiveCreatorList
 	}
 
 	/**
-	 * St the title for HTML output
+	 * Set the title for HTML output
 	 * @param $title
 	 */
 	public function setTitle($title)
@@ -48,13 +49,58 @@ class ilTestArchiveCreatorList
 
 	/**
 	 * Get the index as comma separated content
+	 * @param ilObjTest $testObj
 	 * @return string
 	 */
-	public function getCSV()
+	public function getCSV($testObj)
 	{
 		ksort($this->elements, SORT_NATURAL);
 
-		return '';
+		$rows = array();
+
+		$columns = $this->prototype->getColumns();
+
+		$row = array();
+		foreach ($columns as $key => $label)
+		{
+			$row[] = $key;
+		}
+		array_push($rows, $row);
+
+		foreach ($this->elements as $element)
+		{
+			$row = array();
+			$data = $element->getRowData();
+			foreach ($columns as $key => $label)
+			{
+				$content = $data[$key];
+				if (is_array($content))
+				{
+					if ($key == 'files')
+					{
+						$content2 = array();
+						foreach ($content as $file => $name)
+						{
+							$content2[] = $file;
+						}
+						$content = $content2;
+					}
+					$content = implode(' ', $content);
+				}
+				$row[] = $content;
+			}
+			array_push($rows, $row);
+		}
+
+		$csv = "";
+		$separator = ";";
+		foreach ($rows as $evalrow)
+		{
+			$csvrow =& $testObj->processCSVRow($evalrow, TRUE, $separator);
+			$csv .= join($csvrow, $separator) . "\n";
+		}
+
+		return $csv;
 	}
 
 	/**
@@ -85,9 +131,9 @@ class ilTestArchiveCreatorList
 					if ($key == 'files')
 					{
 						$content2 = array();
-						foreach ($content as $file)
+						foreach ($content as $file => $name)
 						{
-							$content2[] = '<a href="file://'.$file.'">'.$file.'</a>';
+							$content2[] = '<a href="'.$file.'">'.$name.'</a>';
 						}
 						$content = $content2;
 					}

@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- BEGIN with_base -->
     <base href="{BASE}" />
+    <!-- END with_base -->
     <meta charset="UTF-8">
     <style>
         {CSS}
     </style>
 </head>
 <body>
+<!-- BEGIN test_info -->
+<table>
+    <tr>
+        <td>{LABEL_TEST_TITLE}</td><td>{TEST_TITLE}</td>
+        <td>{LABEL_TEST_ID}</td><td>{TEST_ID}</td>
+    </tr>
+</table>
+<!-- END test_info -->
 {CONTENT}
 </body>
 </html>

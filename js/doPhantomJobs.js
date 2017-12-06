@@ -28,6 +28,8 @@ function doJobs ()
 		phantom.exit();
 	}
 	var job = jobs[jobnum];
+	var title = job['title'];
+	var time = job['time'];
 	console.log('Job ' + jobnum + ': '+ job['sourceFile']);
 	jobnum++;
 
@@ -38,10 +40,17 @@ function doJobs ()
         format: 'A4',
         orientation: 'portrait',
         margin: '1cm',
+        header: {
+            height: "1cm",
+            contents: phantom.callback(function(pageNum, numPages) {
+                return '<span style="font-size: 8pt; font-family:sans-serif; ">' + title + '</span>';
+            })
+        },
         footer: {
             height: "1cm",
             contents: phantom.callback(function(pageNum, numPages) {
-                return '<span style="font-size: 8pt; font-family:sans-serif; float:right">' + pageNum + ' / ' + numPages + '</span>';
+                return '<span style="font-size: 8pt; font-family:sans-serif; float:left">' + time + '</span>' +
+				'<span style="font-size: 8pt; font-family:sans-serif; float:right">' + pageNum + ' / ' + numPages + '</span>';
             })
         }
     };

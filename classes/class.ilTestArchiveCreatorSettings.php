@@ -8,6 +8,7 @@ class ilTestArchiveCreatorSettings
 	const STATUS_INACTIVE = 'inactive';
 	const STATUS_PLANNED = 'planned';
 	const STATUS_FINISHED = 'finished';
+	const STATUS_RUNNING = 'running';
 
 	const PASS_ALL = 'all';
 	const PASS_LAST = 'last';

@@ -10,6 +10,7 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 	public $lastname;
 	public $login;
 	public $matriculation;
+	public $exam_id;
 
 	public $first_access;
 	public $last_access;
@@ -57,6 +58,7 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 			'lastname' => $this->lng->txt('lastname'),
 			'login' => $this->lng->txt('login'),
 			'matriculation' => $this->lng->txt('matriculation'),
+			'exam_id' => $this->plugin->txt('exam_id'),
 			'files' => $this->plugin->txt('files')
 		);
 	}
@@ -73,6 +75,7 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 			'lastname' => $this->lastname,
 			'login' => $this->login,
 			'matriculation' => $this->matriculation,
+			'exam_id' => $this->exam_id,
 			'files' => $this->files,
 		);
 	}
