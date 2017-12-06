@@ -78,29 +78,41 @@ class ilTestArchiveCreatorList
 				{
 					if ($key == 'files')
 					{
-						$content2 = array();
 						foreach ($content as $file => $name)
 						{
-							$content2[] = $file;
+							$row[] = $file;
 						}
-						$content = $content2;
 					}
-					$content = implode(' ', $content);
+					else
+					{
+						$content = implode(', ', $content);
+						$row[] = $content;
+					}
 				}
-				$row[] = $content;
+				else
+				{
+					$row[] = $content;
+				}
+
+
 			}
 			array_push($rows, $row);
 		}
 
-		$csv = "";
-		$separator = ";";
-		foreach ($rows as $evalrow)
+		include_once('Services/Utilities/classes/class.ilCSVWriter.php');
+		$writer = new ilCSVWriter();
+		$writer->setSeparator(';');
+
+		foreach ($rows as $row)
 		{
-			$csvrow =& $testObj->processCSVRow($evalrow, TRUE, $separator);
-			$csv .= join($csvrow, $separator) . "\n";
+			$writer->addRow();
+			foreach ($row as $column)
+			{
+				$writer->addColumn($column);
+			}
 		}
 
-		return $csv;
+		return $writer->getCSVString();
 	}
 
 	/**

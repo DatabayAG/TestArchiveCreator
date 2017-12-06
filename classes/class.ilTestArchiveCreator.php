@@ -150,6 +150,7 @@ class ilTestArchiveCreator
 			// add the list entry
 			$element = new ilTestArchiveCreatorQuestion($this);
 			$element->question_id = $question_id;
+			$element->exam_question_id = $this->buildExamQuestionId($question_id);
 			$element->title = $question->getTitle();
 			$element->type = $type_translations[$question->getQuestionType()];
 			$element->max_points = $question->getMaximumPoints();
@@ -164,8 +165,8 @@ class ilTestArchiveCreator
 			$tpl->setVariable('TITLE', $question->getTitle());
 			$tpl->setVariable('CONTENT', $question_gui->getPreview(FALSE));
 
-			$source_file = $question_dir.'/'.$element->getFilePrefix(). '_presentation.html';
-			$target_file = $question_dir.'/'.$element->getFilePrefix(). '_presentation.pdf';
+			$source_file = $question_dir.'/'.$element->question_id. '_presentation.html';
+			$target_file = $question_dir.'/'.$element->question_id. '_presentation.pdf';
 			$element->files[$target_file] = $this->plugin->txt('question_presentation');
 			$this->writeFile($source_file, $this->htmlCreator->build($tpl->get()));
 			$this->pdfCreator->addJob($source_file, $target_file, $title);
@@ -178,8 +179,8 @@ class ilTestArchiveCreator
 				0, null, true, true,
 				false, false, true, false));
 
-			$source_file = $question_dir.'/'.$element->getFilePrefix(). '_best_solution.html';
-			$target_file = $question_dir.'/'.$element->getFilePrefix(). '_best_solution.pdf';
+			$source_file = $question_dir.'/'.$element->question_id. '_best_solution.html';
+			$target_file = $question_dir.'/'.$element->question_id. '_best_solution.pdf';
 			$element->files[$target_file] = $this->plugin->txt('question_best_solution');
 			$this->writeFile($source_file, $this->htmlCreator->build($tpl->get()));
 			$this->pdfCreator->addJob($source_file, $target_file, $title);
@@ -215,25 +216,26 @@ class ilTestArchiveCreator
 				$user = new ilObjUser($userdata->getUserID());
 				$testResultHeaderLabelBuilder->setUserId($userdata->getUserID());
 
-				// add the list entry
-				$element = new ilTestArchiveCreatorParticipant($this);
-				$element->active_id = $active_id;
-				$element->firstname = $user->getFirstname();
-				$element->lastname = $user->getLastname();
-				$element->login = $user->getLogin();
-				$element->matriculation = $user->getMatriculation();
-				$element->exam_id = $this->buildExamId($active_id);
-
-				$participant_dir = 'participants/' . $element->getFilePrefix();
-				$this->makeDir($participant_dir);
 
 				$passes = $userdata->getPasses();
 				foreach ($passes as $pass => $passdata)
 				{
+					$exam_id = $this->buildExamId($active_id, $pass);
+					$title = $this->testObj->getTitle() . ' [' . $exam_id . ']';
+
+					// add the list entry
+					$element = new ilTestArchiveCreatorParticipant($this);
+					$element->active_id = $active_id;
+					$element->firstname = $user->getFirstname();
+					$element->lastname = $user->getLastname();
+					$element->login = $user->getLogin();
+					$element->matriculation = $user->getMatriculation();
+					$element->exam_id = $exam_id;
+
 					$this->participants->add($element);
 
-					$exam_id = $this->buildExamId($active_id,$pass);
-					$title = $this->testObj->getTitle() . ' [' . $exam_id . ']';
+					$participant_dir = 'participants/' . $element->getFilePrefix();
+					$this->makeDir($participant_dir);
 
 					if (is_object( $passdata ))
 					{
@@ -248,9 +250,9 @@ class ilTestArchiveCreator
 							false, true, false, null,
 							$testResultHeaderLabelBuilder));
 
-						$source_file = $participant_dir.'/'.$element->getFilePrefix(). '_answers_pass_'.$pass.'.html';
-						$target_file = $participant_dir.'/'.$element->getFilePrefix(). '_answers_pass_'.$pass.'.pdf';
-						$element->files[$target_file] = sprintf($this->plugin->txt('answers_pass'), $exam_id);
+						$source_file = $participant_dir.'/'.$element->exam_id. '_answers.html';
+						$target_file = $participant_dir.'/'.$element->exam_id. '_answers.pdf';
+						$element->files[$target_file] = $this->plugin->txt('answers');
 						$this->writeFile($source_file, $this->htmlCreator->build($tpl->get()));
 						$this->pdfCreator->addJob($source_file, $target_file, $title);
 					}
@@ -316,12 +318,25 @@ class ilTestArchiveCreator
 	}
 
 	/**
+	 * Build a full question id like the exam id
+	 * @param $question_id
+	 * @return string
+	 */
+	protected function buildExamQuestionId($question_id)
+	{
+		return $this->buildExamId(). '_Q' . $question_id;
+	}
+
+	/**
 	 * Create a sub directory of the working directory
 	 * @param string $directory
 	 */
 	protected function makeDir($directory)
 	{
-		ilUtil::makeDir($this->workdir .'/'. $directory);
+		if (!is_dir($this->workdir .'/'. $directory))
+		{
+			ilUtil::makeDir($this->workdir .'/'. $directory);
+		}
 	}
 
 	/**

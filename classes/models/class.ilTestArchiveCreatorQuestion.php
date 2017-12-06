@@ -6,6 +6,7 @@
 class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 {
 	public $question_id;
+	public $exam_question_id;
 	public $title;
 	public $type;
 	public $max_points;
@@ -37,7 +38,7 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 	function getColumns()
 	{
 		return array(
-			'question_id' => $this->plugin->txt('question_id'),
+			'exam_question_id' => $this->plugin->txt('question_id'),
 			'title' => $this->plugin->txt('question_title'),
 			'type' => $this->plugin->txt('question_type'),
 			'max_points' => $this->plugin->txt('max_points'),
@@ -53,7 +54,7 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 	function getRowData()
 	{
 		return array(
-			'question_id' => $this->question_id,
+			'exam_question_id' => $this->exam_question_id,
 			'title' => $this->title,
 			'type' => $this->type,
 			'max_points' => $this->max_points,

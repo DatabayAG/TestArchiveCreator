@@ -38,7 +38,7 @@ function doJobs ()
 	page.zoomFactor = job['zoomFactor'];
     page.paperSize = {
         format: 'A4',
-        orientation: 'portrait',
+        orientation: 'landscape',
         margin: '1cm',
         header: {
             height: "1cm",

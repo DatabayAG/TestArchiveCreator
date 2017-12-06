@@ -16,8 +16,8 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 	public $last_access;
 	public $working_time;
 
-	public $passes;
-	public $scored_pass;
+	public $pass;
+	public $scored;
 	public $finished;
 
 	public $reached_points;

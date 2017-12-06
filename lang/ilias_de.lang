@@ -33,6 +33,6 @@ files#:#Dateien
 participants#:#Teilnehmer
 question_presentation#:#Voransicht
 question_best_solution#:#Musterlösung
-answers_pass#:#Antworten [%s]
+answers#:#Antworten
 label_generated#:#Generiert:
 exam_id#:#Prüfungsnummer
