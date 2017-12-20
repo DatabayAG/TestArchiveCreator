@@ -11,6 +11,20 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 	public $type;
 	public $max_points;
 
+	public $presentation;
+	public $best_solution;
+
+
+	/**
+	 * Get a name of the folder where generated files are stored
+	 * @return mixed
+	 */
+	public function getFolderName()
+	{
+		return $this->creator->sanitizeFilename($this->title.'_'.$this->question_id);
+	}
+
+
 
 	/**
 	 * Get a unique prefix that can be used for file and directory names
@@ -18,7 +32,7 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 	 */
 	public function getFilePrefix()
 	{
-		return $this->creator->sanitizeFilename($this->title.'_'.$this->question_id);
+		return $this->creator->sanitizeFilename($this->exam_question_id);
 	}
 
 	/**
@@ -42,23 +56,37 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 			'title' => $this->plugin->txt('question_title'),
 			'type' => $this->plugin->txt('question_type'),
 			'max_points' => $this->plugin->txt('max_points'),
-			'files' => $this->plugin->txt('files')
+			'presentation' => $this->plugin->txt('question_presentation'),
+			'best_solution' => $this->plugin->txt('question_best_solution'),
+		);
+	}
+
+	/**
+	 * Get the labels of contents where the data is a link
+	 * @return array key => label
+	 */
+	function getLinkedLabels()
+	{
+		return array(
+			'presentation' => $this->plugin->txt('question_presentation'),
+			'best_solution' => $this->plugin->txt('question_best_solution'),
 		);
 	}
 
 	/**
 	 * Get the data row for this element
-	 * The file list should have the key 'files' and an array as content
+	 * @param string $format ('csv' or 'html')
 	 * @return array key => content
 	 */
-	function getRowData()
+	function getRowData($format = 'csv')
 	{
 		return array(
 			'exam_question_id' => $this->exam_question_id,
 			'title' => $this->title,
 			'type' => $this->type,
 			'max_points' => $this->max_points,
-			'files' => $this->files,
+			'presentation' => $this->presentation,
+			'best_solution' => $this->best_solution,
 		);
 	}
 }

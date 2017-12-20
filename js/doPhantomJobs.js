@@ -28,7 +28,9 @@ function doJobs ()
 		phantom.exit();
 	}
 	var job = jobs[jobnum];
-	var title = job['title'];
+	var headLeft = job['headLeft'];
+    var headRight = job['headRight'];
+    var footLeft = job['footLeft'];
 	var time = job['time'];
 	console.log('Job ' + jobnum + ': '+ job['sourceFile']);
 	jobnum++;
@@ -43,13 +45,16 @@ function doJobs ()
         header: {
             height: "1cm",
             contents: phantom.callback(function(pageNum, numPages) {
-                return '<span style="font-size: 8pt; font-family:sans-serif; ">' + title + '</span>';
+                if (pageNum > 1) {
+                    return '<span style="font-size: 8pt; font-family:sans-serif; float:left">' + headLeft + '</span>' +
+                    '<span style="font-size: 8pt; font-family:sans-serif; float:right">' + headRight + '</span>';
+                }
             })
         },
         footer: {
             height: "1cm",
             contents: phantom.callback(function(pageNum, numPages) {
-                return '<span style="font-size: 8pt; font-family:sans-serif; float:left">' + time + '</span>' +
+                return '<span style="font-size: 8pt; font-family:sans-serif; float:left">' + footLeft + '</span>' +
 				'<span style="font-size: 8pt; font-family:sans-serif; float:right">' + pageNum + ' / ' + numPages + '</span>';
             })
         }

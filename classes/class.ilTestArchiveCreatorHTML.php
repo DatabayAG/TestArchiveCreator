@@ -13,9 +13,6 @@ class ilTestArchiveCreatorHTML
 	/** @var  string base tag for the header */
 	public $base;
 
-	/** @var  ilObjectTest */
-	public $testObj;
-
 	/**
 	 * constructor.
 	 * @param $plugin
@@ -28,12 +25,7 @@ class ilTestArchiveCreatorHTML
 		$this->base = $base;
 	}
 
-	public function addTestInfo($testObj)
-	{
-		$this->testObj = $testObj;
-	}
-
-	public function build($content)
+	public function build($title = '', $description = '', $content = '')
 	{
 		$tpl = $this->plugin->getTemplate('tpl.html_file.html');
 
@@ -46,13 +38,18 @@ class ilTestArchiveCreatorHTML
 			$tpl->setVariable('BASE', $this->base);
 		}
 		$tpl->setVariable('CSS', $css);
-		$tpl->setVariable('CONTENT', $content);
 
-		// test info should be added
-		if (isset($this->testObj))
+		if (!empty($title))
 		{
-
+			$tpl->setVariable('TITLE', $title);
 		}
+
+		if (!empty($description))
+		{
+			$tpl->setVariable('DESCRIPTION', $description);
+		}
+
+		$tpl->setVariable('CONTENT', $content);
 
 		return $tpl->get();
 	}

@@ -66,10 +66,11 @@ class ilTestArchiveCreatorPDF
 	 *
 	 * @param string    $sourceFile
 	 * @param string	$targetFile
-	 * @param string	$title
+	 * @param string	$headLeft
+	 * @param string	$headRight
 	 * @return array    job data
 	 */
-	public function addJob($sourceFile, $targetFile, $title = '')
+	public function addJob($sourceFile, $targetFile, $headLeft = '', $headRight = '')
 	{
 
 		if (empty($this->jobsid)) {
@@ -79,8 +80,9 @@ class ilTestArchiveCreatorPDF
 		$job = [
 			'sourceFile' => $this->workdir.'/'.$sourceFile,      // file must exist
 			'targetFile' => $this->workdir.'/'.$targetFile,
-			'title' => $title,
-			'time' => $this->plugin->txt('label_generated') . ' '. $this->time,
+			'headLeft' => $headLeft,
+			'headRight' => $headRight,
+			'footLeft' => $this->plugin->txt('label_generated') . ' '. $this->time,
 			'zoomFactor' => $this->phantomJsZoomFactor
 		];
 		$this->jobs[] = $job;

@@ -199,8 +199,6 @@ class ilTestArchiveCreatorSettingsGUI
 		$pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
 		$pass_selection->setOptions(array(
 			ilTestArchiveCreatorSettings::PASS_SCORED => $this->plugin->txt('pass_scored'),
-			ilTestArchiveCreatorSettings::PASS_BEST => $this->plugin->txt('pass_best'),
-			ilTestArchiveCreatorSettings::PASS_LAST => $this->plugin->txt('pass_last'),
 			ilTestArchiveCreatorSettings::PASS_ALL => $this->plugin->txt('pass_all'),
 		));
 		$pass_selection->setValue($settings->pass_selection);

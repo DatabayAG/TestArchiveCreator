@@ -11,7 +11,7 @@ class ilTestArchiveCreatorList
 	/** @var  ilTestArchiveCreatorElement */
 	public $prototype;
 
-	/** @var array ilTestArchiveCreatorElement[] */
+	/** @var ilTestArchiveCreatorElement[] */
 	protected $elements = array();
 
 	/** @var  string */
@@ -65,38 +65,18 @@ class ilTestArchiveCreatorList
 		{
 			$row[] = $key;
 		}
-		array_push($rows, $row);
+		$rows[] = $row;
 
 		foreach ($this->elements as $element)
 		{
 			$row = array();
-			$data = $element->getRowData();
+			$data = $element->getRowData('csv');
 			foreach ($columns as $key => $label)
 			{
 				$content = $data[$key];
-				if (is_array($content))
-				{
-					if ($key == 'files')
-					{
-						foreach ($content as $file => $name)
-						{
-							$row[] = $file;
-						}
-					}
-					else
-					{
-						$content = implode(', ', $content);
-						$row[] = $content;
-					}
-				}
-				else
-				{
-					$row[] = $content;
-				}
-
-
+				$row[] = $content;
 			}
-			array_push($rows, $row);
+			$rows[] = $row;
 		}
 
 		include_once('Services/Utilities/classes/class.ilCSVWriter.php');
@@ -134,23 +114,19 @@ class ilTestArchiveCreatorList
 		}
 		foreach ($this->elements as $element)
 		{
-			$data = $element->getRowData();
+			$data = $element->getRowData('html');
+			$labels = $element->getLinkedLabels();
 			foreach ($columns as $key => $label)
 			{
-				$content = $data[$key];
-				if (is_array($content))
+				if (isset($labels[$key]))
 				{
-					if ($key == 'files')
-					{
-						$content2 = array();
-						foreach ($content as $file => $name)
-						{
-							$content2[] = '<a href="'.$file.'">'.$name.'</a>';
-						}
-						$content = $content2;
-					}
-					$content = implode('<br />', $content);
+					$content = '<a href="'.$data[$key].'">'.$labels[$key].'</a>';
 				}
+				else
+				{
+					$content = $data[$key];
+				}
+
 				$tpl->setCurrentBlock('data_column');
 				$tpl->setVariable('CONTENT', (string) $content);
 				$tpl->parseCurrentBlock();

@@ -29,6 +29,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	}
 
 
+
 	/**
 	 * Get the settings for a test object
 	 * @param int $obj_id test object id
@@ -123,10 +124,55 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
      */
 	public function checkCronPluginActive()
     {
-        /** @var ilPluginAdmin $ilPluginAdmin */
-        global $ilPluginAdmin;
+    	global $DIC;
+		/** @var ilPluginAdmin $ilPluginAdmin */
+    	$ilPluginAdmin = $DIC['ilPluginAdmin'];
 
         return $ilPluginAdmin->isActive('Services', 'Cron', 'crnhk', 'ilTestArchiveCron');
     }
+
+
+	/**
+	 * Build the exam id and allow ids without active_id and pass
+	 * @param ilObjTest $testObj
+	 * @param null $active_id
+	 * @param null $pass
+	 * @return string
+	 */
+	public function buildExamId($testObj, $active_id = null, $pass = null)
+	{
+		global $DIC;
+		/** @var ilSetting $ilPluginAdmin */
+		$ilSetting = $DIC['ilSetting'];
+
+
+		$inst_id = $ilSetting->get( 'inst_id', null );
+		$obj_id = $testObj->getId();
+
+		$examId = 'I' . $inst_id . '_T' . $obj_id;
+
+		if (isset($active_id))
+		{
+			$examId .=  '_A' . $active_id;
+		}
+
+		if (isset($pass))
+		{
+			$examId .= '_P' . $pass;
+		}
+
+		return $examId;
+	}
+
+	/**
+	 * Build a full question id like the exam id
+	 * @param ilObjTest $testObj
+	 * @param $question_id
+	 * @return string
+	 */
+	public function buildExamQuestionId($testObj, $question_id)
+	{
+		return $this->buildExamId($testObj). '_Q' . $question_id;
+	}
 
 }

@@ -5,18 +5,14 @@
  */
 abstract class ilTestArchiveCreatorElement
 {
+	/** @var ilLanguage $lng */
+	protected $lng;
+
 	/** @var ilTestArchiveCreator $creator */
 	protected $creator;
 
 	/** @var  ilTestArchiveCreatorPlugin $plugin */
 	protected $plugin;
-
-	/**
-	 * list of files that are created for this element
-	 * The files are given with relative paths from the root directory of the archive
-	 * @var array file => display title
-	 */
-	public $files = [];
 
 
 	/**
@@ -25,12 +21,21 @@ abstract class ilTestArchiveCreatorElement
 	 */
 	final public function __construct($creator)
 	{
+		global $DIC;
+		$this->lng = $DIC->language();
+
 		$this->creator = $creator;
 		$this->plugin = $this->creator->plugin;
 	}
 
 	/**
-	 * Get a unique prefix that can be used for file and directory names
+	 * Get a name of the folder where generated files are stored
+	 * @return mixed
+	 */
+	abstract public function getFolderName();
+
+	/**
+	 * Get a unique prefix that can be used for generated files
 	 * @return mixed
 	 */
 	abstract public function getFilePrefix();
@@ -49,10 +54,17 @@ abstract class ilTestArchiveCreatorElement
 	 */
 	abstract function getColumns();
 
+
+	/**
+	 * Get the labels of contents where the data is a link
+	 * @return array key => label
+	 */
+	abstract function getLinkedLabels();
+
 	/**
 	 * Get the data row for this element
-	 * The file list should have the key 'files' and an array as content
+	 * @param string $format	('csv' or 'html')
 	 * @return array key => content
 	 */
-	abstract function getRowData();
+	abstract function getRowData($format = 'csv');
 }

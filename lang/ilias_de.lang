@@ -36,3 +36,21 @@ question_best_solution#:#Musterlösung
 answers#:#Antworten
 label_generated#:#Generiert:
 exam_id#:#Prüfungsnummer
+test#:#Test
+first_visit#:#Erster Test-Zugriff:
+last_visit#:#Letzter Test-Zugriff:
+number_passes#:#Anzahl Testläufe:
+scored_pass#:#Bewerteter Testlauf:
+reached_points#:#Erreichte Punktzahl:
+mark_official#:#Note (offiziell):
+mark_short#:#Note (kurz):
+final_result#:#Endergebnis:
+passed#:#bestanden
+not_passed#:#nicht bestanden
+points#:#Punkte
+is_scored#:#Bewertet
+pass_number#:#Durchlauf
+working_time#:#Bearbeitungsdauer
+finish_date#:#Abgabedatum
+answered#:#Beantwortet
+manual#:#Manuelle Bewertung

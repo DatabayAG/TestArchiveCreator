@@ -1,1 +1,49 @@
-{CONTENT}
+<h2>{USERNAME}</h2>
+
+<table class="table">
+    <tbody>
+    <!-- BEGIN data_row -->
+    <tr class="table-striped">
+        <td class="">{LABEL}&nbsp;</td>
+        <td class="">{CONTENT}&nbsp;</td>
+    </tr>
+    <!-- END data_row -->
+    </tbody>
+</table>
+
+<h2>{PASS_OVERVIEW_HEADLINE}</h2>
+
+{TXT_PASS_FINISH_DATE}: {PASS_FINISH_DATE}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>{TXT_SEQUENCE}</th>
+            <th>{TXT_QUESTION_ID}</th>
+            <th>{TXT_QUESTION_TITLE}</th>
+            <th>{TXT_ANSWERED}</th>
+            <th>{TXT_MAX_POINTS}</th>
+            <th>{TXT_REACHED_POINTS}</th>
+            <th>{TXT_REACHED_PERCENT}</th>
+            <th>{TXT_MANUAL}</th>
+        </tr>
+    </thead>
+    <tbody>
+    <!-- BEGIN question_row -->
+    <tr class="table-striped">
+        <td>{SEQUENCE}</td>
+        <td>{QUESTION_ID}</td>
+        <td>{QUESTION_TITLE}</td>
+        <td>{ANSWERED}</td>
+        <td>{MAX_POINTS}</td>
+        <td>{REACHED_POINTS}</td>
+        <td>{REACHED_PERCENT}</td>
+        <td>{MANUAL}</td>
+    </tr>
+    <!-- END question_row -->
+    </tbody>
+
+<div class="pageBreakBefore">
+    {ANSWERS}
+</div>
+

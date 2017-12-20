@@ -11,8 +11,6 @@ class ilTestArchiveCreatorSettings
 	const STATUS_RUNNING = 'running';
 
 	const PASS_ALL = 'all';
-	const PASS_LAST = 'last';
-	const PASS_BEST = 'best';
 	const PASS_SCORED = 'scored';
 
 	/** @var string archive status */
