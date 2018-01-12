@@ -30,6 +30,7 @@ question_title#:#Titel
 question_type#:#Typ
 max_points#:#Maximale Punktzahl
 files#:#Dateien
+participant#:#Teilnehmer
 participants#:#Teilnehmer
 question_presentation#:#Voransicht
 question_best_solution#:#Musterlösung
@@ -54,3 +55,5 @@ working_time#:#Bearbeitungsdauer
 finish_date#:#Abgabedatum
 answered#:#Beantwortet
 manual#:#Manuelle Bewertung
+pass_overview#:#Übersicht zu Testlauf %s
+test_settings#:#Test-Einstellungen

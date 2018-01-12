@@ -3,15 +3,25 @@
 
 class ilTestArchiveCreatorHTML
 {
-
 	/** @var ilTestArchiveCreatorPlugin $plugin */
 	public $plugin;
 
 	/** @var ilTestArchiveCreatorSettings $settings */
 	public $settings;
 
+	/** @var ilObjTest */
+	public $testObj;
+
 	/** @var  string base tag for the header */
 	public $base;
+
+
+	/** @var  ilTemplate $tpl */
+	protected $tpl;
+
+	/** @var string $tpl_type */
+	public $tpl_type = 'index';
+
 
 	/**
 	 * constructor.
@@ -19,39 +29,80 @@ class ilTestArchiveCreatorHTML
 	 * @param $settings
 	 * @param $base
 	 */
-	public function __construct($plugin, $settings, $base = '') {
+	public function __construct($plugin, $settings, $testObj) {
 		$this->plugin = $plugin;
 		$this->settings = $settings;
-		$this->base = $base;
+		$this->testObj = $testObj;
+		$this->initMainTemplate();
 	}
 
+
+	/**
+	 * Init the main ilias template
+	 * This should be done always before a question or participant file is rendered
+	 */
+	public function initMainTemplate()
+	{
+		// we need to rewrite the main template
+		$this->tpl =  new ilTemplate("tpl.main.html", true, true);
+		$GLOBALS['tpl'] = $this->tpl;
+		$this->tpl_type = 'main';
+
+		$this->tpl->setVariable('BASE', ILIAS_HTTP_PATH . '/index.html');
+		$this->tpl->setVariable("LOCATION_STYLESHEET",ilUtil::getStyleSheetLocation());
+		$this->tpl->addCss($this->testObj->getTestStyleLocation("output"), "screen");
+
+		$css = $this->plugin->getDirectory().'/css/test_pdf.css';
+		$this->tpl->setCurrentBlock('HeadContent');
+		$this->tpl->setVariable('CONTENT_BLOCK', '<link rel="stylesheet" type="text/css" href="'.$css.'" />');
+		$this->tpl->parseCurrentBlock();
+
+		require_once('Services/MathJax/classes/class.ilMathJax.php');
+		ilMathJax::getInstance()->init(ilMathJax::PURPOSE_BROWSER);
+	}
+
+	/**
+	 * Init the template for index files
+	 */
+	public function initIndexTemplate() {
+
+		$this->tpl = $this->plugin->getTemplate('tpl.index.html');
+		$this->tpl_type = 'index';
+	}
+
+
+	/**
+	 * Build am HTML file
+	 * @param string $title
+	 * @param string $description
+	 * @param string $content
+	 * @return string
+	 */
 	public function build($title = '', $description = '', $content = '')
 	{
-		$tpl = $this->plugin->getTemplate('tpl.html_file.html');
-
-		$css = file_get_contents(ilUtil::getStyleSheetLocation('filesystem'))	. "\n"			// Delos
-			.file_get_contents('Modules/Test/templates/default/ta.css')	. "\n"			// Test
-			. file_get_contents($this->plugin->getDirectory().'/css/test_phantomjs.css');	// PDF
-
-		if ($this->base)
+		if ($this->tpl_type == 'main')
 		{
-			$tpl->setVariable('BASE', $this->base);
-		}
-		$tpl->setVariable('CSS', $css);
+			$this->tpl->fillCssFiles();
+			$this->tpl->fillInlineCss();
+			$this->tpl->fillContentStyle();
+			$this->tpl->fillBodyClass();
 
+			$this->tpl->fillJavaScriptFiles();
+			$this->tpl->fillOnLoadCode();
+		}
+
+		$html = '';
 		if (!empty($title))
 		{
-			$tpl->setVariable('TITLE', $title);
+			$html = "<h1>". $title ."</h1>\n";
 		}
-
 		if (!empty($description))
 		{
-			$tpl->setVariable('DESCRIPTION', $description);
+			$html .= "<p>". $description ."</p>\n";
 		}
+		$html .= $content;
 
-		$tpl->setVariable('CONTENT', $content);
-
-		return $tpl->get();
+		$this->tpl->setVariable('CONTENT', $html);
+		return $this->tpl->get();
 	}
-
 }

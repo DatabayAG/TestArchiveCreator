@@ -1,4 +1,4 @@
-<h2>{USERNAME}</h2>
+<h2>{TXT_PARTICIPANT}</h2>
 
 <table class="table">
     <tbody>
@@ -11,12 +11,13 @@
     </tbody>
 </table>
 
-<h2>{PASS_OVERVIEW_HEADLINE}</h2>
+<div class="pageBreakBefore">
 
-{TXT_PASS_FINISH_DATE}: {PASS_FINISH_DATE}
+    <h2>{TXT_PASS_OVERVIEW}</h2>
+    <p>{TXT_PASS_FINISH_DATE}: {PASS_FINISH_DATE}</p>
 
-<table class="table">
-    <thead>
+    <table class="table">
+        <thead>
         <tr>
             <th>{TXT_SEQUENCE}</th>
             <th>{TXT_QUESTION_ID}</th>
@@ -27,21 +28,24 @@
             <th>{TXT_REACHED_PERCENT}</th>
             <th>{TXT_MANUAL}</th>
         </tr>
-    </thead>
-    <tbody>
-    <!-- BEGIN question_row -->
-    <tr class="table-striped">
-        <td>{SEQUENCE}</td>
-        <td>{QUESTION_ID}</td>
-        <td>{QUESTION_TITLE}</td>
-        <td>{ANSWERED}</td>
-        <td>{MAX_POINTS}</td>
-        <td>{REACHED_POINTS}</td>
-        <td>{REACHED_PERCENT}</td>
-        <td>{MANUAL}</td>
-    </tr>
-    <!-- END question_row -->
-    </tbody>
+        </thead>
+        <tbody>
+        <!-- BEGIN question_row -->
+        <tr class="table-striped">
+            <td>{SEQUENCE}</td>
+            <td>{QUESTION_ID}</td>
+            <td>{QUESTION_TITLE}</td>
+            <td>{ANSWERED}</td>
+            <td>{MAX_POINTS}</td>
+            <td>{REACHED_POINTS}</td>
+            <td>{REACHED_PERCENT}</td>
+            <td>{MANUAL}</td>
+        </tr>
+        <!-- END question_row -->
+        </tbody>
+    </table>
+</div>
+
 
 <div class="pageBreakBefore">
     {ANSWERS}

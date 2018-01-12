@@ -70,7 +70,7 @@ class ilTestArchiveCreator
 
 		$this->handleQuestions();
 		$this->handleParticipants();
-		$this->handleProperties();
+		$this->handleSettings();
 
 		$this->writeIndexFiles();
 		$this->finishCreation();
@@ -95,8 +95,9 @@ class ilTestArchiveCreator
 		$this->plugin->includeClass('models/class.ilTestArchiveCreatorList.php');
 		$this->plugin->includeClass('models/class.ilTestArchiveCreatorQuestion.php');
 		$this->plugin->includeClass('models/class.ilTestArchiveCreatorParticipant.php');
+		$this->plugin->includeClass('models/class.ilTestArchiveCreatorMark.php');
 
-		$this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings, ILIAS_HTTP_PATH);
+		$this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings, $this->testObj);
 		$this->pdfCreator = new ilTestArchiveCreatorPDF($this->plugin, $this->settings, $this->workdir);
 
 		$this->questions = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorQuestion($this));
@@ -127,9 +128,61 @@ class ilTestArchiveCreator
 	/**
 	 * Add the test properties to the archiv
 	 */
-	protected function handleProperties()
+	protected function handleSettings()
 	{
+		// get the basic properties
+		$info = array();
+		$info[$this->lng->txt('title')] = $this->testObj->getTitle();
+		$info[$this->lng->txt("tst_introduction")] = $this->testObj->getIntroduction();
+		$info[$this->lng->txt("tst_question_set_type")] = $this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_FIXED ?
+			$this->lng->txt("tst_question_set_type_fixed") : $this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM ?
+				$this->lng->txt("tst_question_set_type_random") : $this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_DYNAMIC ?
+					$this->lng->txt("tst_question_set_type_dynamic") : '';
+		$info[$this->lng->txt("tst_nr_of_tries")] = $this->testObj->getNrOfTries() > 0 ?
+			$this->testObj->getNrOfTries() : $this->lng->txt('unlimited');
+		$info[$this->lng->txt("tst_processing_time_duration")] = $this->testObj->getEnableProcessingTime() ?
+			$this->testObj->getProcessingTimeAsMinutes(). ' ' . $this->lng->txt('minutes') : $this->lng->txt('unlimited');
+		$info[$this->lng->txt("tst_shuffle_questions")] = $this->testObj->getShuffleQuestions() ?
+			$this->lng->txt("tst_shuffle_questions_description") : $this->lng->txt('no');
+		$info[$this->lng->txt("tst_text_count_system")] = $this->lng->txt(($this->testObj->getCountSystem() == COUNT_PARTIAL_SOLUTIONS)? "tst_count_partial_solutions":"tst_count_correct_solutions");
+		$info[$this->lng->txt("tst_score_mcmr_questions")]= $this->lng->txt(($this->testObj->getMCScoring() == SCORE_ZERO_POINTS_WHEN_UNANSWERED)? "tst_score_mcmr_zero_points_when_unanswered":"tst_score_mcmr_use_scoring_system");
+		$info[$this->lng->txt("tst_pass_scoring")] = $this->lng->txt(($this->testObj->getPassScoring() == SCORE_BEST_PASS)? "tst_pass_best_pass":"tst_pass_last_pass");
 
+		// get the mark scheme
+		$scheme = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorMark($this));
+		$scheme->setTitle($this->lng->txt('mark_schema'));
+		$this->testObj->getMarkSchema()->sort();
+		$marks = $this->testObj->getMarkSchema()->getMarkSteps();
+		foreach($marks as $key => $value)
+		{
+			$mark = new ilTestArchiveCreatorMark($this);
+			$mark->short_form = $value->getShortName();
+			$mark->official_form = $value->getOfficialName();
+			$mark->minimum_level = $value->getMinimumLevel();
+			$mark->passed = $value->getPassed() ? $this->lng->txt('yes') : $this->lng->txt('no');
+			$scheme->add($mark);
+		}
+
+		// fill the template
+		$tpl = $this->plugin->getTemplate('tpl.settings.html');
+		foreach ($info as $label => $content)
+		{
+			$tpl->setCurrentBlock('data_row');
+			$tpl->setVariable('LABEL', $label);
+			$tpl->setVariable('CONTENT', $content);
+			$tpl->parseCurrentBlock();
+		}
+		$tpl->setVariable('TXT_SETTINGS', $this->plugin->txt('test_settings'));
+		$tpl->setVariable('MARK_SCHEME', $scheme->getHTML());
+
+		// create the file
+		$source_file = 'settings.html';
+		$target_file = 'settings.pdf';
+		$head_left = $this->testObj->getTitle() . ' [' . $this->plugin->buildExamId($this->testObj) . ']';
+		$this->htmlCreator->initIndexTemplate();
+		$this->writeFile($source_file, $this->htmlCreator->build(
+			$head_left, $this->testObj->getDescription(), $tpl->get()));
+		$this->pdfCreator->addJob($source_file, $target_file, $head_left);
 	}
 
 	/**
@@ -147,7 +200,7 @@ class ilTestArchiveCreator
 
 		foreach ($this->testObj->getQuestions() as $question_id)
 		{
-			/** @var AssQuestionGUI $question_gui */
+			$this->htmlCreator->initMainTemplate();
 			$question_gui = $this->testObj->createQuestionGUI("", $question_id);
 
 			/** @var assQuestion $question */
@@ -179,6 +232,10 @@ class ilTestArchiveCreator
 			$this->writeFile($source_file, $this->htmlCreator->build(
 				$head_left, $this->testObj->getDescription(), $tpl->get()));
 			$this->pdfCreator->addJob($source_file, $target_file, $head_left, $head_right);
+
+			// re-initialize the template and gui for a new generation
+			$this->htmlCreator->initMainTemplate();
+			$question_gui = $this->testObj->createQuestionGUI("", $question_id);
 
 			// create best solution files
 			$tpl = $this->plugin->getTemplate('tpl.question.html');
@@ -242,6 +299,8 @@ class ilTestArchiveCreator
 				{
 					if ($passdata instanceof ilTestEvaluationPassData)
 					{
+						$this->htmlCreator->initMainTemplate();
+
 						$pass = $passdata->getPass();
 						$exam_id = $this->plugin->buildExamId($this->testObj, $active_id, $pass);
 						$head_left = $this->testObj->getTitle() . ' [' . $exam_id . ']';
@@ -269,6 +328,8 @@ class ilTestArchiveCreator
 
 						// test data of the user
 						$info = array();
+						$info[$this->lng->txt('firstname')] =  $user->getFirstname();
+						$info[$this->lng->txt('lastname')] =  $user->getLastname();
 						$info[$this->lng->txt('login')] =  $user->getLogin();
 						$info[$this->lng->txt('matriculation')] = $user->getMatriculation();
 						$info[$this->lng->txt('email')] =  $user->getEmail();
@@ -323,8 +384,12 @@ class ilTestArchiveCreator
 						$tpl->setVariable('TXT_MANUAL', $this->plugin->txt('manual'));
 
 
+						$tpl->setVariable('TXT_PARTICIPANT', $this->plugin->txt('participant'));
+						$tpl->setVariable('TXT_PASS_OVERVIEW', sprintf($this->plugin->txt('pass_overview'), $passdata->getPass() + 1));
+						$tpl->setVariable('TXT_PASS_FINISH_DATE', $this->plugin->txt('finish_date'));
+						$tpl->setVariable('PASS_FINISH_DATE', ilDatePresentation::formatDate(new ilDateTime($element->pass_finish_date, IL_CAL_UNIX)));
+
 						// detailed answers
-						$tpl->setVariable('USERNAME', $user->getFullname());
 						$tpl->setVariable('ANSWERS', $test_evaluation_gui->getPassListOfAnswers(
 							$result_array,
 							$active_id, $pass,
@@ -354,30 +419,34 @@ class ilTestArchiveCreator
 	 */
 	protected function writeIndexFiles()
 	{
-		// use html creator without base tag
-		$htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings, '');
+
+
+		// use html creator without base tag, to allow linking of files
+
+
 
 		// Title for header in PDFs
-		$head_left = $this->testObj->getTitle() . ' [' . $this->plugin->buildExamId($this->testObj) . ']';
+		$title = $this->testObj->getTitle() . ' [' . $this->plugin->buildExamId($this->testObj) . ']';
 
 		// questions
 		$index_file = 'questions.csv';
 		$source_file = 'questions.html';
 		$target_file = 'questions.pdf';
 		$this->writeFile($index_file, $this->questions->getCSV($this->testObj));
-
-		$this->writeFile($source_file, $htmlCreator->build(
-			$head_left, $this->testObj->getDescription(), $this->questions->getHTML()));
-		$this->pdfCreator->addJob($source_file, $target_file, $head_left);
+		$this->htmlCreator->initIndexTemplate();
+		$this->writeFile($source_file, $this->htmlCreator->build(
+			$title, $this->testObj->getDescription(), $this->questions->getHTML()));
+		$this->pdfCreator->addJob($source_file, $target_file, $title);
 
 		// participants
 		$index_file = 'participants.csv';
 		$source_file = 'participants.html';
 		$target_file = 'participants.pdf';
 		$this->writeFile($index_file, $this->participants->getCSV($this->testObj));
-		$this->writeFile($source_file, $htmlCreator->build(
-			$head_left, $this->testObj->getDescription(), $this->participants->getHTML()));
-		$this->pdfCreator->addJob($source_file, $target_file, $head_left);
+		$this->htmlCreator->initIndexTemplate();
+		$this->writeFile($source_file, $this->htmlCreator->build(
+			$title, $this->testObj->getDescription(), $this->participants->getHTML()));
+		$this->pdfCreator->addJob($source_file, $target_file, $title);
 	}
 
 	/**
