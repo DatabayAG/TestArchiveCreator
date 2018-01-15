@@ -2,15 +2,31 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <base href="index.html" />
     <style>
-        body, p, th, td {
-            font-family: sans-serif;
+        body, p, th, td, h1, h2 {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-weight: normal;
+            color: #333;
+            background: white;
         }
 
-        body {
-            zoom:0.7;
-            color: black;
-            background: white;
+        body, p, th, td {
+            font-size: 10pt;
+        }
+
+        h1 {
+            font-size: 14pt;
+        }
+
+        h2 {
+            font-size: 12pt;
+        }
+
+        table, td, tr, th {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            padding: 3px;
         }
 
         @media print {

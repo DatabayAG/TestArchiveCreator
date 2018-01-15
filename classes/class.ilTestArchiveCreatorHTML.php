@@ -58,14 +58,15 @@ class ilTestArchiveCreatorHTML
 		$this->tpl->parseCurrentBlock();
 
 		require_once('Services/MathJax/classes/class.ilMathJax.php');
-		ilMathJax::getInstance()->init(ilMathJax::PURPOSE_BROWSER);
+		ilMathJax::getInstance()->init(ilMathJax::PURPOSE_PDF)
+			->setRendering(ilMathJax::RENDER_SVG_AS_XML_EMBED);
 	}
 
 	/**
 	 * Init the template for index files
 	 */
-	public function initIndexTemplate() {
-
+	public function initIndexTemplate()
+	{
 		$this->tpl = $this->plugin->getTemplate('tpl.index.html');
 		$this->tpl_type = 'index';
 	}

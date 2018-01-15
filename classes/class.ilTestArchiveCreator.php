@@ -182,7 +182,7 @@ class ilTestArchiveCreator
 		$this->htmlCreator->initIndexTemplate();
 		$this->writeFile($source_file, $this->htmlCreator->build(
 			$head_left, $this->testObj->getDescription(), $tpl->get()));
-		$this->pdfCreator->addJob($source_file, $target_file, $head_left);
+		//$this->pdfCreator->addJob($source_file, $target_file, $head_left);
 	}
 
 	/**
@@ -420,12 +420,7 @@ class ilTestArchiveCreator
 	protected function writeIndexFiles()
 	{
 
-
-		// use html creator without base tag, to allow linking of files
-
-
-
-		// Title for header in PDFs
+		// Title for header in files
 		$title = $this->testObj->getTitle() . ' [' . $this->plugin->buildExamId($this->testObj) . ']';
 
 		// questions
@@ -436,7 +431,7 @@ class ilTestArchiveCreator
 		$this->htmlCreator->initIndexTemplate();
 		$this->writeFile($source_file, $this->htmlCreator->build(
 			$title, $this->testObj->getDescription(), $this->questions->getHTML()));
-		$this->pdfCreator->addJob($source_file, $target_file, $title);
+		//$this->pdfCreator->addJob($source_file, $target_file, $title);
 
 		// participants
 		$index_file = 'participants.csv';
@@ -446,7 +441,7 @@ class ilTestArchiveCreator
 		$this->htmlCreator->initIndexTemplate();
 		$this->writeFile($source_file, $this->htmlCreator->build(
 			$title, $this->testObj->getDescription(), $this->participants->getHTML()));
-		$this->pdfCreator->addJob($source_file, $target_file, $title);
+		//$this->pdfCreator->addJob($source_file, $target_file, $title);
 	}
 
 	/**
