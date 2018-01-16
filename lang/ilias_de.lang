@@ -57,3 +57,18 @@ answered#:#Beantwortet
 manual#:#Manuelle Bewertung
 pass_overview#:#Übersicht zu Testlauf %s
 test_settings#:#Test-Einstellungen
+orientation#:#Ausrichtung
+orientation_portrait#:#Hochformat
+orientation_landscape#:#Querformat
+zoom_factor#:#Vergrößerung (%)
+plugin_configuration#:#Plugin-Konfiguration
+phantomjs_path#:#Pfad zu PhantomJS
+phantomjs_path_info#:#Server-Pfad zu einer ausführbaren Datei von PhantomJS. Siehe http://phantomjs.org
+hide_standard_archive#:#Standard-Archiv ausblenden
+hide_standard_archive_info#:#Blendet auf dem Export-Reiter die Export-Option für das Standard-Testarchiv von ILIAS aus.
+privacy_settings#:#Datenschutz-Einstellungen
+with_login#:#Benutzernamen
+with_login_info#:#Trägt die ILIAS-Benutzernamen in den Ausgabedateien des Archivs ein.
+with_matriculation#:#Matrikelnummern
+with_matriculation_info#:#Trägt die Matrikelnummern in den Ausgabedateien des Archivs ein.
+object_defaults#:#Standard-Einstellungen für Tests

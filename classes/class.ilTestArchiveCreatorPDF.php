@@ -3,25 +3,14 @@
 
 class ilTestArchiveCreatorPDF
 {
-	/** @var ilTestArchiveCreatorPlugin $plugin */
+	/** @var ilTestArchiveCreatorPlugin */
 	public $plugin;
 
-	/** @var ilTestArchiveCreatorSettings $settings */
+	/** @var ilTestArchiveCreatorSettings */
 	public $settings;
 
-
-	/**
-	 * @var string Path to PhantomJS
-	 */
-//	public $phantomJsPath = '/opt/phantomjs/phantomjs-1.9.8';
-	public $phantomJsPath = '/opt/phantomjs/phantomjs-2.1.1';
-
-	/**
-	 * @var string Path to PhantomJS
-	 */
-	public $phantomJsZoomFactor = 1;
-
-
+	/** @var ilTestArchiveCreatorConfig */
+	public $config;
 
 	/**
 	 * @var array [ ['sourceUrl' => string,
@@ -52,8 +41,10 @@ class ilTestArchiveCreatorPDF
 	 */
 	public function __construct($plugin, $settings, $workdir) {
 		$this->plugin = $plugin;
+		$this->config = $this->plugin->getConfig();
 		$this->settings = $settings;
 		$this->workdir = $workdir;
+
 
 		ilDatePresentation::setUseRelativeDates(false);
 		$this->time = ilDatePresentation::formatDate(new ilDateTime(time(), IL_CAL_UNIX));
@@ -83,7 +74,7 @@ class ilTestArchiveCreatorPDF
 			'headLeft' => $headLeft,
 			'headRight' => $headRight,
 			'footLeft' => $this->plugin->txt('label_generated') . ' '. $this->time,
-			'zoomFactor' => $this->phantomJsZoomFactor
+			'orientation' => $this->settings->orientation,
 		];
 		$this->jobs[] = $job;
 		return $job;
@@ -95,7 +86,7 @@ class ilTestArchiveCreatorPDF
 	 */
 	public function generateJobs()
 	{
-		$phantomJs = $this->phantomJsPath;
+		$phantomJs = $this->config->phantomjs_path;
 		$scriptFile = $this->plugin->getDirectory() . '/js/doPhantomJobs.js';
 		$jobsFile = $this->workdir . '/' . $this->jobsid . '.json';
 

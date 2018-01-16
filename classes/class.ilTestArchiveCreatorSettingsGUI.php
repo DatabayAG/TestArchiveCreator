@@ -35,6 +35,12 @@ class ilTestArchiveCreatorSettingsGUI
 	/** @var ilTestArchiveCreatorPlugin $plugin */
 	protected $plugin;
 
+	/** @var  ilTestArchiveCreatorConfig $config */
+	protected $config;
+
+	/** @var  ilTestArchiveCreatorSettings  $settings*/
+	protected $settings;
+
 	/** @var ilObjTest $testObj */
 	protected $testObj;
 
@@ -54,8 +60,11 @@ class ilTestArchiveCreatorSettingsGUI
 
 		$this->lng->loadLanguageModule('assessment');
 
-		$this->plugin = ilPlugin::getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'TestArchiveCreator');
 		$this->testObj = new ilObjTest($_GET['ref_id'], true);
+
+		$this->plugin = ilPlugin::getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'TestArchiveCreator');
+		$this->config = $this->plugin->getConfig();
+		$this->settings = $this->plugin->getSettings($this->testObj->getId());
     }
 
 
@@ -72,14 +81,29 @@ class ilTestArchiveCreatorSettingsGUI
 		}
 		$this->toolbar->addSeparator();
 
+
+		// hide the standard archive (not nice)
+		if ($this->config->hide_standard_archive) {
+			foreach ($this->toolbar->getItems() as $item) {
+				/** @var ilSelectInputGUI $select */
+				if ($item['input'] instanceof ilSelectInputGUI) {
+					$select = $item['input'];
+					if ($select->getPostVar() == 'format') {
+						$options = $select->getOptions();
+						unset($options['arc']);
+						$select->setOptions($options);
+					}
+				}
+			}
+		}
+
 		// set the return target
 		$this->ctrl->saveParameter($this, 'ref_id');
 
 		$text = $this->plugin->txt('tb_archive_label'). ' ';
-		$settings = $this->plugin->getSettings($this->testObj->getId());
-		switch ($settings->status) {
+		switch ($this->settings->status) {
 			case ilTestArchiveCreatorSettings::STATUS_PLANNED:
-				$text .= sprintf($this->plugin->txt('tb_archive_planned'), ilDatePresentation::formatDate($settings->schedule));
+				$text .= sprintf($this->plugin->txt('tb_archive_planned'), ilDatePresentation::formatDate($this->settings->schedule));
 				break;
 			case ilTestArchiveCreatorSettings::STATUS_FINISHED:
 				$text .= $this->plugin->txt('tb_archive_finished');
@@ -170,8 +194,6 @@ class ilTestArchiveCreatorSettingsGUI
 	 */
 	protected function initSettingsForm()
 	{
-		$settings = $this->plugin->getSettings($this->testObj->getId());
-
 		require_once('Services/Form/classes/class.ilPropertyFormGUI.php');
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this, 'editSettings'));
@@ -186,14 +208,14 @@ class ilTestArchiveCreatorSettingsGUI
 		$status->addOption($st_inactive);
 		$status->addOption($st_planned);
 		$status->addOption($st_finished);
-		$status->setValue($settings->status);
+		$status->setValue($this->settings->status);
 		$form->addItem($status);
 
 		$schedule = new ilDateTimeInputGUI($this->plugin->txt('schedule'), 'schedule');
 		$schedule->setShowTime(true);
 		$schedule->setShowSeconds(false);
 		$schedule->setMinuteStepSize(10);
-		$schedule->setDate($settings->schedule);
+		$schedule->setDate($this->settings->schedule);
 		$st_planned->addSubItem($schedule);
 
 		$pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
@@ -201,8 +223,22 @@ class ilTestArchiveCreatorSettingsGUI
 			ilTestArchiveCreatorSettings::PASS_SCORED => $this->plugin->txt('pass_scored'),
 			ilTestArchiveCreatorSettings::PASS_ALL => $this->plugin->txt('pass_all'),
 		));
-		$pass_selection->setValue($settings->pass_selection);
+		$pass_selection->setValue($this->settings->pass_selection);
 		$form->addItem($pass_selection);
+
+		$orientation = new ilSelectInputGUI($this->plugin->txt('orientation'), 'orientation');
+		$orientation->setOptions(array(
+			ilTestArchiveCreatorSettings::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
+			ilTestArchiveCreatorSettings::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
+		));
+		$orientation->setValue($this->settings->orientation);
+		$form->addItem($orientation);
+
+		$zoom_factor = new ilNumberInputGUI($this->plugin->txt('zoom_factor'), 'zoom_factor');
+		$zoom_factor->setSize(5);
+		$zoom_factor->allowDecimals(false);
+		$zoom_factor->setValue($this->settings->zoom_factor * 100);
+		$form->addItem($zoom_factor);
 
 		$form->addCommandButton('saveSettings', $this->lng->txt('save'));
 		$form->addCommandButton('cancelSettings', $this->lng->txt('cancel'));
@@ -235,12 +271,12 @@ class ilTestArchiveCreatorSettingsGUI
 			$this->tpl->setContent($form->getHTML());
 			$this->tpl->show();
 		}
-
-		$settings = $this->plugin->getSettings($this->testObj->getId());
-		$settings->status = $form->getInput('status');
-		$settings->pass_selection = $form->getInput('pass_selection');
-		$settings->schedule = $form->getItemByPostVar('schedule')->getDate();
-		$settings->save();
+		$this->settings->status = $form->getInput('status');
+		$this->settings->pass_selection = $form->getInput('pass_selection');
+		$this->settings->schedule = $form->getItemByPostVar('schedule')->getDate();
+		$this->settings->orientation = $form->getInput('orientation');
+		$this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
+		$this->settings->save();
 
         ilUtil::sendSuccess($this->plugin->txt('settings_saved'), true);
 		$this->returnToExport();

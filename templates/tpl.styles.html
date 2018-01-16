@@ -1,18 +1,14 @@
-/**
-* fim: [pdf] new stylesheet for phantomjs rendered pdf
-*/
+<style>
+
+/* Use variables without curly braces */
 
 /**
  * Set correct size
  */
 body {
-    zoom:0.7;
+    zoom: BODY_ZOOM;
     color: black;
     background: white;
-}
-
-svg {
-    zoom: 1.1;
 }
 
 /**
@@ -27,6 +23,22 @@ div.questionPrintview {
     border: none;
 }
 
+/**
+ * Show student and best solution below each other
+ */
+.lcol, .rcol,
+.participant.solution,
+.rcol.solution {
+    width: 100%;
+    float: none;
+    overflow-x: visible;
+}
+.rcol {
+    margin-top: 1em;
+}
+
 @media print {
     .pageBreakBefore {page-break-before: always;}
 }
+
+</style>

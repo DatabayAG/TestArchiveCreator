@@ -1,27 +1,38 @@
 <?php
 
 /**
- * Config and object settings for the test archive creator plugin
+ * Object settings for the test archive creator plugin
  */
 class ilTestArchiveCreatorSettings
 {
+	/** @see ilTestArchiveCreatorConfig */
+	const PASS_ALL = 'all';
+	const PASS_SCORED = 'scored';
+
+	/** @see ilTestArchiveCreatorConfig */
+	const ORIENTATION_PORTRAIT = 'portrait';
+	const ORIENTATION_LANDSCAPE = 'landscape';
+
 	const STATUS_INACTIVE = 'inactive';
 	const STATUS_PLANNED = 'planned';
 	const STATUS_FINISHED = 'finished';
 	const STATUS_RUNNING = 'running';
 
-	const PASS_ALL = 'all';
-	const PASS_SCORED = 'scored';
 
 	/** @var string archive status */
 	public $status = self::STATUS_INACTIVE;
 
+	/** @var ilDateTime */
+	public $schedule;
+
 	/** @var string pass selection */
-	public $pass_selection = self::PASS_SCORED;
+	public $pass_selection;
 
-	/** @var ilDateTime|null */
-	public $schedule = null;
+	/** @var float */
+	public $zoom_factor;
 
+	/** @var string */
+	public $orientation;
 
 	/** @var  ilDB $db */
 	protected $db;
@@ -42,7 +53,7 @@ class ilTestArchiveCreatorSettings
 	{
 		global $DIC;
 
-		$this->pluin = $plugin;
+		$this->plugin = $plugin;
 		$this->db = $DIC->database();
 		$this->obj_id = $obj_id;
 		$this->read();
@@ -67,15 +78,26 @@ class ilTestArchiveCreatorSettings
 	 */
 	protected function read()
 	{
+		// read the saved settings
 		$query = "SELECT * FROM tarc_ui_settings WHERE obj_id = " . $this->db->quote($this->obj_id,'integer');
 		$result = $this->db->query($query);
 		if ($row = $this->db->fetchAssoc($result))
 		{
-			$this->status = $row['status'];
-			$this->pass_selection = $row['pass_selection'];
+			$this->status = (string) $row['status'];
 			if (!empty($row['schedule'])) {
 				$this->schedule = new ilDateTime($row['schedule'], IL_CAL_DATETIME);
 			}
+
+			$this->pass_selection = (string) $row['pass_selection'];
+			$this->zoom_factor = (float) $row['zoom_factor'];
+			$this->orientation = (string) $row['orientation'];
+		}
+		else {
+			// initialize walues with those if the global configuration
+			$config = $this->plugin->getConfig();
+			$this->pass_selection = (string) $config->pass_selection;
+			$this->zoom_factor = (float) $config->zoom_factor;
+			$this->orientation = (string) $config->orientation;
 		}
 	}
 
@@ -92,7 +114,9 @@ class ilTestArchiveCreatorSettings
 			array(
 				'status' => array('text', $this->status),
 				'schedule' => array('timestamp', isset($this->schedule) ? $this->schedule->get(IL_CAL_DATETIME) : null),
-				'pass_selection' => array('text', $this->pass_selection)
+				'pass_selection' => array('text', $this->pass_selection),
+				'zoom_factor' => array('float', $this->zoom_factor),
+				'orientation' => array('string', $this->orientation)
 			)
 		);
 		return $rows > 0;

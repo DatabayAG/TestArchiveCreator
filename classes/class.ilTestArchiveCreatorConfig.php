@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * Global Configuration for the Test Archive Creator
+ */
+class ilTestArchiveCreatorConfig
+{
+	/** @see ilTestArchiveCreatorSettings */
+	const PASS_ALL = 'all';
+	const PASS_SCORED = 'scored';
+
+	/** @see ilTestArchiveCreatorSettings */
+	const ORIENTATION_PORTRAIT = 'portrait';
+	const ORIENTATION_LANDSCAPE = 'landscape';
+
+
+	/** @var  float path to the executable of PhantomJS */
+	public $phantomjs_path;
+
+	/** @var float zoom factor for pdf generation */
+	public $zoom_factor;
+
+	/** @var string  paper orientation of the generated pdf */
+	public $orientation;
+
+	/** @var  string  selection of the tst passes to include in the archive */
+	public $pass_selection;
+
+	/** @var  bool include the user login in the pdf */
+	public $with_login;
+
+	/** @var  bool include the user matriculation number in the archive */
+	public $with_matriculation;
+
+	/** @var  bool hide the standard test archive */
+	public $hide_standard_archive;
+
+
+	/** @var ilTestArchiveCreatorPlugin $plugin */
+	protected $plugin;
+
+	/** @var ilSetting  */
+	protected $settings;
+
+	/**
+	 * Constructor
+	 * Initializes the configuration values
+	 *
+	 * @param ilTestArchiveCreatorPlugin $plugin
+	 */
+	public function __construct($plugin) {
+		$this->plugin = $plugin;
+
+		require_once("Services/Administration/classes/class.ilSetting.php");
+		$this->settings = new ilSetting('ilTestArchiveCreator');
+
+		$this->phantomjs_path = (string) $this->settings->get('phantomjs_path', '/opt/phantomjs/phantomjs');
+		$this->hide_standard_archive = (bool) $this->settings->get('hide_standard_archive', true);
+
+		$this->with_login = (bool) $this->settings->get('with_login', true);
+		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
+
+		$this->pass_selection = (string) $this->settings->get('pass_selection', self::PASS_SCORED);
+		$this->zoom_factor = (float) $this->settings->get('zoom_factor', '1.0');
+		$this->orientation = (float) $this->settings->get('orientation', self::ORIENTATION_PORTRAIT);
+	}
+
+
+	/**
+	 * Save the configuration
+	 */
+	public function save()
+	{
+		$this->settings->set('phantomjs_path', (string) $this->phantomjs_path);
+		$this->settings->set('hide_standard_archive', $this->hide_standard_archive ? '1' : '0');
+
+		$this->settings->set('with_login', $this->with_login ? '1' : '0');
+		$this->settings->set('with_matriculation', $this->with_matriculation ? '1' : '0');
+
+		$this->settings->set('pass_selection', (string) $this->pass_selection);
+		$this->settings->set('zoom_factor', (string) $this->zoom_factor);
+		$this->settings->set('orientation', (string) $this->orientation);
+	}
+}

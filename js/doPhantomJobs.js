@@ -32,15 +32,16 @@ function doJobs ()
     var headRight = job['headRight'];
     var footLeft = job['footLeft'];
 	var time = job['time'];
+	var orientation = job['orientation'];
 	console.log('Job ' + jobnum + ': '+ job['sourceFile']);
 	jobnum++;
 
 	// create and render the page
     var page = webpage.create();
-	page.zoomFactor = job['zoomFactor'];
+	page.zoomFactor = 1;
     page.paperSize = {
         format: 'A4',
-        orientation: 'landscape',
+        orientation: orientation,
         margin: '1cm',
         header: {
             height: "1cm",

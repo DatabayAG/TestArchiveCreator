@@ -40,3 +40,24 @@
     $ilDB->createTable('tarc_ui_settings', $fields);
     $ilDB->addPrimaryKey('tarc_ui_settings', array('obj_id'));
 ?>
+<#3>
+<?php
+    if (!$ilDB->tableColumnExists('tarc_ui_settings', 'zoom_factor')) {
+		$ilDB->addTableColumn('tarc_ui_settings', 'zoom_factor', array(
+		        'type' => 'float',
+                'notnull' => true,
+                'default' => 1
+		));
+	}
+?>
+<#4>
+<?php
+    if (!$ilDB->tableColumnExists('tarc_ui_settings', 'orientation')) {
+        $ilDB->addTableColumn('tarc_ui_settings', 'orientation', array(
+            'type' => 'text',
+            'length' => 10,
+            'notnull' => true,
+            'default' => 'landscape'
+        ));
+    }
+?>

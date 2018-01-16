@@ -12,10 +12,12 @@ include_once("Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php")
  */
 class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 {
-	/** @var  ilSetting|null  $config  */
-	protected static $config = null;
 
-	/** @var array ilTestArchiveCreatorSettings[] */
+	/** @var ilTestArchiveCreatorConfig */
+	protected $config;
+
+
+	/** @var ilTestArchiveCreatorSettings[] */
 	protected $settings = [];
 
 
@@ -28,6 +30,18 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 		return "TestArchiveCreator";
 	}
 
+	/**
+	 * Get the global configuration
+	 * @return ilTestArchiveCreatorConfig
+	 */
+	public function getConfig()
+	{
+		if (!isset($this->config)) {
+			$this->includeClass('class.ilTestArchiveCreatorConfig.php');
+			$this->config = new ilTestArchiveCreatorConfig($this);
+		}
+		return $this->config;
+	}
 
 
 	/**
@@ -44,6 +58,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 		return $this->settings[$obj_id];
 	}
 
+
 	/**
 	 * Get the archive creator
 	 * @param $obj_id
@@ -53,68 +68,6 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	{
 		$this->includeClass('class.ilTestArchiveCreator.php');
 		return new ilTestArchiveCreator($this, $obj_id);
-	}
-
-	/**
-	 * Get a user preference
-	 * @param string	$name
-	 * @param mixed		$default
-	 * @return mixed
-	 */
-	public function getUserPreference($name, $default = false)
-	{
-		global $ilUser;
-		$value = $ilUser->getPref($this->getId().'_'.$name);
-		return ($value !== false) ? $value : $default;
-	}
-
-
-	/**
-	 * Set a user preference
-	 * @param string	$name
-	 * @param mixed		$value
-	 */
-	public function setUserPreference($name, $value)
-	{
-		global $ilUser;
-		$ilUser->writePref($this->getId().'_'.$name, $value);
-	}
-
-
-	/**
-	 * Get a global setting for a class (maintained in administration)
-	 * @param   string  $a_key
-	 * @param   string  $a_default_value
-	 * @return string	value
-	 */
-	public static function getConfigValue($a_key, $a_default_value = '')
-	{
-		return self::$config->get($a_key, $a_default_value);
-
-	}
-
-	/**
-	 * Set a global setting for a class (maintained in administration)
-	 * @param string  $a_key
-	 * @param string  $a_value
-	 */
-	public static function setConfigValue($a_key, $a_value)
-	{
-		self::_readConfig();
-		self::$config->set($a_key, $a_value);
-	}
-
-
-	/**
-	 * Read the global settings for a class
-	 */
-	protected static function _readConfig()
-	{
-		if (!isset(self::$config))
-		{
-			require_once("Services/Administration/classes/class.ilSetting.php");
-			self::$config = new ilSetting('ilTestArchiveCreator');
-		}
 	}
 
 

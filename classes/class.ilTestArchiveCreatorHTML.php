@@ -52,9 +52,11 @@ class ilTestArchiveCreatorHTML
 		$this->tpl->setVariable("LOCATION_STYLESHEET",ilUtil::getStyleSheetLocation());
 		$this->tpl->addCss($this->testObj->getTestStyleLocation("output"), "screen");
 
-		$css = $this->plugin->getDirectory().'/css/test_pdf.css';
+		$css = file_get_contents($this->plugin->getDirectory().'/templates/tpl.styles.html');
+		$css = str_replace('BODY_ZOOM', $this->settings->zoom_factor, $css);
+
 		$this->tpl->setCurrentBlock('HeadContent');
-		$this->tpl->setVariable('CONTENT_BLOCK', '<link rel="stylesheet" type="text/css" href="'.$css.'" />');
+		$this->tpl->setVariable('CONTENT_BLOCK', $css);
 		$this->tpl->parseCurrentBlock();
 
 		require_once('Services/MathJax/classes/class.ilMathJax.php');
