@@ -10,7 +10,8 @@
 tb_archive_label#:#Archiv-Erstellung:
 tb_archive_inactive#:#nicht geplant
 tb_archive_planned#:#ab %s
-rb_archive_finished#:#beendet
+tb_archive_finished#:#beendet
+tb_archive_manual#:#manuell
 edit_archive_settings#:#Archivierungs-Einstellungen bearbeiten
 archive_settings_saves#:#Die Archivierungs-Einstellungen wurden gespeichert
 status#:#Archivierungs-Status
@@ -55,6 +56,8 @@ working_time#:#Bearbeitungsdauer
 finish_date#:#Abgabedatum
 answered#:#Beantwortet
 manual#:#Manuelle Bewertung
+is_manual#:# (manuell bewertet)
+manual_feedback#:#Manuelle Rückmeldung
 pass_overview#:#Übersicht zu Testlauf %s
 test_settings#:#Test-Einstellungen
 orientation#:#Ausrichtung
@@ -72,3 +75,10 @@ with_login_info#:#Trägt die ILIAS-Benutzernamen in den Ausgabedateien des Archi
 with_matriculation#:#Matrikelnummern
 with_matriculation_info#:#Trägt die Matrikelnummern in den Ausgabedateien des Archivs ein.
 object_defaults#:#Standard-Einstellungen für Tests
+random_questions#:#Fragen im Zufallstest
+random_questions_all#:#Alle Fragen aufnehmen
+random_questions_used#:#Nur verwendete Fragen aufnehmen
+reached_points_of#:#%s von %s
+given_answer#:#Abgegebene Antwort
+answers_hash#:#Hash (sha1)
+message_cron_plugin_inactive#:#Bitte installieren und aktivieren Sie das Plugin TestArchiveCron, um die zeitgesteuerte Archivierung zu nutzen.

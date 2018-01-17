@@ -101,17 +101,24 @@ class ilTestArchiveCreatorSettingsGUI
 		$this->ctrl->saveParameter($this, 'ref_id');
 
 		$text = $this->plugin->txt('tb_archive_label'). ' ';
-		switch ($this->settings->status) {
-			case ilTestArchiveCreatorSettings::STATUS_PLANNED:
-				$text .= sprintf($this->plugin->txt('tb_archive_planned'), ilDatePresentation::formatDate($this->settings->schedule));
-				break;
-			case ilTestArchiveCreatorSettings::STATUS_FINISHED:
-				$text .= $this->plugin->txt('tb_archive_finished');
-				break;
-			case ilTestArchiveCreatorSettings::STATUS_INACTIVE:
-			default:
-				$text .= $this->plugin->txt('tb_archive_inactive');
-				break;
+		if ($this->plugin->checkCronPluginActive())
+		{
+			switch ($this->settings->status) {
+				case ilTestArchiveCreatorPlugin::STATUS_PLANNED:
+					$text .= sprintf($this->plugin->txt('tb_archive_planned'), ilDatePresentation::formatDate($this->settings->schedule));
+					break;
+				case ilTestArchiveCreatorPlugin::STATUS_FINISHED:
+					$text .= $this->plugin->txt('tb_archive_finished');
+					break;
+				case ilTestArchiveCreatorPlugin::STATUS_INACTIVE:
+				default:
+					$text .= $this->plugin->txt('tb_archive_inactive');
+					break;
+			}
+		}
+		else
+		{
+			$text .= $this->plugin->txt('tb_archive_manual');
 		}
 		$this->toolbar->addText($text);
 
@@ -199,9 +206,10 @@ class ilTestArchiveCreatorSettingsGUI
 		$form->setFormAction($this->ctrl->getFormAction($this, 'editSettings'));
 		$form->setTitle($this->plugin->txt('edit_archive_settings'));
 
-		$st_inactive = new ilRadioOption($this->plugin->txt('status_inactive'), ilTestArchiveCreatorSettings::STATUS_INACTIVE);
-		$st_planned = new ilRadioOption($this->plugin->txt('status_planned'), ilTestArchiveCreatorSettings::STATUS_PLANNED);
-		$st_finished = new ilRadioOption($this->plugin->txt('status_finished'), ilTestArchiveCreatorSettings::STATUS_FINISHED);
+
+		$st_inactive = new ilRadioOption($this->plugin->txt('status_inactive'), ilTestArchiveCreatorPlugin::STATUS_INACTIVE);
+		$st_planned = new ilRadioOption($this->plugin->txt('status_planned'), ilTestArchiveCreatorPlugin::STATUS_PLANNED);
+		$st_finished = new ilRadioOption($this->plugin->txt('status_finished'), ilTestArchiveCreatorPlugin::STATUS_FINISHED);
 		$st_finished->setDisabled(true);
 
 		$status = new ilRadioGroupInputGUI($this->plugin->txt('status'), 'status');
@@ -218,18 +226,34 @@ class ilTestArchiveCreatorSettingsGUI
 		$schedule->setDate($this->settings->schedule);
 		$st_planned->addSubItem($schedule);
 
+		if (!$this->plugin->checkCronPluginActive()) {
+			$status->setDisabled(true);
+			$status->setInfo($this->plugin->txt('message_cron_plugin_inactive'));
+			$schedule->setDisabled(true);
+		}
+
 		$pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
 		$pass_selection->setOptions(array(
-			ilTestArchiveCreatorSettings::PASS_SCORED => $this->plugin->txt('pass_scored'),
-			ilTestArchiveCreatorSettings::PASS_ALL => $this->plugin->txt('pass_all'),
+			ilTestArchiveCreatorPlugin::PASS_SCORED => $this->plugin->txt('pass_scored'),
+			ilTestArchiveCreatorPlugin::PASS_ALL => $this->plugin->txt('pass_all'),
 		));
 		$pass_selection->setValue($this->settings->pass_selection);
 		$form->addItem($pass_selection);
 
+		if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
+			$random_questions = new ilSelectInputGUI($this->plugin->txt('random_questions'), 'random_questions');
+			$random_questions->setOptions(array(
+				ilTestArchiveCreatorPlugin::RANDOM_ALL => $this->plugin->txt('random_questions_all'),
+				ilTestArchiveCreatorPlugin::RANDOM_USED => $this->plugin->txt('random_questions_used'),
+			));
+			$random_questions->setValue($this->settings->random_questions);
+			$form->addItem($random_questions);
+		}
+
 		$orientation = new ilSelectInputGUI($this->plugin->txt('orientation'), 'orientation');
 		$orientation->setOptions(array(
-			ilTestArchiveCreatorSettings::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
-			ilTestArchiveCreatorSettings::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
+			ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
+			ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
 		));
 		$orientation->setValue($this->settings->orientation);
 		$form->addItem($orientation);
@@ -276,6 +300,10 @@ class ilTestArchiveCreatorSettingsGUI
 		$this->settings->schedule = $form->getItemByPostVar('schedule')->getDate();
 		$this->settings->orientation = $form->getInput('orientation');
 		$this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
+		if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
+			$this->settings->random_questions = $form->getInput('random_questions');
+		}
+		
 		$this->settings->save();
 
         ilUtil::sendSuccess($this->plugin->txt('settings_saved'), true);

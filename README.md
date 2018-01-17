@@ -1,7 +1,5 @@
 # TestArchiveCreator
 
-Under Construction!
-
 Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
 GPLv3, see LICENSE
 
@@ -18,10 +16,20 @@ Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCre
 
 2. Open ILIAS > Administration > Plugins
 
-3. Update/Activate the Plugin.
+3. Update/Activate the plugin
+
+4. Open the plugin configuration
+
+5. Enter the server path to an executable of PhantomJS
+   (see http://phantomjs.org)
 
 
 USAGE
 -----
 
-Mover to the tab "Export" in the test. Choose the sub tab 'Test Archive Settings'.
+1. Mover to the tab "Export" in the test.
+3. Click "Settings" in the toolbar to change some properties of the archive creation.
+2. Click the button "Create" in the toolbar to create a zipped archive.
+
+The archive containes separate PDF files for the questions in the test and the test runs of participants.
+Overviews are written as csv html files.

@@ -5,28 +5,17 @@
  */
 class ilTestArchiveCreatorSettings
 {
-	/** @see ilTestArchiveCreatorConfig */
-	const PASS_ALL = 'all';
-	const PASS_SCORED = 'scored';
-
-	/** @see ilTestArchiveCreatorConfig */
-	const ORIENTATION_PORTRAIT = 'portrait';
-	const ORIENTATION_LANDSCAPE = 'landscape';
-
-	const STATUS_INACTIVE = 'inactive';
-	const STATUS_PLANNED = 'planned';
-	const STATUS_FINISHED = 'finished';
-	const STATUS_RUNNING = 'running';
-
-
 	/** @var string archive status */
-	public $status = self::STATUS_INACTIVE;
+	public $status = ilTestArchiveCreatorPlugin::STATUS_INACTIVE;
 
 	/** @var ilDateTime */
 	public $schedule;
 
 	/** @var string pass selection */
 	public $pass_selection;
+
+	/** @var  string  selection of the random questions to include in the archive */
+	public $random_questions;
 
 	/** @var float */
 	public $zoom_factor;
@@ -89,6 +78,7 @@ class ilTestArchiveCreatorSettings
 			}
 
 			$this->pass_selection = (string) $row['pass_selection'];
+			$this->random_questions = (string) $row['random_questions'];
 			$this->zoom_factor = (float) $row['zoom_factor'];
 			$this->orientation = (string) $row['orientation'];
 		}
@@ -96,6 +86,7 @@ class ilTestArchiveCreatorSettings
 			// initialize walues with those if the global configuration
 			$config = $this->plugin->getConfig();
 			$this->pass_selection = (string) $config->pass_selection;
+			$this->random_questions = (string) $config->random_questions;
 			$this->zoom_factor = (float) $config->zoom_factor;
 			$this->orientation = (string) $config->orientation;
 		}
@@ -115,6 +106,7 @@ class ilTestArchiveCreatorSettings
 				'status' => array('text', $this->status),
 				'schedule' => array('timestamp', isset($this->schedule) ? $this->schedule->get(IL_CAL_DATETIME) : null),
 				'pass_selection' => array('text', $this->pass_selection),
+				'random_questions' => array('text', $this->random_questions),
 				'zoom_factor' => array('float', $this->zoom_factor),
 				'orientation' => array('string', $this->orientation)
 			)

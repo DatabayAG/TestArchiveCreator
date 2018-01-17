@@ -153,16 +153,24 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 
 		$pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
 		$pass_selection->setOptions(array(
-			ilTestArchiveCreatorConfig::PASS_SCORED => $this->plugin->txt('pass_scored'),
-			ilTestArchiveCreatorConfig::PASS_ALL => $this->plugin->txt('pass_all'),
+			ilTestArchiveCreatorPlugin::PASS_SCORED => $this->plugin->txt('pass_scored'),
+			ilTestArchiveCreatorPlugin::PASS_ALL => $this->plugin->txt('pass_all'),
 		));
 		$pass_selection->setValue($this->config->pass_selection);
 		$form->addItem($pass_selection);
 
+		$random_questions = new ilSelectInputGUI($this->plugin->txt('random_questions'), 'random_questions');
+		$random_questions->setOptions(array(
+			ilTestArchiveCreatorPlugin::RANDOM_ALL => $this->plugin->txt('random_questions_all'),
+			ilTestArchiveCreatorPlugin::RANDOM_USED => $this->plugin->txt('random_questions_used'),
+		));
+		$random_questions->setValue($this->config->random_questions);
+		$form->addItem($random_questions);
+
 		$orientation = new ilSelectInputGUI($this->plugin->txt('orientation'), 'orientation');
 		$orientation->setOptions(array(
-			ilTestArchiveCreatorConfig::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
-			ilTestArchiveCreatorConfig::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
+			ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
+			ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
 		));
 		$orientation->setValue($this->config->orientation);
 		$form->addItem($orientation);

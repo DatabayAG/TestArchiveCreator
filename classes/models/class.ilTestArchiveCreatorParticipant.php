@@ -19,6 +19,7 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 	public $pass_reached_points;
 
 	public $answers_file;
+	public $answers_hash;
 
 	/**
 	 * Get a unique prefix that can be used for file and directory names
@@ -54,7 +55,7 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 	 */
 	function getColumns()
 	{
-		return array(
+		$columns = array(
 			'firstname' => $this->lng->txt('firstname'),
 			'lastname' => $this->lng->txt('lastname'),
 			'login' => $this->lng->txt('login'),
@@ -65,8 +66,17 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 			'pass_working_time' => $this->plugin->txt('working_time'),
 			'pass_finish_date' => $this->plugin->txt('finish_date'),
 			'pass_reached_points' => $this->plugin->txt('points'),
-			'answers_file' => $this->plugin->txt('answers')
+			'answers_file' => $this->plugin->txt('answers'),
+			'answers_hash' => $this->plugin->txt('answers_hash')
 		);
+
+		if (!$this->creator->config->with_login) {
+			unset($columns['login']);
+		}
+		if (!$this->creator->config->with_matriculation) {
+			unset($columns['matriculation']);
+		}
+		return $columns;
 	}
 
 	/**
@@ -101,6 +111,7 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 			'pass_working_time' => $format == 'csv' ? $this->pass_working_time : ilDatePresentation::secondsToString($this->pass_working_time),
 			'pass_reached_points' => $this->pass_reached_points,
 			'answers_file' => $this->answers_file,
+			'answers_hash' => $this->answers_hash,
 		);
 	}
 }

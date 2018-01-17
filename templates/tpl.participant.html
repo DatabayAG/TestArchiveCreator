@@ -1,5 +1,4 @@
 <h2>{TXT_PARTICIPANT}</h2>
-
 <table class="table">
     <tbody>
     <!-- BEGIN data_row -->
@@ -47,7 +46,20 @@
 </div>
 
 
+<!-- BEGIN question_detail -->
 <div class="pageBreakBefore">
-    {ANSWERS}
-</div>
+    <h2>{SEQUENCE}. {QUESTION_TITLE} [{QUESTION_ID}]</h2>
+    {TXT_REACHED_POINTS}: {REACHED_POINTS_OF} {TXT_IS_MANUAL}
 
+    <h3>{TXT_GIVEN_ANSWER}</h3>
+    {HTML_ANSWER}
+
+    <h3>{TXT_BEST_SOLUTION}</h3>
+    {HTML_SOLUTION}
+
+    <!-- BEGIN manual_feedback -->
+    <h3>{TXT_MANUAL_FEEDBACK}</h3>
+    {HTML_MANUAL_FEEDBACK}
+    <!-- END manual_feedback -->
+</div>
+<!-- END question_detail -->

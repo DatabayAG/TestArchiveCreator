@@ -12,7 +12,7 @@ class ilTestArchiveCreatorList
 	public $prototype;
 
 	/** @var ilTestArchiveCreatorElement[] */
-	protected $elements = array();
+	public $elements = array();
 
 	/** @var  string */
 	protected $title;

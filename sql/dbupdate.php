@@ -61,3 +61,14 @@
         ));
     }
 ?>
+<#5>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'random_questions')) {
+	$ilDB->addTableColumn('tarc_ui_settings', 'random_questions', array(
+		'type' => 'text',
+		'length' => 10,
+		'notnull' => true,
+		'default' => 'used'
+	));
+}
+?>
