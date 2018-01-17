@@ -3,7 +3,7 @@
 Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
 GPLv3, see LICENSE
 
-Author: Fred Neumann <fred.neumann@gmx.de>
+Author: Fred Neumann <fred.neumann@ili.fau.de>
 
 
 This plugin for the LMS ILIAS allows the creation of zipped archives with PDF files for written tests.

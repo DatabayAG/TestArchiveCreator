@@ -1,4 +1,5 @@
 <?php
+// Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
 /**
  * Data model for a mark in the mark scheme
