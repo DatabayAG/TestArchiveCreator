@@ -13,7 +13,6 @@ tb_archive_planned#:#ab %s
 tb_archive_finished#:#beendet
 tb_archive_manual#:#manuell
 edit_archive_settings#:#Archivierungs-Einstellungen bearbeiten
-archive_settings_saves#:#Die Archivierungs-Einstellungen wurden gespeichert
 status#:#Archivierungs-Status
 status_inactive#:#Keine Archiv-Erstellung geplant
 status_planned#:#Archiv-Erstellung geplant
@@ -24,7 +23,7 @@ pass_scored#:#Bewerteter Testlauf
 pass_best#:#Bester Testlauf
 pass_last#:#Letzter Testlauf
 pass_all#:#Alle Testläufe
-settings_saved#:#Die Archivierung-Einstellungen wurden gespeichert
+settings_saved#:#Die Archivierung-Einstellungen wurden gespeichert.
 questions#:#Fragen
 question_id#:#ID
 question_title#:#Titel

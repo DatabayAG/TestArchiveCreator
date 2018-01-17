@@ -7,3 +7,77 @@
 //
 
 <!-- language file start -->
+tb_archive_label#:#Archive Creation:
+tb_archive_inactive#:#not planned
+tb_archive_planned#:#after %s
+tb_archive_finished#:#finished
+tb_archive_manual#:#manual
+edit_archive_settings#:#Edit Archive Settings
+status#:#Archive Status
+status_inactive#:#No archive creation planned
+status_planned#:#Archive creation planned
+status_finished#:#Archive created
+schedule#:#Creation after
+pass_selection#:#Test Pass Selection
+pass_scored#:#Scored Pass
+pass_best#:#Best Pass
+pass_last#:#Last Pass
+pass_all#:#All Passes
+settings_saved#:#The archive settings are saved.
+questions#:#Questions
+question_id#:#ID
+question_title#:#Title
+question_type#:#Type
+max_points#:#Maximum Points
+files#:#Files
+participant#:#Participant
+participants#:#Participants
+question_presentation#:#Preview
+question_best_solution#:#Best Solution
+answers#:#Answers
+label_generated#:#Generated:
+exam_id#:#Exam ID
+test#:#Test
+first_visit#:#First Test Access:
+last_visit#:#Last Test Access:
+number_passes#:#Number of Passes:
+scored_pass#:#Scored Pass:
+reached_points#:#Reached Points:
+mark_official#:#Mark (official):
+mark_short#:#Mark (short):
+final_result#:#Final Result:
+passed#:#passed
+not_passed#:#not passed
+points#:#Points
+is_scored#:#Scored
+pass_number#:#Pass
+working_time#:#Working Time
+finish_date#:#Finish Date
+answered#:#Answered
+manual#:#Manual Score
+is_manual#:# (manually scored)
+manual_feedback#:#Manual Feedback
+pass_overview#:#Oberview of Test Pass %s
+test_settings#:#Test Settings
+orientation#:#Orientation
+orientation_portrait#:#Portrait
+orientation_landscape#:#Landscape
+zoom_factor#:#Zoom (%)
+plugin_configuration#:#Plugin configuration
+phantomjs_path#:#Path to PhantomJS
+phantomjs_path_info#:#Path on the server to an executable file of PhantomJS. See http://phantomjs.org
+hide_standard_archive#:#Hide Standard Archive
+hide_standard_archive_info#:#Hides the export option for the standard test archive on the export tab of ILIAS.
+privacy_settings#:#Privacy Setings
+with_login#:#User Names
+with_login_info#:#Adds the ILIAS user names to the files in the archive.
+with_matriculation#:#Matriculation
+with_matriculation_info#:#Adds the matriculation numbers to the files in the archive.
+object_defaults#:#Default Settings for Test Objects
+random_questions#:#Questions of Random Test
+random_questions_all#:#Add all questions
+random_questions_used#:#Add only used questions
+reached_points_of#:#%s of %s
+given_answer#:#Given Answer
+answers_hash#:#Hash (sha1)
+message_cron_plugin_inactive#:#Please install and activate the plugin TestArchiveCron to use the scheduled creation.
