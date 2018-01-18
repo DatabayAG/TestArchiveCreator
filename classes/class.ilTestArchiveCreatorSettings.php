@@ -50,20 +50,6 @@ class ilTestArchiveCreatorSettings
 	}
 
 	/**
-	 * Delete the archive settings of a test
-	 * @param integer object id
-	 */
-	public static function _deleteForObject($obj_id)
-	{
-		global $DIC;
-		$db = $DIC->database();
-
-		$query = 'DELETE FROM tarc_ui_settings WHERE obj_id = ' . $db->quote($obj_id,'integer');
-
-		$db->manipulate($query);
-	}
-
-	/**
 	 * Read the archive settings
 	 */
 	protected function read()
@@ -114,4 +100,44 @@ class ilTestArchiveCreatorSettings
 		);
 		return $rows > 0;
 	}
+
+	/**
+	 * Get the object ids of tests with scheduled archive creation that are due
+	 * @return int[]
+	 */
+	public static function getScheduledObjects()
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		require_once('Services/Calendar/classes/class.ilDateTime.php');
+		$time = new ilDateTime(time(), IL_CAL_UNIX);
+
+		$query = "SELECT obj_id FROM tarc_ui_settings WHERE status = %s AND schedule <= %s";
+		$result = $db->queryF($query,
+			array('text', 'timestamp'),
+			array(ilTestArchiveCreatorPlugin::STATUS_PLANNED, new ilDateTime(time(), $time->get(IL_CAL_DATETIME)))
+		);
+
+		$obj_ids = array();
+		while ($row = $db->fetchAssoc($result)) {
+			$obj_ids[] = $row['obj_id'];
+		}
+		return $obj_ids;
+	}
+
+	/**
+	 * Delete the archive settings of a test
+	 * @param integer object id
+	 */
+	public static function deleteForObject($obj_id)
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$query = 'DELETE FROM tarc_ui_settings WHERE obj_id = ' . $db->quote($obj_id,'integer');
+
+		$db->manipulate($query);
+	}
+
 }

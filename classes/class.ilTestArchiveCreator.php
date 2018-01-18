@@ -88,6 +88,8 @@ class ilTestArchiveCreator
 
 		$this->writeIndexFiles();
 		$this->finishCreation();
+
+		return true;
 	}
 
 	/**
@@ -134,6 +136,8 @@ class ilTestArchiveCreator
 
 		$zipfile = 'test_archive_obj_'.$this->testObj->getId().'_'.time().'_plugin';
 		ilUtil::zip($this->workdir, $export_dir .'/'. $zipfile, true);
+
+		ilUtil::delDir($this->workdir);
 	}
 
 	/**
@@ -162,7 +166,8 @@ class ilTestArchiveCreator
 		// get the mark scheme
 		$scheme = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorMark($this));
 		$scheme->setTitle($this->lng->txt('mark_schema'));
-		$this->testObj->getMarkSchema()->sort();
+		// will make problems, if called twice in cron job, but not needed because list will be sorted
+		//$this->testObj->getMarkSchema()->sort();
 		$marks = $this->testObj->getMarkSchema()->getMarkSteps();
 		foreach($marks as $key => $value)
 		{
