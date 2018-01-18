@@ -484,7 +484,7 @@ class ilTestArchiveCreator
 
 		/** @var ilTestArchiveCreatorParticipant $participant */
 		foreach ($this->participants->elements as $participant) {
-			$participant->answers_hash = sha1_file($this->workdir. '/'. $participant->answers_file);
+			$participant->answers_hash = @sha1_file($this->workdir. '/'. $participant->answers_file);
 		}
 
 		// questions
