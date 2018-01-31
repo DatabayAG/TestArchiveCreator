@@ -87,13 +87,32 @@ class ilTestArchiveCreatorPDF
 	 */
 	public function generateJobs()
 	{
+		global $DIC;
+		$log = $DIC->logger();
+
 		$phantomJs = $this->config->phantomjs_path;
 		$scriptFile = $this->plugin->getDirectory() . '/js/doPhantomJobs.js';
 		$jobsFile = $this->workdir . '/' . $this->jobsid . '.json';
 
 		file_put_contents($jobsFile, json_encode($this->jobs));
-		if (is_executable($phantomJs)) {
-			exec("$phantomJs $scriptFile $jobsFile");
+		$jobinfo = print_r($this->jobs, true);
+		$log->root()->debug($jobinfo);
+
+		if (is_executable($phantomJs))
+		{
+			try
+			{
+				$output = exec("$phantomJs $scriptFile $jobsFile");
+				$log->root()->info($output);
+			}
+			catch (Exception $e)
+			{
+				$log->root()->warning($e->getMessage());
+			}
+		}
+		else
+		{
+			$log->root()->warning("$phantomJs is not executable");
 		}
 	}
 

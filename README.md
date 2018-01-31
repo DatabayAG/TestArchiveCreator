@@ -64,5 +64,11 @@ will create the archive.
 VERSIONS
 --------
 
+1.0.2 for ILIAS 5.2 (2018-01-31)
+logging of phantomjs calls
+- jobfile content is logged with DEBUG level
+- phantomjs console message is logged with INFO level
+- not executable phantomjs or exceptions are logged with WARNING level
+
 1.0.1 for ILIAS 5.2 (2018-01-18)
  - cron job support
