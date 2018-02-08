@@ -63,9 +63,12 @@ will create the archive.
 
 VERSIONS
 --------
+1.0.3 for ILIAS 5.2 (2018-02-08)
+- new config setting to keep the creation directory after zipping
+- logging of the phantomjs command line with INFO level
 
 1.0.2 for ILIAS 5.2 (2018-01-31)
-logging of phantomjs calls
+- logging of phantomjs calls
 - jobfile content is logged with DEBUG level
 - phantomjs console message is logged with INFO level
 - not executable phantomjs or exceptions are logged with WARNING level

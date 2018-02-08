@@ -102,6 +102,7 @@ class ilTestArchiveCreatorPDF
 		{
 			try
 			{
+				$log->root()->info("$phantomJs $scriptFile $jobsFile");
 				$output = exec("$phantomJs $scriptFile $jobsFile");
 				$log->root()->info($output);
 			}

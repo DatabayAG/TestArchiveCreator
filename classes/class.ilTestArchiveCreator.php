@@ -137,7 +137,10 @@ class ilTestArchiveCreator
 		$zipfile = 'test_archive_obj_'.$this->testObj->getId().'_'.time().'_plugin';
 		ilUtil::zip($this->workdir, $export_dir .'/'. $zipfile, true);
 
-		ilUtil::delDir($this->workdir);
+		if (!$this->config->keep_creation_directory)
+		{
+			ilUtil::delDir($this->workdir);
+		}
 	}
 
 	/**

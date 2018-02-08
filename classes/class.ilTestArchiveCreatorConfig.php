@@ -30,6 +30,9 @@ class ilTestArchiveCreatorConfig
 	/** @var  bool hide the standard test archive */
 	public $hide_standard_archive;
 
+	/** @var  bool keep the creation directory */
+	public $keep_creation_directory;
+
 
 	/** @var ilTestArchiveCreatorPlugin $plugin */
 	protected $plugin;
@@ -51,6 +54,7 @@ class ilTestArchiveCreatorConfig
 
 		$this->phantomjs_path = (string) $this->settings->get('phantomjs_path', '/opt/phantomjs/phantomjs');
 		$this->hide_standard_archive = (bool) $this->settings->get('hide_standard_archive', true);
+		$this->keep_creation_directory = (string) $this->settings->get('keep_creation_directory', false);
 
 		$this->with_login = (bool) $this->settings->get('with_login', true);
 		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
@@ -69,6 +73,7 @@ class ilTestArchiveCreatorConfig
 	{
 		$this->settings->set('phantomjs_path', (string) $this->phantomjs_path);
 		$this->settings->set('hide_standard_archive', $this->hide_standard_archive ? '1' : '0');
+		$this->settings->set('keep_creation_directory', $this->keep_creation_directory ? '1' : '0');
 
 		$this->settings->set('with_login', $this->with_login ? '1' : '0');
 		$this->settings->set('with_matriculation', $this->with_matriculation ? '1' : '0');
