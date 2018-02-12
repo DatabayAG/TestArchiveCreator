@@ -5,14 +5,20 @@ GPLv3, see LICENSE
 
 Author: Fred Neumann <fred.neumann@ili.fau.de>
 
-
 This plugin for the LMS ILIAS open source allows the creation of zipped archives with PDF files for written tests.
 It requires an installation of PhantomJS on the ILIAS server.
 http://phantomjs.org
 
+Please look at the PhantomJS web site for general installation instructions. Short hint for Debian based systems (thanks to Rachid Rabah):
+    "apt-get install phantomjs"
+PhantomJS will be located in "/user/bin/phantomjs"
+Set the following environment variables:
+    "export QT_QPA_PLATFORM=offscreen"
+    "export QT_QPA_FONTDIR=/usr/share/fonts"
 
-INSTALLATION
-------------
+
+PLUGIN INSTALLATION
+-------------------
 
 1. Put the content of the plugin directory in a subdirectory under your ILIAS main directory:
 Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator
