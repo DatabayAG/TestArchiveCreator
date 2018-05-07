@@ -74,6 +74,7 @@ VERSIONS
 - compatibility for ILIAS 5.3
 - fixed output of question ids on console when run by cron
 - added an index.html to the archive
+- included print and pdf styles of the test object
 
 1.0.3 for ILIAS 5.2 (2018-02-08)
 - new config setting to keep the creation directory after zipping

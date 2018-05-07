@@ -52,6 +52,8 @@ class ilTestArchiveCreatorHTML
 		$this->tpl->setVariable('BASE', ILIAS_HTTP_PATH . '/index.html');
 		$this->tpl->setVariable("LOCATION_STYLESHEET",ilUtil::getStyleSheetLocation());
 		$this->tpl->addCss($this->testObj->getTestStyleLocation("output"), "screen");
+		$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_print.css", "Modules/Test"),'print');
+		$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_pdf.css", "Modules/Test"),'print');
 
 		$css = file_get_contents($this->plugin->getDirectory().'/templates/tpl.styles.html');
 		$css = str_replace('BODY_ZOOM', $this->settings->zoom_factor, $css);
