@@ -82,6 +82,7 @@ class ilTestArchiveCreator
 		$this->handleSettings();
 		$this->handleParticipants();			// handle before questions to get the used ids
 		$this->handleQuestions();
+		$this->handleMainIndex();
 
 		$this->pdfCreator->generateJobs();		// generate before index files to enable hashes
 		$this->pdfCreator->clearJobs();
@@ -141,6 +142,28 @@ class ilTestArchiveCreator
 		{
 			ilUtil::delDir($this->workdir);
 		}
+	}
+
+	/**
+	 * Add a main index to the archive
+	 */
+	protected function handleMainIndex()
+	{
+		$tpl = $this->plugin->getTemplate('tpl.main_index.html');
+		$tpl->setVariable('TXT_TEST_ARCHIVE', $this->plugin->txt('test_archive'));
+		$tpl->setVariable('TXT_SETTINGS_HTML', $this->plugin->txt('settings_html'));
+		$tpl->setVariable('TXT_QUESTIONS_HTML', $this->plugin->txt('questions_html'));
+		$tpl->setVariable('TXT_QUESTIONS_CSV', $this->plugin->txt('questions_csv'));
+		$tpl->setVariable('TXT_PARTICIPANTS_HTML', $this->plugin->txt('participants_html'));
+		$tpl->setVariable('TXT_PARTICIPANTS_CSV', $this->plugin->txt('participants_csv'));
+		$tpl->setVariable('TXT_GENERATED', $this->plugin->txt('label_generated'));
+		$tpl->setVariable('VAL_GENERATED', ilDatePresentation::formatDate(new ilDateTime(time(), IL_CAL_UNIX)));
+
+		$source_file = 'index.html';
+		$head_left = $this->testObj->getTitle() . ' [' . $this->plugin->buildExamId($this->testObj) . ']';
+		$this->htmlCreator->initIndexTemplate();
+		$this->writeFile($source_file, $this->htmlCreator->build(
+			$head_left, $this->testObj->getDescription(), $tpl->get()));
 	}
 
 	/**
@@ -572,7 +595,7 @@ class ilTestArchiveCreator
 		$sorted_questions = array();
 		foreach ($questions as $question)
 		{
-			$key = sprintf('%09d', (int) $question['nr']).printf('%09d', (int) $question['qid']);
+			$key = sprintf('%09d', (int) $question['nr']).sprintf('%09d', (int) $question['qid']);
 			$sorted_questions[$key] = $question;
 		}
 		ksort($sorted_questions);

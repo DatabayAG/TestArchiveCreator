@@ -14,8 +14,9 @@ Please look at the PhantomJS web site for general installation instructions. Sho
 PhantomJS will be located in "/user/bin/phantomjs"
 Set the following environment variables:
     "export QT_QPA_PLATFORM=offscreen"
-    "export QT_QPA_FONTDIR=/usr/share/fonts"
-
+    "export QT_QPA_FONTDIR=/usr/share/fonts/truetype"
+If you need a font with Japanese characters:
+    "apt-get install fonts-takao"
 
 PLUGIN INSTALLATION
 -------------------
@@ -69,6 +70,11 @@ will create the archive.
 
 VERSIONS
 --------
+1.1.0 for ILIAS 5.2 and 5.3 (2018-05-07)
+- compatibility for ILIAS 5.3
+- fixed output of question ids on console when run by cron
+- added an index.html to the archive
+
 1.0.3 for ILIAS 5.2 (2018-02-08)
 - new config setting to keep the creation directory after zipping
 - logging of the phantomjs command line with INFO level
