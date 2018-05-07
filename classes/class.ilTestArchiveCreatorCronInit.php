@@ -3,8 +3,9 @@
 
 class ilTestArchiveCreatorCronInit extends ilInitialisation
 {
-	static $savedCtrl;
-	static $savedGet;
+	static $manualCron = false;
+	static $savedGet = array();
+	static $savedCtrl = null;
 
 	/**
 	 * Initialize GUI and controller when called from cron job
@@ -12,12 +13,15 @@ class ilTestArchiveCreatorCronInit extends ilInitialisation
 	 */
 	public static function initCronCall()
 	{
-		// todo: find a better way
-		self::$savedCtrl = $GLOBALS['ilCtrl'];
-		self::$savedGet = $_GET;
+		global $DIC;
+		$ctrl = $DIC->ctrl();
 
-		$ctrl = new ilCtrl;
-		$GLOBALS['ilCtrl'] = $ctrl;
+		if ($ctrl->getCmdClass() == 'ilcronmanagergui')
+		{
+			self::$manualCron = true;
+			self::$savedGet = $_GET;
+			self::$savedCtrl = clone $ctrl;
+		}
 
 		if(!ilContext::hasHTML()) {
 			require_once "./Services/UICore/classes/class.ilTemplate.php";
@@ -34,7 +38,9 @@ class ilTestArchiveCreatorCronInit extends ilInitialisation
 	 */
 	public static function exitCronCall()
 	{
-		$GLOBALS['ilCtrl'] = self::$savedCtrl;
-		$_GET = self::$savedGet;
+		if (self::$manualCron) {
+			$_GET = self::$savedGet;
+			$GLOBALS['ilCtrl'] = self::$savedCtrl;
+		}
 	}
 }
