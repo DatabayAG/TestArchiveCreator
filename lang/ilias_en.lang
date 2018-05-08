@@ -89,3 +89,6 @@ participants_csv#:#Participants (CSV)
 participants_html#:#Participants (HTML)
 settings_html#:#Test Settings (HTML)
 test_archive#:#Test Archive
+use_system_styles#:#Use System Styles
+use_system_styles_info#:#Uses the system styles (standard: delos.css) for the PDF generation. The used web font increases the size of the PDF files generated with PhantomJS and prevents them from being searchable.
+

@@ -70,6 +70,10 @@ will create the archive.
 
 VERSIONS
 --------
+1.1.1 for ILIAS 5.2 and 5.3 (2018-05-08)
+-  allow to omit the systems styles for PDF generation
+   (the web font prevents the PDF generated with PhantomJS from being searchable)
+
 1.1.0 for ILIAS 5.2 and 5.3 (2018-05-07)
 - compatibility for ILIAS 5.3
 - fixed output of question ids on console when run by cron

@@ -100,6 +100,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$this->config->phantomjs_path = $form->getInput('phantomjs_path');
 		$this->config->hide_standard_archive = $form->getInput('hide_standard_archive');
 		$this->config->keep_creation_directory = $form->getInput('keep_creation_directory');
+		$this->config->use_system_styles = $form->getInput('use_system_styles');
 		$this->config->with_login = $form->getInput('with_login');
 		$this->config->with_matriculation = $form->getInput('with_matriculation');
 
@@ -138,6 +139,11 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$keep->setInfo($this->plugin->txt('keep_creation_directory_info'));
 		$keep->setChecked($this->config->keep_creation_directory);
 		$form->addItem($keep);
+
+		$styles = new ilCheckboxInputGUI($this->plugin->txt('use_system_styles'), 'use_system_styles');
+		$styles->setInfo($this->plugin->txt('use_system_styles_info'));
+		$styles->setChecked($this->config->use_system_styles);
+		$form->addItem($styles);
 
 		$header = new ilFormSectionHeaderGUI();
 		$header->setTitle($this->plugin->txt('privacy_settings'));
