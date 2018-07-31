@@ -115,8 +115,8 @@ class ilTestArchiveCreatorSettings
 
 		$query = "SELECT obj_id FROM tarc_ui_settings WHERE status = %s AND schedule <= %s";
 		$result = $db->queryF($query,
-			array('text', 'timestamp'),
-			array(ilTestArchiveCreatorPlugin::STATUS_PLANNED, new ilDateTime(time(), $time->get(IL_CAL_DATETIME)))
+			array('text', 'text'),
+			array(ilTestArchiveCreatorPlugin::STATUS_PLANNED, $time->get(IL_CAL_DATETIME))
 		);
 
 		$obj_ids = array();
