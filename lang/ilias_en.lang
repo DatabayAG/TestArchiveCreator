@@ -90,5 +90,10 @@ participants_html#:#Participants (HTML)
 settings_html#:#Test Settings (HTML)
 test_archive#:#Test Archive
 use_system_styles#:#Use System Styles
-use_system_styles_info#:#Uses the system styles (standard: delos.css) for the PDF generation. The used web font increases the size of the PDF files generated with PhantomJS and prevents them from being searchable.
-
+use_system_styles_info#:#Uses the system styles (standard: delos.css) for the PDF generation. The used web font increases the size of the PDF files generated with PhantomJS 2.1.1 and prevents them from being searchable.
+any_ssl_protocol#:#Any SSL Protocoll
+any_ssl_protocol_info#:#Allows any SSL protocol for loading of images, styles or scripts. Needed by PhantomJS 1.9.8.
+ignore_ssl_errors#:#Ignore SSL Errors
+ignore_ssl_errors_info#:#Ignore SSL certificate errors for loading of images, styles or scripts. Needed by PhantomJS 1.9.8.
+answers_with_best_solution#:#Answers with Best Solution
+answers_with_best_solution_info#:#Adds the best solution below each question in the alswer files for participants.

@@ -442,7 +442,11 @@ class ilTestArchiveCreator
 							// answer and solution output
 							$question_gui = $this->testObj->createQuestionGUI($row['type_tag'], $row['qid']);
 							$html_answer = $question_gui->getSolutionOutput($active_id, $pass, TRUE, FALSE, FALSE, FALSE, FALSE);
-							$html_solution = $question_gui->getSolutionOutput($active_id, $pass, FALSE, FALSE, FALSE, FALSE, TRUE);
+
+							if ($this->config->answers_with_best_solution)
+							{
+								$html_solution = $question_gui->getSolutionOutput($active_id, $pass, FALSE, FALSE, FALSE, FALSE, TRUE);
+							}
 
 							//manual feedback
 							if (!empty($row['manualFeedback']))
@@ -461,8 +465,13 @@ class ilTestArchiveCreator
 							$tpl->setVariable('REACHED_POINTS_OF', sprintf($this->plugin->txt('reached_points_of'), $row['reached'], $row['max']));
 							$tpl->setVariable('TXT_GIVEN_ANSWER', $this->plugin->txt('given_answer'));
 							$tpl->setVariable('HTML_ANSWER',$html_answer);
-							$tpl->setVariable('TXT_BEST_SOLUTION', $this->plugin->txt('question_best_solution'));
-							$tpl->setVariable('HTML_SOLUTION',$html_solution);
+
+							if ($this->config->answers_with_best_solution)
+							{
+								$tpl->setVariable('TXT_BEST_SOLUTION', $this->plugin->txt('question_best_solution'));
+								$tpl->setVariable('HTML_SOLUTION',$html_solution);
+							}
+
 							$tpl->parseCurrentBlock();
 
 							unset($question_gui);

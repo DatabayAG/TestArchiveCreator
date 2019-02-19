@@ -17,7 +17,7 @@ class ilTestArchiveCreatorHTML
 	public $base;
 
 
-	/** @var  ilTemplate $tpl */
+	/** @var  ilTestArchiveCreatorTemplate $tpl */
 	protected $tpl;
 
 	/** @var string $tpl_type */
@@ -45,7 +45,8 @@ class ilTestArchiveCreatorHTML
 	public function initMainTemplate()
 	{
 		// we need to rewrite the main template
-		$this->tpl =  new ilTemplate("tpl.main.html", true, true);
+		$this->plugin->includeClass('class.ilTestArchiveCreatorTemplate.php');
+		$this->tpl =  new ilTestArchiveCreatorTemplate("tpl.main.html", true, true);
 		$GLOBALS['tpl'] = $this->tpl;
 		$this->tpl_type = 'main';
 
@@ -91,6 +92,8 @@ class ilTestArchiveCreatorHTML
 	{
 		if ($this->tpl_type == 'main')
 		{
+			$this->tpl->removeMediaPlayer();
+
 			$this->tpl->fillCssFiles();
 			$this->tpl->fillInlineCss();
 			$this->tpl->fillContentStyle();

@@ -1,4 +1,4 @@
-/**
+    /**
  * Control script for PhantomJS
  */
 

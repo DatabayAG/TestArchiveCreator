@@ -23,6 +23,37 @@ div.questionPrintview {
     border: none;
 }
 
+audio::before {
+    position: absolute;
+    content: "Audio";
+    display: block;
+    width: 100px;
+    height: 100px;
+    background-image: url(templates/default/images/media_placeholder.png);
+}
+
+video::before {
+    position: absolute;
+    content: "Video";
+    display: block;
+    width: 100px;
+    height: 100px;
+    background-image: url(templates/default/images/media_placeholder.png);
+}
+
+div.ilLimitedMediaPlayer iframe {
+    display: none;
+}
+
+div.ilLimitedMediaPlayer::before {
+    content: "Limited Audio";
+    display: block;
+    width: 100px;
+    height: 100px;
+    background-image: url(templates/default/images/media_placeholder.png);
+}
+
+
 @media print {
     .pageBreakBefore {page-break-before: always;}
 

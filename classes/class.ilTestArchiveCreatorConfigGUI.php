@@ -101,6 +101,9 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$this->config->hide_standard_archive = $form->getInput('hide_standard_archive');
 		$this->config->keep_creation_directory = $form->getInput('keep_creation_directory');
 		$this->config->use_system_styles = $form->getInput('use_system_styles');
+		$this->config->any_ssl_protocol = $form->getInput('any_ssl_protocol');
+		$this->config->ignore_ssl_errors = $form->getInput('ignore_ssl_errors');
+		$this->config->answers_with_best_solution = $form->getInput('answers_with_best_solution');
 		$this->config->with_login = $form->getInput('with_login');
 		$this->config->with_matriculation = $form->getInput('with_matriculation');
 
@@ -144,6 +147,21 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$styles->setInfo($this->plugin->txt('use_system_styles_info'));
 		$styles->setChecked($this->config->use_system_styles);
 		$form->addItem($styles);
+
+		$protocol = new ilCheckboxInputGUI($this->plugin->txt('any_ssl_protocol'), 'any_ssl_protocol');
+		$protocol->setInfo($this->plugin->txt('any_ssl_protocol_info'));
+		$protocol->setChecked($this->config->any_ssl_protocol);
+		$form->addItem($protocol);
+
+		$errors = new ilCheckboxInputGUI($this->plugin->txt('ignore_ssl_errors'), 'ignore_ssl_errors');
+		$errors->setInfo($this->plugin->txt('ignore_ssl_errors_info'));
+		$errors->setChecked($this->config->ignore_ssl_errors);
+		$form->addItem($errors);
+
+		$best = new ilCheckboxInputGUI($this->plugin->txt('answers_with_best_solution'), 'answers_with_best_solution');
+		$best->setInfo($this->plugin->txt('answers_with_best_solution_info'));
+		$best->setChecked($this->config->answers_with_best_solution);
+		$form->addItem($best);
 
 		$header = new ilFormSectionHeaderGUI();
 		$header->setTitle($this->plugin->txt('privacy_settings'));

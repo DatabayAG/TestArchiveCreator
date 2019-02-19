@@ -90,4 +90,10 @@ participants_html#:#Teilnehmer (HTML)
 settings_html#:#Test-Eisntellungen (HTML)
 test_archive#:#Test-Archiv
 use_system_styles#:#System-Styles verwenden
-use_system_styles_info#:#Verwendet die System-Styles (Standard: delos.css) bei der PDF-Generierung. Durch den verwendeten Web-Font sind die PDF-Dateien bei der Generierung mit PhantomJS größer und nicht durchsuchbar.
+use_system_styles_info#:#Verwendet die System-Styles (Standard: delos.css) bei der PDF-Generierung. Durch den verwendeten Web-Font sind die PDF-Dateien bei der Generierung mit PhantomJS 2.1.1 größer und nicht durchsuchbar.
+any_ssl_protocol#:#Beliebiges SSL-Protokoll
+any_ssl_protocol_info#:#Erlaubt beliebige SSL-Protokolle beim Laden von eingebetteten Bildern, Styles und Skripten. Wird für PhantomJS 1.9.8 benötigt.
+ignore_ssl_errors#:#SSL-Fehler ignorieren
+ignore_ssl_errors_info#:#Ignoriert SSL-Zertifikatsfehler beim Laden von eingebetteten Bildern, Styles und Skripten. Wird für PhantomJS 1.9.8 benötigt.
+answers_with_best_solution#:#Antwoten mit Musterlösung
+answers_with_best_solution_info#:#Fügt in die PDF-Dateien der Teilnehmerantworten unter jeder Frage die Musterlösung ein.

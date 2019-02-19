@@ -100,10 +100,21 @@ class ilTestArchiveCreatorPDF
 
 		if (is_executable($phantomJs))
 		{
+			$command = $phantomJs;
+			if ($this->config->any_ssl_protocol)
+			{
+				$command .= ' --ssl-protocol=any';
+			}
+			if ($this->config->ignore_ssl_errors)
+			{
+				$command .= ' --ignore-ssl-errors=true';
+			}
+			$command .= ' ' . $scriptFile . ' ' . $jobsFile;
+
 			try
 			{
-				$log->root()->info("$phantomJs $scriptFile $jobsFile");
-				$output = exec("$phantomJs $scriptFile $jobsFile");
+				$log->root()->info($command);
+				$output = exec($command);
 				$log->root()->info($output);
 			}
 			catch (Exception $e)

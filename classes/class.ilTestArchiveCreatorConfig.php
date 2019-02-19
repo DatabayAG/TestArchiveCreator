@@ -6,7 +6,7 @@
  */
 class ilTestArchiveCreatorConfig
 {
-	/** @var  float path to the executable of PhantomJS */
+	/** @var  string path to the executable of PhantomJS */
 	public $phantomjs_path;
 
 	/** @var float zoom factor for pdf generation */
@@ -36,6 +36,14 @@ class ilTestArchiveCreatorConfig
 	/** @var  bool use the system styles */
 	public $use_system_styles;
 
+	/** @var bool allow any ssl protocol */
+	public $any_ssl_protocol;
+
+	/** @var bool ignore_ssl_errors */
+	public $ignore_ssl_errors;
+
+	/** @var bool answers_with_best_solution */
+	public $answers_with_best_solution;
 
 	/** @var ilTestArchiveCreatorPlugin $plugin */
 	protected $plugin;
@@ -59,9 +67,14 @@ class ilTestArchiveCreatorConfig
 		$this->hide_standard_archive = (bool) $this->settings->get('hide_standard_archive', true);
 		$this->keep_creation_directory = (string) $this->settings->get('keep_creation_directory', false);
 		$this->use_system_styles = (bool) $this->settings->get('use_system_styles', true);
+		$this->any_ssl_protocol = (bool)  $this->settings->get('any_ssl_protocol', false);
+		$this->ignore_ssl_errors = (bool)  $this->settings->get('ignore_ssl_errors', false);
+
+		$this->answers_with_best_solution = (bool) $this->settings->get('answers_with_best_solution', true);
 
 		$this->with_login = (bool) $this->settings->get('with_login', true);
 		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
+
 
 		$this->pass_selection = (string) $this->settings->get('pass_selection', ilTestArchiveCreatorPlugin::PASS_SCORED);
 		$this->random_questions = (string) $this->settings->get('random_questions', ilTestArchiveCreatorPlugin::RANDOM_USED);
@@ -79,12 +92,16 @@ class ilTestArchiveCreatorConfig
 		$this->settings->set('hide_standard_archive', $this->hide_standard_archive ? '1' : '0');
 		$this->settings->set('keep_creation_directory', $this->keep_creation_directory ? '1' : '0');
 		$this->settings->set('use_system_styles', $this->use_system_styles ? '1' : '0');
+		$this->settings->set('any_ssl_protocol', $this->any_ssl_protocol ? '1' : '0');
+		$this->settings->set('ignore_ssl_errors', $this->ignore_ssl_errors ? '1' : '0');
+
+		$this->settings->set('answers_with_best_solution', $this->answers_with_best_solution ? '1' : '0');
 
 		$this->settings->set('with_login', $this->with_login ? '1' : '0');
 		$this->settings->set('with_matriculation', $this->with_matriculation ? '1' : '0');
 
 		$this->settings->set('pass_selection', (string) $this->pass_selection);
-		$this->settings->set('pass_selection', (string) $this->random_questions);
+		$this->settings->set('random_questions', (string) $this->random_questions);
 		$this->settings->set('zoom_factor', (string) $this->zoom_factor);
 		$this->settings->set('orientation', (string) $this->orientation);
 	}
