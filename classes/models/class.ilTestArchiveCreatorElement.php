@@ -16,6 +16,9 @@ abstract class ilTestArchiveCreatorElement
 	protected $plugin;
 
 
+	/** @var ilTestArchiveCreatorSettings */
+	protected $settings;
+
 	/**
 	 * Constructor
 	 * @param ilTestArchiveCreator $creator
@@ -27,6 +30,7 @@ abstract class ilTestArchiveCreatorElement
 
 		$this->creator = $creator;
 		$this->plugin = $this->creator->plugin;
+		$this->settings = $this->creator->settings;
 	}
 
 	/**

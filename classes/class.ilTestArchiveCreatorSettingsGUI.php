@@ -155,10 +155,8 @@ class ilTestArchiveCreatorSettingsGUI
 		switch ($cmd)
 		{
 			case "editSettings":
-				if ($this->prepareOutput())
-				{
-					$this->$cmd();
-				}
+				$this->prepareOutput();
+				$this->$cmd();
                 break;
 			case "saveSettings":
 			case "cancelSettings":
@@ -232,37 +230,75 @@ class ilTestArchiveCreatorSettingsGUI
 			$schedule->setDisabled(true);
 		}
 
-		$pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
-		$pass_selection->setOptions(array(
-			ilTestArchiveCreatorPlugin::PASS_SCORED => $this->plugin->txt('pass_scored'),
-			ilTestArchiveCreatorPlugin::PASS_ALL => $this->plugin->txt('pass_all'),
-		));
-		$pass_selection->setValue($this->settings->pass_selection);
-		$form->addItem($pass_selection);
+        $questions = new ilCheckboxInputGUI($this->plugin->txt('include_questions'), 'include_questions');
+        $questions->setInfo($this->plugin->txt('include_questions_info'));
+        $questions->setChecked($this->settings->include_questions);
+        $form->addItem($questions);
 
-		if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
-			$random_questions = new ilSelectInputGUI($this->plugin->txt('random_questions'), 'random_questions');
-			$random_questions->setOptions(array(
-				ilTestArchiveCreatorPlugin::RANDOM_ALL => $this->plugin->txt('random_questions_all'),
-				ilTestArchiveCreatorPlugin::RANDOM_USED => $this->plugin->txt('random_questions_used'),
-			));
-			$random_questions->setValue($this->settings->random_questions);
-			$form->addItem($random_questions);
-		}
+        if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
+            $random_questions = new ilSelectInputGUI($this->plugin->txt('random_questions'), 'random_questions');
+            $random_questions->setOptions(array(
+                ilTestArchiveCreatorPlugin::RANDOM_ALL => $this->plugin->txt('random_questions_all'),
+                ilTestArchiveCreatorPlugin::RANDOM_USED => $this->plugin->txt('random_questions_used'),
+            ));
+            $random_questions->setValue($this->settings->random_questions);
+            $questions->addSubItem($random_questions);
+        }
 
-		$orientation = new ilSelectInputGUI($this->plugin->txt('orientation'), 'orientation');
-		$orientation->setOptions(array(
-			ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
-			ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
-		));
-		$orientation->setValue($this->settings->orientation);
-		$form->addItem($orientation);
+        $qbest = new ilCheckboxInputGUI($this->plugin->txt('questions_with_best_solution'), 'questions_with_best_solution');
+        $qbest->setInfo($this->plugin->txt('questions_with_best_solution_info'));
+        $qbest->setChecked($this->settings->questions_with_best_solution);
+        $questions->addSubItem($qbest);
 
-		$zoom_factor = new ilNumberInputGUI($this->plugin->txt('zoom_factor'), 'zoom_factor');
-		$zoom_factor->setSize(5);
-		$zoom_factor->allowDecimals(false);
-		$zoom_factor->setValue($this->settings->zoom_factor * 100);
-		$form->addItem($zoom_factor);
+
+        $answers = new ilCheckboxInputGUI($this->plugin->txt('include_answers'), 'include_answers');
+        $answers->setInfo($this->plugin->txt('include_answers_info'));
+        $answers->setChecked($this->settings->include_answers);
+        $form->addItem($answers);
+
+        $pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
+        $pass_selection->setOptions(array(
+            ilTestArchiveCreatorPlugin::PASS_SCORED => $this->plugin->txt('pass_scored'),
+            ilTestArchiveCreatorPlugin::PASS_ALL => $this->plugin->txt('pass_all'),
+        ));
+        $pass_selection->setValue($this->settings->pass_selection);
+        $answers->addSubItem($pass_selection);
+
+        $abest = new ilCheckboxInputGUI($this->plugin->txt('answers_with_best_solution'), 'answers_with_best_solution');
+        $abest->setInfo($this->plugin->txt('answers_with_best_solution_info'));
+        $abest->setChecked($this->settings->answers_with_best_solution);
+        $answers->addSubItem($abest);
+
+
+        $orientation = new ilSelectInputGUI($this->plugin->txt('orientation'), 'orientation');
+        $orientation->setOptions(array(
+            ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
+            ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
+        ));
+        $orientation->setValue($this->settings->orientation);
+        $form->addItem($orientation);
+
+        $zoom_factor = new ilNumberInputGUI($this->plugin->txt('zoom_factor'), 'zoom_factor');
+        $zoom_factor->setSize(5);
+        $zoom_factor->allowDecimals(false);
+        $zoom_factor->setValue($this->config->zoom_factor * 100);
+        $form->addItem($zoom_factor);
+
+        $min_wait = new ilNumberInputGUI($this->plugin->txt('min_rendering_wait'), 'min_rendering_wait');
+        $min_wait->setInfo($this->plugin->txt('min_rendering_wait_info'));
+        $min_wait->setSize(5);
+        $min_wait->allowDecimals(false);
+        $min_wait->setValue($this->settings->min_rendering_wait);
+        $min_wait->setMinValue(1);
+        $form->addItem($min_wait);
+
+        $max_wait = new ilNumberInputGUI($this->plugin->txt('max_rendering_wait'), 'max_rendering_wait');
+        $max_wait->setInfo($this->plugin->txt('max_rendering_wait_info'));
+        $max_wait->setSize(5);
+        $max_wait->allowDecimals(false);
+        $max_wait->setMinValue(1);
+        $max_wait->setValue($this->settings->max_rendering_wait);
+        $form->addItem($max_wait);
 
 		$form->addCommandButton('saveSettings', $this->lng->txt('save'));
 		$form->addCommandButton('cancelSettings', $this->lng->txt('cancel'));
@@ -288,23 +324,34 @@ class ilTestArchiveCreatorSettingsGUI
     protected function saveSettings()
     {
 		$form = $this->initSettingsForm();
-		$form->setValuesByPost();
 		if (!$form->checkInput())
 		{
 			$form->setValuesByPost();
+            $this->prepareOutput();
 			$this->tpl->setContent($form->getHTML());
 			$this->tpl->show();
+			return;
 		}
 		$this->settings->status = $form->getInput('status');
-		$this->settings->pass_selection = $form->getInput('pass_selection');
 		$this->settings->schedule = $form->getItemByPostVar('schedule')->getDate();
-		$this->settings->orientation = $form->getInput('orientation');
+
+        $this->settings->include_questions = $form->getInput('include_questions');
+        $this->settings->include_answers = $form->getInput('include_answers');
+        $this->settings->questions_with_best_solution = $form->getInput('questions_with_best_solution');
+        $this->settings->answers_with_best_solution = $form->getInput('answers_with_best_solution');
+
+        $this->settings->pass_selection = $form->getInput('pass_selection');
+        if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
+            $this->settings->random_questions = $form->getInput('random_questions');
+        }
+
+        $this->settings->orientation = $form->getInput('orientation');
 		$this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
-		if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
-			$this->settings->random_questions = $form->getInput('random_questions');
-		}
-		
-		$this->settings->save();
+
+        $this->settings->min_rendering_wait = $form->getInput('min_rendering_wait');
+        $this->settings->max_rendering_wait = $form->getInput('max_rendering_wait');
+
+        $this->settings->save();
 
         ilUtil::sendSuccess($this->plugin->txt('settings_saved'), true);
 		$this->returnToExport();

@@ -1,11 +1,11 @@
 <?php
-// Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
+// Copyright (c) 2017-2019 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
 // alphanumerical ID of the plugin; never change this
 $id = "tarc_ui";
 
 // code version; must be changed for all code changes
-$version = "1.1.1";
+$version = "1.2.0";
 
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin

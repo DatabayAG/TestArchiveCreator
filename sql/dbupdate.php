@@ -72,3 +72,63 @@ if (!$ilDB->tableColumnExists('tarc_ui_settings', 'random_questions')) {
 	));
 }
 ?>
+<#6>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'include_questions')) {
+    $ilDB->addTableColumn('tarc_ui_settings', 'include_questions', array(
+        'type' => 'integer',
+        'notnull' => true,
+        'default' => 1
+    ));
+}
+?>
+<#7>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'questions_with_best_solution')) {
+    $ilDB->addTableColumn('tarc_ui_settings', 'questions_with_best_solution', array(
+        'type' => 'integer',
+        'notnull' => true,
+        'default' => 1
+    ));
+}
+?>
+<#8>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'include_answers')) {
+    $ilDB->addTableColumn('tarc_ui_settings', 'include_answers', array(
+        'type' => 'integer',
+        'notnull' => true,
+        'default' => 1
+    ));
+}
+?>
+<#9>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'answers_with_best_solution')) {
+    $ilDB->addTableColumn('tarc_ui_settings', 'answers_with_best_solution', array(
+        'type' => 'integer',
+        'notnull' => true,
+        'default' => 1
+    ));
+}
+?>
+<#10>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'min_rendering_wait')) {
+    $ilDB->addTableColumn('tarc_ui_settings', 'min_rendering_wait', array(
+        'type' => 'integer',
+        'notnull' => true,
+        'default' => 200
+    ));
+}
+?>
+<#11>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'max_rendering_wait')) {
+    $ilDB->addTableColumn('tarc_ui_settings', 'max_rendering_wait', array(
+        'type' => 'integer',
+        'notnull' => true,
+        'default' => 2000
+    ));
+}
+?>

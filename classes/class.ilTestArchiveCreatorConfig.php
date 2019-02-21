@@ -33,6 +33,9 @@ class ilTestArchiveCreatorConfig
 	/** @var  bool keep the creation directory */
 	public $keep_creation_directory;
 
+    /** @var  bool keep the jobfile */
+    public $keep_jobfile;
+
 	/** @var  bool use the system styles */
 	public $use_system_styles;
 
@@ -42,7 +45,25 @@ class ilTestArchiveCreatorConfig
 	/** @var bool ignore_ssl_errors */
 	public $ignore_ssl_errors;
 
-	/** @var bool answers_with_best_solution */
+	/** @var bool min_rendering_wait */
+	public $min_rendering_wait;
+
+	/** @var bool max_rendering_wait */
+	public $max_rendering_wait;
+
+	/** @var bool render_twice */
+	public $render_twice;
+
+	/** @var bool include questions */
+	public $include_questions;
+
+    /** @var bool include answers */
+    public $include_answers;
+
+    /** @var bool questions_with_best_solution */
+    public $questions_with_best_solution;
+
+    /** @var bool answers_with_best_solution */
 	public $answers_with_best_solution;
 
 	/** @var ilTestArchiveCreatorPlugin $plugin */
@@ -65,22 +86,30 @@ class ilTestArchiveCreatorConfig
 
 		$this->phantomjs_path = (string) $this->settings->get('phantomjs_path', '/opt/phantomjs/phantomjs');
 		$this->hide_standard_archive = (bool) $this->settings->get('hide_standard_archive', true);
-		$this->keep_creation_directory = (string) $this->settings->get('keep_creation_directory', false);
+		$this->keep_creation_directory = (bool) $this->settings->get('keep_creation_directory', false);
+        $this->keep_jobfile = (bool) $this->settings->get('keep_jobfile', false);
 		$this->use_system_styles = (bool) $this->settings->get('use_system_styles', true);
 		$this->any_ssl_protocol = (bool)  $this->settings->get('any_ssl_protocol', false);
 		$this->ignore_ssl_errors = (bool)  $this->settings->get('ignore_ssl_errors', false);
-
-		$this->answers_with_best_solution = (bool) $this->settings->get('answers_with_best_solution', true);
+        $this->render_twice = (bool)  $this->settings->get('render_twice', false);
 
 		$this->with_login = (bool) $this->settings->get('with_login', true);
 		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
 
+        $this->include_questions = (bool) $this->settings->get('include_questions', true);
+        $this->include_answers = (bool) $this->settings->get('include_answers', true);
+        $this->questions_with_best_solution = (bool) $this->settings->get('questions_with_best_solution', true);
+        $this->answers_with_best_solution = (bool) $this->settings->get('answers_with_best_solution', true);
 
-		$this->pass_selection = (string) $this->settings->get('pass_selection', ilTestArchiveCreatorPlugin::PASS_SCORED);
+        $this->pass_selection = (string) $this->settings->get('pass_selection', ilTestArchiveCreatorPlugin::PASS_SCORED);
 		$this->random_questions = (string) $this->settings->get('random_questions', ilTestArchiveCreatorPlugin::RANDOM_USED);
+
 		$this->zoom_factor = (float) $this->settings->get('zoom_factor', '1.0');
 		$this->orientation = (string) $this->settings->get('orientation', ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT);
-	}
+
+        $this->min_rendering_wait = (int)  $this->settings->get('min_rendering_wait', 200);
+        $this->max_rendering_wait = (int)  $this->settings->get('max_rendering_wait', 2000);
+    }
 
 
 	/**
@@ -89,20 +118,29 @@ class ilTestArchiveCreatorConfig
 	public function save()
 	{
 		$this->settings->set('phantomjs_path', (string) $this->phantomjs_path);
-		$this->settings->set('hide_standard_archive', $this->hide_standard_archive ? '1' : '0');
-		$this->settings->set('keep_creation_directory', $this->keep_creation_directory ? '1' : '0');
-		$this->settings->set('use_system_styles', $this->use_system_styles ? '1' : '0');
-		$this->settings->set('any_ssl_protocol', $this->any_ssl_protocol ? '1' : '0');
-		$this->settings->set('ignore_ssl_errors', $this->ignore_ssl_errors ? '1' : '0');
+		$this->settings->set('hide_standard_archive', (bool) $this->hide_standard_archive ? '1' : '0');
+		$this->settings->set('keep_creation_directory', (bool) $this->keep_creation_directory ? '1' : '0');
+        $this->settings->set('keep_jobfile', (bool) $this->keep_jobfile ? '1' : '0');
+		$this->settings->set('use_system_styles', (bool) $this->use_system_styles ? '1' : '0');
+		$this->settings->set('any_ssl_protocol', (bool) $this->any_ssl_protocol ? '1' : '0');
+		$this->settings->set('ignore_ssl_errors', (bool) $this->ignore_ssl_errors ? '1' : '0');
+		$this->settings->set('render_twice', (bool) $this->render_twice ? '1' : '0');
 
-		$this->settings->set('answers_with_best_solution', $this->answers_with_best_solution ? '1' : '0');
+		$this->settings->set('with_login', (bool) $this->with_login ? '1' : '0');
+		$this->settings->set('with_matriculation', (bool) $this->with_matriculation ? '1' : '0');
 
-		$this->settings->set('with_login', $this->with_login ? '1' : '0');
-		$this->settings->set('with_matriculation', $this->with_matriculation ? '1' : '0');
+        $this->settings->set('include_questions', (bool) $this->include_questions ? '1' : '0');
+        $this->settings->set('include_answers', (bool) $this->include_answers ? '1' : '0');
+        $this->settings->set('questions_with_best_solution', (bool) $this->questions_with_best_solution ? '1' : '0');
+        $this->settings->set('answers_with_best_solution', (bool) $this->answers_with_best_solution ? '1' : '0');
 
-		$this->settings->set('pass_selection', (string) $this->pass_selection);
+        $this->settings->set('pass_selection', (string) $this->pass_selection);
 		$this->settings->set('random_questions', (string) $this->random_questions);
+
 		$this->settings->set('zoom_factor', (string) $this->zoom_factor);
 		$this->settings->set('orientation', (string) $this->orientation);
-	}
+
+		$this->settings->set('min_rendering_wait', $this->min_rendering_wait ? (int) $this->min_rendering_wait : 1);
+        $this->settings->set('max_rendering_wait', $this->max_rendering_wait ? (int) $this->max_rendering_wait : 1);
+    }
 }

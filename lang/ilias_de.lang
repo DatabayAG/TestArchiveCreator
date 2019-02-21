@@ -95,5 +95,19 @@ any_ssl_protocol#:#Beliebiges SSL-Protokoll
 any_ssl_protocol_info#:#Erlaubt beliebige SSL-Protokolle beim Laden von eingebetteten Bildern, Styles und Skripten. Wird für PhantomJS 1.9.8 benötigt.
 ignore_ssl_errors#:#SSL-Fehler ignorieren
 ignore_ssl_errors_info#:#Ignoriert SSL-Zertifikatsfehler beim Laden von eingebetteten Bildern, Styles und Skripten. Wird für PhantomJS 1.9.8 benötigt.
+keep_jobfile#:#Jobfile behalten
+keep_jobfile_info#:#Die Jobdatei zur PDF-Erzeugung soll im Archiv-Ordner behalten bleiben. Sie kann zur Fehlersuche verwendet werden.
+min_rendering_wait#:#Minimale Wartezeit (ms)
+min_rendering_wait_info#:#Minimale Zeit in Millisekunden nach dem Laden einer HTML-Datei in PhantomJS vor ihrem Speichern als PDF. Mit diesem Intervall wird auch zyklisch getestet, ob alle Seiteninhalte geladen sind.
+max_rendering_wait#:#Maximale Wartezeit (ms)
+max_rendering_wait_info#:#Maximale Zeit in Millisekunden nach dem Laden einer HTML-Datei in PhantomJS vor ihrem Speichern als PDF. Sind alle Seiteninhalte bereits vorher geladen, wird die Zeit nicht ausgeschöpft.
+render_twice#:#Doppelte Generierung
+render_twice_info#:#Generiert jede PDF-Datei zweimal (wird überschrieben). Workaround für PhantomJS 1.9.8, um fehlende Bilder zu vermeiden.
+include_questions#:#Fragen einbinden
+include_questions_info#:#Erzeugt einen Ordner im Archiv mit den Fragen des Tests.
+include_answers#:#Antworten einbinden
+include_answers_info#:#Erzeugt einen Ordner im Archiv mit den Antworten der Test-Teilnehmer.
+questions_with_best_solution#:#Fragen mit Musterlösung
+questions_with_best_solution_info#:#Erzeugt zu jeder Frage auch eine PDF-Datei mit der Musterlösung.
 answers_with_best_solution#:#Antwoten mit Musterlösung
 answers_with_best_solution_info#:#Fügt in die PDF-Dateien der Teilnehmerantworten unter jeder Frage die Musterlösung ein.

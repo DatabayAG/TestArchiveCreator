@@ -1,4 +1,4 @@
-    /**
+/**
  * Control script for PhantomJS
  */
 
@@ -11,9 +11,10 @@ if (system.args.length !== 2) {
     phantom.exit(1);
 }
 
-var jobs = JSON.parse(fs.read(system.args[1]));
+var config = JSON.parse(fs.read(system.args[1]));
 var jobnum = 0;
 
+setCookies();
 doJobs();
 
 /*****************************************************************************/
@@ -24,16 +25,20 @@ doJobs();
 function doJobs ()
 {
 	// get the current job or exit if finished
-	if (jobnum >= jobs.length) {
-		phantom.exit();
-	}
-	var job = jobs[jobnum];
-	var headLeft = job['headLeft'];
-    var headRight = job['headRight'];
-    var footLeft = job['footLeft'];
-	var time = job['time'];
-	var orientation = job['orientation'];
-	console.log('Job ' + jobnum + ': '+ job['sourceFile']);
+	if (jobnum >= config.jobs.length) {
+        phantom.exit();
+    }
+
+	var job = config.jobs[jobnum];
+    var minRenderingWait = config.minRenderingWait;
+    var maxRenderingWait = config.maxRenderingWait;
+	var headLeft = job.headLeft;
+    var headRight = job.headRight;
+    var footLeft = job.footLeft;
+
+	var time = job.time;
+
+	console.log('Job ' + jobnum + ': '+ job.sourceFile);
 	jobnum++;
 
 	// create and render the page
@@ -41,7 +46,7 @@ function doJobs ()
 	page.zoomFactor = 1;
     page.paperSize = {
         format: 'A4',
-        orientation: orientation,
+        orientation: config.orientation,
         margin: '1cm',
         header: {
             height: "1cm",
@@ -60,11 +65,11 @@ function doJobs ()
             })
         }
     };
-	page.open('file:///'+job['sourceFile'], function(status) {
+	page.open('file:///'+job.sourceFile, function(status) {
 		
-		if (status == 'fail') {
-			page.content = 'Loading Failed: ' + job['sourceFile'];
-			page.render(job['targetFile'],  {format: 'pdf', quality: '100'});
+		if (status === 'fail') {
+			page.content = 'Loading Failed: ' + job.sourceFile;
+			page.render(job.targetFile,  {format: 'pdf', quality: '100'});
 			page.close();
 			doJobs();
 			return;
@@ -75,20 +80,24 @@ function doJobs ()
 			// Condition
 			function() { 
 				return page.evaluate(function() {
-					// this boolean variable must be set by the page
-					return true;
+					// ensure that all images are loaded
+					return document.readyState === 'complete';
 				});
 			}, 	
 			
 			// Action
-			function() {				
-				page.render(job['targetFile'],  {format: 'pdf', quality: '100'});
+			function() {
+                console.log('render ' + job.targetFile);
+                page.render(job.targetFile,  {format: 'pdf', quality: '100'});
 				page.close();
 				doJobs();
-			},	
-			
-			// Timeout 10s
-			10000		
+			},
+
+            // check interval and minimum waiting time (milliseconds)
+            minRenderingWait,
+
+			// Timeout (milliseconds)
+            maxRenderingWait
 		); 
     });		
 }
@@ -100,32 +109,58 @@ function doJobs ()
  *
  * @param testFx callback function that evaluates to a boolean
  * @param onReady callback function that is called after fulfilled condition or timeout 
- * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
+ * @param minMs check interval and minimum milliseconds to wait
+ * @param maxMs maximum milliseconds to wait
  * 
  * @see https://github.com/ariya/phantomjs/blob/master/examples/waitfor.js
  */
-function waitFor(testFx, onReady, timeOutMillis) 
+function waitFor(testFx, onReady, minMs, maxMs)
 {
-    var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000; 
+    minMs = minMs ? minMs : 1;
+    maxMs = maxMs ? maxMs : 1;
+
     var start = new Date().getTime();
-    var condition = false;
-	
+
     var interval = window.setInterval(function() 
 		{
-            if ( (new Date().getTime() - start < maxtimeOutMillis) && !condition ) {
-                // Not time-out yet and condition not yet fulfilled
-                condition = testFx(); 
-            } 
-			else {
-                if(condition) {
-					// Condition fulfilled 
-                    console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
-                } else {
-                    // Condition still not fulfilled
-                    console.log("'waitFor()' timeout");
-                }
-				window.clearInterval(interval); 
-				onReady();
+		    var current = new Date().getTime();
+
+            // timeout or condition is true
+		    if ((current - start >= minMs) &&
+                (current - start >= maxMs) || testFx()) {
+
+		        // Condition fulfilled
+                console.log("Waiting finished in " + (current - start) + "ms.");
+                window.clearInterval(interval);
+                onReady();
             }
-		}, 250); // repeat check every 250ms
+
+		}, minMs); // repeat check every minimum milliseconds
+}
+
+
+/**
+ * Set the coolies needed for loading images if Web Access Checker is on
+ */
+function setCookies()
+{
+    phantom.addCookie ({
+        'name'     : 'ilClientId',
+        'value'    : config.clientId,
+        'domain'   : config.cookieDomain,
+        'path'     : config.cookiePath,
+        'httponly' : config.cookieHttpOnly,
+        'secure'   : config.cookieSecure,
+        'expires'  : config.cookieExpires
+    });
+
+    phantom.addCookie ({
+        'name'     : 'PHPSESSID',
+        'value'    : config.sessionId,
+        'domain'   : config.cookieDomain,
+        'path'     : config.cookiePath,
+        'httponly' : config.cookieHttpOnly,
+        'secure'   : config.cookieSecure,
+        'expires'  : config.cookieExpires
+    });
 }

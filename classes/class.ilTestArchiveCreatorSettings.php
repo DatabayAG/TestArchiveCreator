@@ -18,7 +18,25 @@ class ilTestArchiveCreatorSettings
 	/** @var  string  selection of the random questions to include in the archive */
 	public $random_questions;
 
-	/** @var float */
+    /** @var bool include questions */
+    public $include_questions;
+
+    /** @var bool include answers */
+    public $include_answers;
+
+    /** @var bool questions_with_best_solution */
+    public $questions_with_best_solution;
+
+    /** @var bool answers_with_best_solution */
+    public $answers_with_best_solution;
+
+    /** @var bool min_rendering_wait */
+    public $min_rendering_wait;
+
+    /** @var bool max_rendering_wait */
+    public $max_rendering_wait;
+
+    /** @var float */
 	public $zoom_factor;
 
 	/** @var string */
@@ -64,18 +82,30 @@ class ilTestArchiveCreatorSettings
 				$this->schedule = new ilDateTime($row['schedule'], IL_CAL_DATETIME);
 			}
 
+            $this->include_questions = (bool) $row['include_questions'];
+            $this->include_answers = (bool) $row['include_answers'];
+            $this->questions_with_best_solution = (bool) $row['questions_with_best_solution'];
+            $this->answers_with_best_solution = (bool) $row['answers_with_best_solution'];
 			$this->pass_selection = (string) $row['pass_selection'];
 			$this->random_questions = (string) $row['random_questions'];
 			$this->zoom_factor = (float) $row['zoom_factor'];
 			$this->orientation = (string) $row['orientation'];
+            $this->min_rendering_wait = (int) $row['min_rendering_wait'];
+            $this->max_rendering_wait = (int) $row['max_rendering_wait'];
 		}
 		else {
 			// initialize walues with those if the global configuration
 			$config = $this->plugin->getConfig();
+			$this->include_questions = (bool) $config->include_questions;
+			$this->include_answers = (bool) $config->include_answers;
+			$this->questions_with_best_solution = (bool) $config->questions_with_best_solution;
+			$this->answers_with_best_solution = (bool) $config->answers_with_best_solution;
 			$this->pass_selection = (string) $config->pass_selection;
 			$this->random_questions = (string) $config->random_questions;
 			$this->zoom_factor = (float) $config->zoom_factor;
 			$this->orientation = (string) $config->orientation;
+			$this->min_rendering_wait = (int) $config->min_rendering_wait;
+			$this->max_rendering_wait = (int) $config->max_rendering_wait;
 		}
 	}
 
@@ -92,10 +122,16 @@ class ilTestArchiveCreatorSettings
 			array(
 				'status' => array('text', $this->status),
 				'schedule' => array('timestamp', isset($this->schedule) ? $this->schedule->get(IL_CAL_DATETIME) : null),
-				'pass_selection' => array('text', $this->pass_selection),
+				'include_questions' => array('integer', $this->include_questions),
+                'include_answers' => array('integer', $this->include_answers),
+                'questions_with_best_solution' => array('integer', $this->questions_with_best_solution),
+                'answers_with_best_solution' => array('integer', $this->answers_with_best_solution),
+                'pass_selection' => array('text', $this->pass_selection),
 				'random_questions' => array('text', $this->random_questions),
 				'zoom_factor' => array('float', $this->zoom_factor),
-				'orientation' => array('string', $this->orientation)
+				'orientation' => array('string', $this->orientation),
+                'min_rendering_wait' => array('integer', $this->min_rendering_wait),
+                'max_rendering_wait' => array('integer', $this->max_rendering_wait)
 			)
 		);
 		return $rows > 0;

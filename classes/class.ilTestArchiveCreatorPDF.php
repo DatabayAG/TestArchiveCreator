@@ -75,9 +75,13 @@ class ilTestArchiveCreatorPDF
 			'headLeft' => $headLeft,
 			'headRight' => $headRight,
 			'footLeft' => $this->plugin->txt('label_generated') . ' '. $this->time,
-			'orientation' => $this->settings->orientation,
 		];
 		$this->jobs[] = $job;
+
+		if ($this->config->render_twice)
+		{
+            $this->jobs[] = $job;
+        }
 		return $job;
 	}
 
@@ -90,12 +94,32 @@ class ilTestArchiveCreatorPDF
 		global $DIC;
 		$log = $DIC->logger();
 
+		if (empty($this->jobs))
+        {
+            return;
+        }
+
 		$phantomJs = $this->config->phantomjs_path;
 		$scriptFile = $this->plugin->getDirectory() . '/js/doPhantomJobs.js';
 		$jobsFile = $this->workdir . '/' . $this->jobsid . '.json';
 
-		file_put_contents($jobsFile, json_encode($this->jobs));
-		$jobinfo = print_r($this->jobs, true);
+		$content = [
+		    'clientId' => CLIENT_ID,
+            'sessionId' => session_id(),
+            'cookieDomain' => $_SERVER['HTTP_HOST'],
+            'cookiePath' => IL_COOKIE_PATH,
+            'cookieSecure' => IL_COOKIE_SECURE,
+            'cookieHttpOnly' => IL_COOKIE_HTTPONLY,
+            'orientation' => $this->settings->orientation,
+            'minRenderingWait' => $this->settings->min_rendering_wait,
+            'maxRenderingWait' => $this->settings->max_rendering_wait,
+
+            'jobs' => $this->jobs
+        ];
+
+		file_put_contents($jobsFile, json_encode($content));
+
+		$jobinfo = print_r($content, true);
 		$log->root()->debug($jobinfo);
 
 		if (is_executable($phantomJs))
@@ -133,7 +157,9 @@ class ilTestArchiveCreatorPDF
 	 */
 	public function clearJobs()
 	{
-		@unlink($this->workdir . '/' . $this->jobsid . '.json');
+	    if (!($this->config->keep_creation_directory && $this->config->keep_jobfile)) {
+            @unlink($this->workdir . '/' . $this->jobsid . '.json');
+        }
 
 		$this->jobs = [];
 		$this->jobsid = '';

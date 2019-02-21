@@ -52,14 +52,19 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 	 */
 	function getColumns()
 	{
-		return array(
+		$columns = array(
 			'exam_question_id' => $this->plugin->txt('question_id'),
 			'title' => $this->plugin->txt('question_title'),
 			'type' => $this->plugin->txt('question_type'),
 			'max_points' => $this->plugin->txt('max_points'),
-			'presentation' => $this->plugin->txt('question_presentation'),
-			'best_solution' => $this->plugin->txt('question_best_solution'),
+			'presentation' => $this->plugin->txt('question_presentation')
 		);
+
+		if ($this->settings->questions_with_best_solution)
+        {
+            $columns['best_solution'] = $this->plugin->txt('question_best_solution');
+        }
+        return $columns;
 	}
 
 	/**
@@ -81,13 +86,18 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 	 */
 	function getRowData($format = 'csv')
 	{
-		return array(
+		$row = array(
 			'exam_question_id' => $this->exam_question_id,
 			'title' => $this->title,
 			'type' => $this->type,
 			'max_points' => $this->max_points,
 			'presentation' => $this->presentation,
-			'best_solution' => $this->best_solution,
 		);
+		if ($this->settings->questions_with_best_solution)
+        {
+            $row['best_solution'] = $this->best_solution;
+        }
+
+        return $row;
 	}
 }

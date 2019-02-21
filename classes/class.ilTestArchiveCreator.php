@@ -43,7 +43,8 @@ class ilTestArchiveCreator
 	protected $htmlCreator;
 
 	/** @var  array question_id  => true */
-	protected $usedQuestionIds = array();
+	/** @see getUsedQuestionIds() */
+	protected $usedQuestionIds;
 
 	/**
 	 * Constructor
@@ -80,11 +81,20 @@ class ilTestArchiveCreator
 		$this->initCreation();
 
 		$this->handleSettings();
-		$this->handleParticipants();			// handle before questions to get the used ids
-		$this->handleQuestions();
+
+		if ($this->settings->include_answers)
+        {
+            // handle before questions to prefill the question ids
+            $this->handleParticipants();
+        }
+        if ($this->settings->include_questions)
+        {
+            $this->handleQuestions();
+        }
 		$this->handleMainIndex();
 
-		$this->pdfCreator->generateJobs();		// generate before index files to enable hashes
+        // generate before index files to enable hashes
+		$this->pdfCreator->generateJobs();
 		$this->pdfCreator->clearJobs();
 
 		$this->writeIndexFiles();
@@ -152,10 +162,14 @@ class ilTestArchiveCreator
 		$tpl = $this->plugin->getTemplate('tpl.main_index.html');
 		$tpl->setVariable('TXT_TEST_ARCHIVE', $this->plugin->txt('test_archive'));
 		$tpl->setVariable('TXT_SETTINGS_HTML', $this->plugin->txt('settings_html'));
-		$tpl->setVariable('TXT_QUESTIONS_HTML', $this->plugin->txt('questions_html'));
-		$tpl->setVariable('TXT_QUESTIONS_CSV', $this->plugin->txt('questions_csv'));
-		$tpl->setVariable('TXT_PARTICIPANTS_HTML', $this->plugin->txt('participants_html'));
-		$tpl->setVariable('TXT_PARTICIPANTS_CSV', $this->plugin->txt('participants_csv'));
+		if ($this->settings->include_questions) {
+            $tpl->setVariable('TXT_QUESTIONS_HTML', $this->plugin->txt('questions_html'));
+            $tpl->setVariable('TXT_QUESTIONS_CSV', $this->plugin->txt('questions_csv'));
+        }
+        if ($this->settings->include_answers) {
+            $tpl->setVariable('TXT_PARTICIPANTS_HTML', $this->plugin->txt('participants_html'));
+            $tpl->setVariable('TXT_PARTICIPANTS_CSV', $this->plugin->txt('participants_csv'));
+        }
 		$tpl->setVariable('TXT_GENERATED', $this->plugin->txt('label_generated'));
 		$tpl->setVariable('VAL_GENERATED', ilDatePresentation::formatDate(new ilDateTime(time(), IL_CAL_UNIX)));
 
@@ -247,7 +261,7 @@ class ilTestArchiveCreator
 				$question_ids = $this->testObj->getQuestions();
 				break;
 			case ilObjTest::QUESTION_SET_TYPE_DYNAMIC:
-				$question_ids = array_keys($this->usedQuestionIds);
+				$question_ids = array_keys($this->getUsedQuestionIds());
 				break;
 
 			case ilObjTest::QUESTION_SET_TYPE_RANDOM:
@@ -261,7 +275,7 @@ class ilTestArchiveCreator
 				}
 				else
 				{
-					$question_ids = array_keys($this->usedQuestionIds);
+					$question_ids = array_keys($this->getUsedQuestionIds());
 				}
 		}
 
@@ -299,24 +313,27 @@ class ilTestArchiveCreator
 				$head_left, $this->testObj->getDescription(), $tpl->get()));
 			$this->pdfCreator->addJob($source_file, $target_file, $head_left, $head_right);
 
-			// re-initialize the template and gui for a new generation
-			$this->htmlCreator->initMainTemplate();
-			$question_gui = $this->testObj->createQuestionGUI("", $question_id);
+			if ($this->settings->questions_with_best_solution)
+            {
+                // re-initialize the template and gui for a new generation
+                $this->htmlCreator->initMainTemplate();
+                $question_gui = $this->testObj->createQuestionGUI("", $question_id);
 
-			// create best solution files
-			$tpl = $this->plugin->getTemplate('tpl.question.html');
-			$tpl->setVariable('QUESTION_ID', $question_id);
-			$tpl->setVariable('TITLE', $question->getTitle());
-			$tpl->setVariable('CONTENT', $question_gui->getSolutionOutput(
-				0, null, true, true,
-				false, false, true, false));
+                // create best solution files
+                $tpl = $this->plugin->getTemplate('tpl.question.html');
+                $tpl->setVariable('QUESTION_ID', $question_id);
+                $tpl->setVariable('TITLE', $question->getTitle());
+                $tpl->setVariable('CONTENT', $question_gui->getSolutionOutput(
+                    0, null, true, true,
+                    false, false, true, false));
 
-			$source_file = $question_dir.'/'.$element->getFilePrefix(). '_best_solution.html';
-			$target_file = $question_dir.'/'.$element->getFilePrefix(). '_best_solution.pdf';
-			$element->best_solution = $target_file;
-			$this->writeFile($source_file, $this->htmlCreator->build(
-				$head_left, $this->testObj->getDescription(), $tpl->get()));
-			$this->pdfCreator->addJob($source_file, $target_file, $head_left, $head_right);
+                $source_file = $question_dir.'/'.$element->getFilePrefix(). '_best_solution.html';
+                $target_file = $question_dir.'/'.$element->getFilePrefix(). '_best_solution.pdf';
+                $element->best_solution = $target_file;
+                $this->writeFile($source_file, $this->htmlCreator->build(
+                    $head_left, $this->testObj->getDescription(), $tpl->get()));
+                $this->pdfCreator->addJob($source_file, $target_file, $head_left, $head_right);
+            }
 
 			unset($question_gui, $question);
 		}
@@ -327,9 +344,6 @@ class ilTestArchiveCreator
 	 */
 	protected function handleParticipants()
 	{
-		global $DIC;
-		$ilObjDataCache = $DIC['ilObjDataCache'];
-
 		$this->makeDir('participants');
 
 		/** @var  ilTestEvaluationUserData $userdata */
@@ -418,7 +432,7 @@ class ilTestArchiveCreator
 							$tpl->parseCurrentBlock();
 						}
 
-						// this works for al question set types
+						// this works for all question set types
 						$questions = $this->getPassQuestionData($active_id, $pass);
 
 						foreach ($questions as $row)
@@ -443,7 +457,7 @@ class ilTestArchiveCreator
 							$question_gui = $this->testObj->createQuestionGUI($row['type_tag'], $row['qid']);
 							$html_answer = $question_gui->getSolutionOutput($active_id, $pass, TRUE, FALSE, FALSE, FALSE, FALSE);
 
-							if ($this->config->answers_with_best_solution)
+							if ($this->settings->answers_with_best_solution)
 							{
 								$html_solution = $question_gui->getSolutionOutput($active_id, $pass, FALSE, FALSE, FALSE, FALSE, TRUE);
 							}
@@ -466,7 +480,7 @@ class ilTestArchiveCreator
 							$tpl->setVariable('TXT_GIVEN_ANSWER', $this->plugin->txt('given_answer'));
 							$tpl->setVariable('HTML_ANSWER',$html_answer);
 
-							if ($this->config->answers_with_best_solution)
+							if ($this->settings->answers_with_best_solution)
 							{
 								$tpl->setVariable('TXT_BEST_SOLUTION', $this->plugin->txt('question_best_solution'));
 								$tpl->setVariable('HTML_SOLUTION',$html_solution);
@@ -523,30 +537,84 @@ class ilTestArchiveCreator
 		}
 
 		// questions
-		$index_file = 'questions.csv';
-		$source_file = 'questions.html';
-		$target_file = 'questions.pdf';
-		$this->writeFile($index_file, $this->questions->getCSV($this->testObj));
-		$this->htmlCreator->initIndexTemplate();
-		$this->writeFile($source_file, $this->htmlCreator->build(
-			$title, $this->testObj->getDescription(), $this->questions->getHTML()));
-//		$this->pdfCreator->addJob($source_file, $target_file, $title);
+        if ($this->settings->include_questions)
+        {
+            $index_file = 'questions.csv';
+            $source_file = 'questions.html';
+            $target_file = 'questions.pdf';
+            $this->writeFile($index_file, $this->questions->getCSV($this->testObj));
+            $this->htmlCreator->initIndexTemplate();
+            $this->writeFile($source_file, $this->htmlCreator->build(
+                $title, $this->testObj->getDescription(), $this->questions->getHTML()));
+            // $this->pdfCreator->addJob($source_file, $target_file, $title);
+        }
 
 		// participants
-		$index_file = 'participants.csv';
-		$source_file = 'participants.html';
-		$target_file = 'participants.pdf';
-		$this->writeFile($index_file, $this->participants->getCSV($this->testObj));
-		$this->htmlCreator->initIndexTemplate();
-		$this->writeFile($source_file, $this->htmlCreator->build(
-			$title, $this->testObj->getDescription(), $this->participants->getHTML()));
-//		$this->pdfCreator->addJob($source_file, $target_file, $title);
+        if ($this->settings->include_answers)
+        {
+            $index_file = 'participants.csv';
+            $source_file = 'participants.html';
+            $target_file = 'participants.pdf';
+            $this->writeFile($index_file, $this->participants->getCSV($this->testObj));
+            $this->htmlCreator->initIndexTemplate();
+            $this->writeFile($source_file, $this->htmlCreator->build(
+                $title, $this->testObj->getDescription(), $this->participants->getHTML()));
+            // $this->pdfCreator->addJob($source_file, $target_file, $title);
+        }
 
-//		$this->pdfCreator->generateJobs();
-//		$this->pdfCreator->clearJobs();
+    // $this->pdfCreator->generateJobs();
+    // $this->pdfCreator->clearJobs();
 	}
 
-	/**
+
+    /**
+     * Get the used question ids
+     * The array is also filled in handleParticipants()
+     * It will be filled here if participants are not included
+     *
+     * @return array    id => true
+     */
+    protected function getUsedQuestionIds()
+    {
+        if (!is_array($this->usedQuestionIds))
+        {
+            $this->usedQuestionIds = array();
+            $participants = $this->testObj->getUnfilteredEvaluationData()->getParticipants();
+
+            /** @var  ilTestEvaluationUserData $userdata */
+            foreach ($participants as $active_id => $userdata)
+            {
+                if (is_object($userdata) && is_array($userdata->getPasses()))
+                {
+                    switch($this->settings->pass_selection)
+                    {
+                        case ilTestArchiveCreatorPlugin::PASS_ALL:
+                            $passes = $userdata->getPasses();
+                            break;
+                        case ilTestArchiveCreatorPlugin::PASS_SCORED:
+                        default:
+                            $passes = array($userdata->getScoredPassObject());
+                    }
+
+                    foreach ($passes as $passdata)
+                    {
+                        if ($passdata instanceof ilTestEvaluationPassData)
+                        {
+                            $pass = $passdata->getPass();
+                            $questions = $this->getPassQuestionData($active_id, $pass);
+                            foreach ($questions as $row)
+                            {
+                                $this->usedQuestionIds[$row['qid']] = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $this->usedQuestionIds;
+    }
+
+    /**
 	 * Get the pass question data for a dynamic test
 	 * @param	int		$active_id
 	 * @param	int		$pass
