@@ -111,8 +111,8 @@ class ilTestArchiveCreatorPDF
             'cookieSecure' => IL_COOKIE_SECURE,
             'cookieHttpOnly' => IL_COOKIE_HTTPONLY,
             'orientation' => $this->settings->orientation,
-            'minRenderingWait' => $this->settings->min_rendering_wait,
-            'maxRenderingWait' => $this->settings->max_rendering_wait,
+            'minRenderingWait' => $this->config->min_rendering_wait,
+            'maxRenderingWait' => $this->config->max_rendering_wait,
 
             'jobs' => $this->jobs
         ];

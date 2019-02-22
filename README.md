@@ -116,12 +116,12 @@ VERSIONS
 - added config option 'Any SSL Protocol'
 - added config option 'Ignore SSL Errors'
 - added config option 'Double Rendering'
+- added config option 'Minimum Waiting Time (ms)'
+- added config option 'Maximum Waiting Time (ms)'
 - added setting 'Include Question'
 - added setting 'Include Answers'
 - added setting 'Questions with Best Solution'
 - added setting 'Answers with Best Solution'
-- added Setting 'Minimum Waiting Time (ms)'
-- added Setting 'Maximum Waiting Time (ms)'
 
 1.1.1 for ILIAS 5.2 and 5.3 (2018-05-08)
 -  allow to omit the systems styles for PDF generation

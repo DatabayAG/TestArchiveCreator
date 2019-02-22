@@ -284,21 +284,21 @@ class ilTestArchiveCreatorSettingsGUI
         $zoom_factor->setValue($this->config->zoom_factor * 100);
         $form->addItem($zoom_factor);
 
-        $min_wait = new ilNumberInputGUI($this->plugin->txt('min_rendering_wait'), 'min_rendering_wait');
-        $min_wait->setInfo($this->plugin->txt('min_rendering_wait_info'));
-        $min_wait->setSize(5);
-        $min_wait->allowDecimals(false);
-        $min_wait->setValue($this->settings->min_rendering_wait);
-        $min_wait->setMinValue(1);
-        $form->addItem($min_wait);
-
-        $max_wait = new ilNumberInputGUI($this->plugin->txt('max_rendering_wait'), 'max_rendering_wait');
-        $max_wait->setInfo($this->plugin->txt('max_rendering_wait_info'));
-        $max_wait->setSize(5);
-        $max_wait->allowDecimals(false);
-        $max_wait->setMinValue(1);
-        $max_wait->setValue($this->settings->max_rendering_wait);
-        $form->addItem($max_wait);
+//        $min_wait = new ilNumberInputGUI($this->plugin->txt('min_rendering_wait'), 'min_rendering_wait');
+//        $min_wait->setInfo($this->plugin->txt('min_rendering_wait_info'));
+//        $min_wait->setSize(5);
+//        $min_wait->allowDecimals(false);
+//        $min_wait->setValue($this->settings->min_rendering_wait);
+//        $min_wait->setMinValue(1);
+//        $form->addItem($min_wait);
+//
+//        $max_wait = new ilNumberInputGUI($this->plugin->txt('max_rendering_wait'), 'max_rendering_wait');
+//        $max_wait->setInfo($this->plugin->txt('max_rendering_wait_info'));
+//        $max_wait->setSize(5);
+//        $max_wait->allowDecimals(false);
+//        $max_wait->setMinValue(1);
+//        $max_wait->setValue($this->settings->max_rendering_wait);
+//        $form->addItem($max_wait);
 
 		$form->addCommandButton('saveSettings', $this->lng->txt('save'));
 		$form->addCommandButton('cancelSettings', $this->lng->txt('cancel'));
@@ -348,8 +348,8 @@ class ilTestArchiveCreatorSettingsGUI
         $this->settings->orientation = $form->getInput('orientation');
 		$this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
 
-        $this->settings->min_rendering_wait = $form->getInput('min_rendering_wait');
-        $this->settings->max_rendering_wait = $form->getInput('max_rendering_wait');
+//        $this->settings->min_rendering_wait = $form->getInput('min_rendering_wait');
+//        $this->settings->max_rendering_wait = $form->getInput('max_rendering_wait');
 
         $this->settings->save();
 

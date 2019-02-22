@@ -179,6 +179,22 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $twice->setChecked($this->config->render_twice);
         $form->addItem($twice);
 
+        $min_wait = new ilNumberInputGUI($this->plugin->txt('min_rendering_wait'), 'min_rendering_wait');
+        $min_wait->setInfo($this->plugin->txt('min_rendering_wait_info'));
+        $min_wait->setSize(5);
+        $min_wait->allowDecimals(false);
+        $min_wait->setValue($this->config->min_rendering_wait);
+        $min_wait->setMinValue(1);
+        $form->addItem($min_wait);
+
+        $max_wait = new ilNumberInputGUI($this->plugin->txt('max_rendering_wait'), 'max_rendering_wait');
+        $max_wait->setInfo($this->plugin->txt('max_rendering_wait_info'));
+        $max_wait->setSize(5);
+        $max_wait->allowDecimals(false);
+        $max_wait->setMinValue(1);
+        $max_wait->setValue($this->config->max_rendering_wait);
+        $form->addItem($max_wait);
+
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->plugin->txt('object_defaults'));
         $form->addItem($header);
@@ -234,22 +250,6 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $zoom_factor->allowDecimals(false);
         $zoom_factor->setValue($this->config->zoom_factor * 100);
         $form->addItem($zoom_factor);
-
-        $min_wait = new ilNumberInputGUI($this->plugin->txt('min_rendering_wait'), 'min_rendering_wait');
-        $min_wait->setInfo($this->plugin->txt('min_rendering_wait_info'));
-        $min_wait->setSize(5);
-        $min_wait->allowDecimals(false);
-        $min_wait->setValue($this->config->min_rendering_wait);
-        $min_wait->setMinValue(1);
-        $form->addItem($min_wait);
-
-        $max_wait = new ilNumberInputGUI($this->plugin->txt('max_rendering_wait'), 'max_rendering_wait');
-        $max_wait->setInfo($this->plugin->txt('max_rendering_wait_info'));
-        $max_wait->setSize(5);
-        $max_wait->allowDecimals(false);
-        $max_wait->setMinValue(1);
-        $max_wait->setValue($this->config->max_rendering_wait);
-        $form->addItem($max_wait);
 
         $header = new ilFormSectionHeaderGUI();
 		$header->setTitle($this->plugin->txt('privacy_settings'));
