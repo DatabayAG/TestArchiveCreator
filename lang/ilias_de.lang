@@ -87,7 +87,7 @@ questions_csv#:#Fragenliste (CSV)
 questions_html#:#Fragenliste (HTML)
 participants_csv#:#Teilnehmer (CSV)
 participants_html#:#Teilnehmer (HTML)
-settings_html#:#Test-Eisntellungen (HTML)
+settings_html#:#Test-Einstellungen (HTML)
 test_archive#:#Test-Archiv
 use_system_styles#:#System-Styles verwenden
 use_system_styles_info#:#Verwendet die System-Styles (Standard: delos.css) bei der PDF-Generierung. Durch den verwendeten Web-Font sind die PDF-Dateien bei der Generierung mit PhantomJS 2.1.1 größer und nicht durchsuchbar.
