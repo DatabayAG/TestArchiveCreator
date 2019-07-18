@@ -272,7 +272,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$header->setInfo($this->plugin->txt('permissions_info'));
 		$form->addItem($header);
 
-		$access = new ilRadioGroupInputGUI($this->plugin->txt('user_allow'), 'user_allow');
+		$access = new ilRadioGroupInputGUI($this->plugin->txt('allow'), 'user_allow');
 		$option = new ilRadioOption($this->plugin->txt('allow_any'), ilTestArchiveCreatorConfig::ALLOW_ANY);
 		$option->setInfo($this->plugin->txt('allow_any_info'));
 		$access->addOption($option);
