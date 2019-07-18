@@ -122,17 +122,21 @@ class ilTestArchiveCreatorSettingsGUI
 		}
 		$this->toolbar->addText($text);
 
-		include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
-		$button = ilLinkButton::getInstance();
-		$button->setCaption($this->lng->txt('settings'), false);
-		$button->setUrl($this->getLinkTarget('editSettings'));
-		$this->toolbar->addButtonInstance($button);
+		if ($this->config->isPlannedCreationAllowed()) {
+			include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
+			$button = ilLinkButton::getInstance();
+			$button->setCaption($this->lng->txt('settings'), false);
+			$button->setUrl($this->getLinkTarget('editSettings'));
+			$this->toolbar->addButtonInstance($button);
+		}
 
-		include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
-		$button = ilLinkButton::getInstance();
-		$button->setCaption($this->lng->txt('create'), false);
-		$button->setUrl($this->getLinkTarget('createArchive'));
-		$this->toolbar->addButtonInstance($button);
+		if ($this->config->isInstantCreationAllowed()) {
+			include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
+			$button = ilLinkButton::getInstance();
+			$button->setCaption($this->lng->txt('create'), false);
+			$button->setUrl($this->getLinkTarget('createArchive'));
+			$this->toolbar->addButtonInstance($button);
+		}
 	}
 
 
@@ -148,6 +152,11 @@ class ilTestArchiveCreatorSettingsGUI
             ilUtil::redirect("goto.php?target=tst_".$this->testObj->getRefId());
 		}
 
+		if (!$this->config->isPlannedCreationAllowed()) {
+			ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+			$this->ctrl->redirectToURL("goto.php?target=tst_".$this->testObj->getRefId());
+		}
+
 		$this->ctrl->saveParameter($this, 'ref_id');
 
 		$cmd = $this->ctrl->getCmd('editSettings');
@@ -160,13 +169,19 @@ class ilTestArchiveCreatorSettingsGUI
                 break;
 			case "saveSettings":
 			case "cancelSettings":
+				$this->$cmd();
+				break;
             case "createArchive":
+				if (!$this->config->isInstantCreationAllowed()) {
+					ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+					$this->ctrl->redirectToURL("goto.php?target=tst_".$this->testObj->getRefId());
+				}
 				$this->$cmd();
 				break;
 
 			default:
                 ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
-                ilUtil::redirect("goto.php?target=tst_".$this->testObj->getRefId());
+                $this->ctrl->redirectToURL("goto.php?target=tst_".$this->testObj->getRefId());
 				break;
 		}
 	}
@@ -222,6 +237,7 @@ class ilTestArchiveCreatorSettingsGUI
 		$schedule->setShowSeconds(false);
 		$schedule->setMinuteStepSize(10);
 		$schedule->setDate($this->settings->schedule);
+		$schedule->setInfo($this->plugin->txt('schedule_info'));
 		$st_planned->addSubItem($schedule);
 
 		if (!$this->plugin->checkCronPluginActive()) {

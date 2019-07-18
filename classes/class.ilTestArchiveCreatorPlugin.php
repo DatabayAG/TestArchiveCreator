@@ -200,4 +200,16 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
 		return parent::beforeUninstall();
 	}
+
+
+	/**
+	 * Check if the user has administrative access
+	 * @return bool
+	 */
+	public function hasAdminAccess()
+	{
+		global $rbacsystem;
+		return $rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID);
+	}
+
 }

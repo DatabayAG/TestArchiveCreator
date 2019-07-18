@@ -111,3 +111,13 @@ questions_with_best_solution#:#Fragen mit Musterlösung
 questions_with_best_solution_info#:#Erzeugt zu jeder Frage auch eine PDF-Datei mit der Musterlösung.
 answers_with_best_solution#:#Antwoten mit Musterlösung
 answers_with_best_solution_info#:#Fügt in die PDF-Dateien der Teilnehmerantworten unter jeder Frage die Musterlösung ein.
+permissions#:#Berechtigungen
+permissions_info#:#Berechtigung für Nutzer mit Schreibrecht im Test
+allow#:#Archiv-Erzeugung
+allow_any#:#Beliebig
+allow_any_info#:#Archive sofort oder geplant erzeugen.
+allow_planned#:#Geplant
+allow_planned_info#:#Archive nur geplant erzeugen. Dazu muss der Cron-Job laufen.
+allow_none#:#Nicht erlaubt
+allow_none_info#:#Archive können nur von Administratoren erzeugt werden.
+schedule_info#:#Frühester Zeitpunkt der Generierung. Der tatsächliche hängt von den Systemeinstellungen des Archivierungs-Cron-Jobs ab.

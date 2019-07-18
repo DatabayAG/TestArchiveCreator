@@ -6,6 +6,13 @@
  */
 class ilTestArchiveCreatorConfig
 {
+	const ALLOW_ANY = 'any';
+	const ALLOW_PLANNED = 'planned';
+	const ALLOW_NONE = 'none';
+
+	/** @var string actions allowed for a standard user with write permissions on a test */
+	public $user_allow;
+
 	/** @var  string path to the executable of PhantomJS */
 	public $phantomjs_path;
 
@@ -84,6 +91,8 @@ class ilTestArchiveCreatorConfig
 		require_once("Services/Administration/classes/class.ilSetting.php");
 		$this->settings = new ilSetting('ilTestArchiveCreator');
 
+		$this->user_allow = (string) $this->settings->get('user_allow', self::ALLOW_ANY);
+
 		$this->phantomjs_path = (string) $this->settings->get('phantomjs_path', '/opt/phantomjs/phantomjs');
 		$this->hide_standard_archive = (bool) $this->settings->get('hide_standard_archive', true);
 		$this->keep_creation_directory = (bool) $this->settings->get('keep_creation_directory', false);
@@ -117,6 +126,8 @@ class ilTestArchiveCreatorConfig
 	 */
 	public function save()
 	{
+		$this->settings->set('user_allow', (string) $this->user_allow);
+
 		$this->settings->set('phantomjs_path', (string) $this->phantomjs_path);
 		$this->settings->set('hide_standard_archive', (bool) $this->hide_standard_archive ? '1' : '0');
 		$this->settings->set('keep_creation_directory', (bool) $this->keep_creation_directory ? '1' : '0');
@@ -143,4 +154,32 @@ class ilTestArchiveCreatorConfig
 		$this->settings->set('min_rendering_wait', $this->min_rendering_wait ? (int) $this->min_rendering_wait : 1);
         $this->settings->set('max_rendering_wait', $this->max_rendering_wait ? (int) $this->max_rendering_wait : 1);
     }
+
+
+	/**
+	 * Is the planned creation of archives allowed or the current user
+	 * @return bool
+	 */
+    public function isPlannedCreationAllowed()
+	{
+		if ($this->plugin->hasAdminAccess()) {
+			return true;
+		}
+
+		return ($this->user_allow == self::ALLOW_ANY  || $this->user_allow == self::ALLOW_PLANNED);
+	}
+
+	/**
+	 * Is the instant creation of archives allowed or the current user
+	 * @return bool
+	 */
+	public function isInstantCreationAllowed()
+	{
+		if ($this->plugin->hasAdminAccess()) {
+			return true;
+		}
+
+		return ($this->user_allow == self::ALLOW_ANY);
+	}
+
 }

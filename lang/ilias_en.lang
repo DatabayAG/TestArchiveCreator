@@ -111,3 +111,13 @@ questions_with_best_solution#:#Questions with Best Solution
 questions_with_best_solution_info#:#Creates for each question a separate PDF file with the best solution.
 answers_with_best_solution#:#Answers with Best Solution
 answers_with_best_solution_info#:#Adds the best solution below each question in the alswer files for participants.
+permissions#:#Permissions
+permissions_info#:#Permissions for users with write access to a test
+allow#:#Archive Creation
+allow_any#:#Any
+allow_any_info#:#Create archives immediately and planned
+allow_planned#:#Planned
+allow_planned_info#:#Create archives only planned. This requires a running cron job.
+allow_none#:#Not Allowed
+allow_none_info#:#Only ILIAS administrators can create archives
+schedule_info#:#Earliest creation time. The actual time is determined by the system settings of the archiving cron job.

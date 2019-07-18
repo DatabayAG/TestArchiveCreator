@@ -122,6 +122,8 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $this->config->min_rendering_wait = $form->getInput('min_rendering_wait');
         $this->config->max_rendering_wait = $form->getInput('max_rendering_wait');
 
+        $this->config->user_allow = $form->getInput('user_allow');
+
         $this->config->save();
 
 		ilUtil::sendSuccess($this->plugin->txt('settings_saved'), true);
@@ -264,6 +266,24 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$with_matriculation->setInfo($this->plugin->txt('with_matriculation_info'));
 		$with_matriculation->setChecked($this->config->with_matriculation);
 		$form->addItem($with_matriculation);
+
+		$header = new ilFormSectionHeaderGUI();
+		$header->setTitle($this->plugin->txt('permissions'));
+		$header->setInfo($this->plugin->txt('permissions_info'));
+		$form->addItem($header);
+
+		$access = new ilRadioGroupInputGUI($this->plugin->txt('user_allow'), 'user_allow');
+		$option = new ilRadioOption($this->plugin->txt('allow_any'), ilTestArchiveCreatorConfig::ALLOW_ANY);
+		$option->setInfo($this->plugin->txt('allow_any_info'));
+		$access->addOption($option);
+		$option = new ilRadioOption($this->plugin->txt('allow_planned'), ilTestArchiveCreatorConfig::ALLOW_PLANNED);
+		$option->setInfo($this->plugin->txt('allow_planned_info'));
+		$access->addOption($option);
+		$option = new ilRadioOption($this->plugin->txt('allow_none'), ilTestArchiveCreatorConfig::ALLOW_NONE);
+		$option->setInfo($this->plugin->txt('allow_none_info'));
+		$access->addOption($option);
+		$access->setValue($this->config->user_allow);
+		$form->addItem($access);
 
 		$form->addCommandButton('saveConfiguration', $this->lng->txt('save'));
 

@@ -109,6 +109,10 @@ If the PDF generation fails for some reason you may want to test it manually on 
 
 VERSIONS
 --------
+1.2.1 for ILIAS 5.2 and 5.3 (2019-07-18)
+- fixed display of MC/SC questions if styles are not included
+- configure archive creation permissions of normal users (having only write access to a test)
+
 1.2.0 for ILIAS 5.2 and 5.3 (2019-02-20)
 - provided session cookies for PhantomJS
 - included javascript related question styles
