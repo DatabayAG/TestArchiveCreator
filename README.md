@@ -109,6 +109,12 @@ If the PDF generation fails for some reason you may want to test it manually on 
 
 VERSIONS
 --------
+1.3.1 for ILIAS 5.4 (2019-10-17)
+- compatibility with ILIAS 5.4.6
+
+1.3.0 for ILIAS 5.4 (2019-07-24)
+- compatibility with ILIAS 5.4.4 
+
 1.2.1 for ILIAS 5.2 and 5.3 (2019-07-18)
 - fixed display of MC/SC questions if styles are not included
 - configure archive creation permissions of normal users (having only write access to a test)
