@@ -387,7 +387,14 @@ class ilTestArchiveCreator
 						$element->pass_number = $passdata->getPass() + 1;
 						$element->pass_scored = $userdata->getScoredPass() == $passdata->getPass();
 						$element->pass_working_time = $passdata->getWorkingTime();
-						$element->pass_finish_date = $this->testObj->getPassFinishDate($active_id, $passdata->getPass());
+						if (method_exists($this->testObj, 'lookupLastTestPassAccess')) {
+						    // ILIAS 5.4.6 and higher
+                            $element->pass_finish_date = $this->testObj->lookupLastTestPassAccess($active_id, $passdata->getPass());
+                        }
+						elseif (method_exists($this->testObj, 'getPassFinishDate')) {
+						    // up to ILIAS 5.4.5
+                            $element->pass_finish_date = $this->testObj->getPassFinishDate($active_id, $passdata->getPass());
+                        }
 						$element->pass_reached_points = $passdata->getReachedPoints();
 
 						$this->participants->add($element);
