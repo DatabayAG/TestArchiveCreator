@@ -387,7 +387,7 @@ class ilTestArchiveCreator
 						$element->pass_number = $passdata->getPass() + 1;
 						$element->pass_scored = $userdata->getScoredPass() == $passdata->getPass();
 						$element->pass_working_time = $passdata->getWorkingTime();
-						$element->pass_finish_date = $this->testObj->getPassFinishDate($active_id, $passdata->getPass());
+						$element->pass_finish_date = $this->testObj->lookupLastTestPassAccess($active_id, $pass);
 						$element->pass_reached_points = $passdata->getReachedPoints();
 
 						$this->participants->add($element);
