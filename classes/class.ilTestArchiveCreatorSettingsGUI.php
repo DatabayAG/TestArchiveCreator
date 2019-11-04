@@ -297,7 +297,7 @@ class ilTestArchiveCreatorSettingsGUI
         $zoom_factor = new ilNumberInputGUI($this->plugin->txt('zoom_factor'), 'zoom_factor');
         $zoom_factor->setSize(5);
         $zoom_factor->allowDecimals(false);
-        $zoom_factor->setValue($this->config->zoom_factor * 100);
+        $zoom_factor->setValue($this->settings->zoom_factor * 100);
         $form->addItem($zoom_factor);
 
 //        $min_wait = new ilNumberInputGUI($this->plugin->txt('min_rendering_wait'), 'min_rendering_wait');
