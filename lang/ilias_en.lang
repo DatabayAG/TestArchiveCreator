@@ -57,7 +57,7 @@ answered#:#Answered
 manual#:#Manual Score
 is_manual#:# (manually scored)
 manual_feedback#:#Manual Feedback
-pass_overview#:#Oberview of Test Pass %s
+pass_overview#:#Overview of Test Pass %s
 test_settings#:#Test Settings
 orientation#:#Orientation
 orientation_portrait#:#Portrait
@@ -68,7 +68,7 @@ phantomjs_path#:#Path to PhantomJS
 phantomjs_path_info#:#Path on the server to an executable file of PhantomJS. See http://phantomjs.org
 hide_standard_archive#:#Hide Standard Archive
 hide_standard_archive_info#:#Hides the export option for the standard test archive on the export tab of ILIAS.
-privacy_settings#:#Privacy Setings
+privacy_settings#:#Privacy Settings
 with_login#:#User Names
 with_login_info#:#Adds the ILIAS user names to the files in the archive.
 with_matriculation#:#Matriculation
@@ -98,7 +98,7 @@ ignore_ssl_errors_info#:#Ignore SSL certificate errors for loading of images, st
 keep_jobfile#:#Keep Jobfile
 keep_jobfile_info#:#Keep the jobfile for PDF generation in the creation directory. It can be used for debugging purposes.
 min_rendering_wait#:#Minimum Waiting Time (ms)
-min_rendering_wait_info#:#Minimum time in milliseconds after loading an HTML file in PhantomJS before saving it as PDF. This is also the interval for cyclic tsting if all page contents are loaded.
+min_rendering_wait_info#:#Minimum time in milliseconds after loading an HTML file in PhantomJS before saving it as PDF. This is also the interval for cyclic testing if all page contents are loaded.
 max_rendering_wait#:#Maximum Waiting Time (ms)
 max_rendering_wait_info#:#Maximum time in milliseconds after loading an HTML file in PhantomJS before saving it as PDF. This will not be reached if all page contents are loaded before.
 render_twice#:#Double Rendering
@@ -110,7 +110,7 @@ include_answers_info#:#Creates a folder in the archive with the participants' an
 questions_with_best_solution#:#Questions with Best Solution
 questions_with_best_solution_info#:#Creates for each question a separate PDF file with the best solution.
 answers_with_best_solution#:#Answers with Best Solution
-answers_with_best_solution_info#:#Adds the best solution below each question in the alswer files for participants.
+answers_with_best_solution_info#:#Adds the best solution below each question in the answer files for participants.
 permissions#:#Permissions
 permissions_info#:#Permissions for users with write access to a test
 allow#:#Archive Creation
