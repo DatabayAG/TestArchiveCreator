@@ -133,6 +133,10 @@ class ilTestArchiveCreatorPDF
 			{
 				$command .= ' --ignore-ssl-errors=true';
 			}
+			if (ilProxySettings::_getInstance()->isActive()) {
+				$command .= ' --proxy='.ilProxySettings::_getInstance()->getHost() . ':' . ilProxySettings::_getInstance()->getPort();
+			}
+
 			$command .= ' ' . $scriptFile . ' ' . $jobsFile;
 
 			try
