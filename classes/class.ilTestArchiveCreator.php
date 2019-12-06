@@ -82,6 +82,8 @@ class ilTestArchiveCreator
 
 		$this->handleSettings();
 
+		$this->handleSolution();
+
 		if ($this->settings->include_answers)
         {
             // handle before questions to prefill the question ids
@@ -455,7 +457,8 @@ class ilTestArchiveCreator
 							$tpl->setVariable('ANSWERED', $row['workedthrough'] ? $this->lng->txt('yes') : $this->lng->txt('no'));
 							$tpl->setVariable('MAX_POINTS', $row['max']);
 							$tpl->setVariable('REACHED_POINTS', $row['reached']);
-							$tpl->setVariable('REACHED_PERCENT', $row['percent']);
+							$percent = preg_replace('/100\.00/', '100', $row['percent']);
+							$tpl->setVariable('REACHED_PERCENT', $percent);
 							$tpl->setVariable('MANUAL', $row['manual'] ? $this->lng->txt('yes') : $this->lng->txt('no'));
 							$tpl->parseCurrentBlock();
 
@@ -466,7 +469,7 @@ class ilTestArchiveCreator
 
 							if ($this->settings->answers_with_best_solution)
 							{
-								$html_solution = $question_gui->getSolutionOutput($active_id, $pass, FALSE, FALSE, FALSE, FALSE, TRUE);
+								$html_solution = $question_gui->getSolutionOutput($active_id, $pass, FALSE, TRUE, FALSE, FALSE, TRUE);
 							}
 
 							//manual feedback
@@ -527,6 +530,66 @@ class ilTestArchiveCreator
 				}
 			}
 		}
+	}
+
+	/**
+	 * Write solution pdf
+	 */
+	protected function handleSolution()
+	{
+		//file_put_contents($this->workdir."/solution.pdf",file_get_contents('https://ilias.example.com/ilias.php?ref_id=72&pdf=1&cmd=print&cmdClass=ilobjtestgui&baseClass=ilrepositorygui'));
+		global $DIC;
+		$log = $DIC->logger();
+		$tpl = $DIC['tpl'];
+		//$log->pdfg()->debug();
+		ilPDFGeneratorUtils::prepareGenerationRequest("Test", PDF_PRINT_VIEW_QUESTIONS);
+		$template = new ilTemplate("tpl.il_as_tst_print_test_confirm.html", TRUE, TRUE, "Modules/Test");
+		$print_date = mktime(date("H"), date("i"), date("s"), date("m")  , date("d"), date("Y"));
+		$max_points= 0;
+		$counter = 1;
+
+		require_once 'Modules/Test/classes/class.ilTestQuestionHeaderBlockBuilder.php';
+		$questionHeaderBlockBuilder = new ilTestQuestionHeaderBlockBuilder($this->lng);
+		$questionHeaderBlockBuilder->setHeaderMode($this->testObj->getTitleOutput());
+
+		if($isPdfDeliveryRequest)
+		{
+			require_once 'Services/WebAccessChecker/classes/class.ilWACSignedPath.php';
+			ilWACSignedPath::setTokenMaxLifetimeInSeconds(60);
+		}
+
+		foreach ($this->testObj->questions as $question)
+		{
+			$template->setCurrentBlock("question");
+			$question_gui = $this->testObj->createQuestionGUI("", $question);
+
+			if( $isPdfDeliveryRequest )
+			{
+				$question_gui->setRenderPurpose(assQuestionGUI::RENDER_PURPOSE_PRINT_PDF);
+			}
+
+			$questionHeaderBlockBuilder->setQuestionTitle($question_gui->object->getTitle());
+			$questionHeaderBlockBuilder->setQuestionPoints($question_gui->object->getMaximumPoints());
+			$questionHeaderBlockBuilder->setQuestionPosition($counter);
+			$template->setVariable("QUESTION_HEADER", $questionHeaderBlockBuilder->getHTML());
+
+			$template->setVariable("TXT_QUESTION_ID", $this->lng->txt('question_id_short'));
+			$template->setVariable("QUESTION_ID", $question_gui->object->getId());
+			$result_output = $question_gui->getSolutionOutput("", NULL, FALSE, TRUE, FALSE, $this->testObj->getShowSolutionFeedback());
+			$template->setVariable("SOLUTION_OUTPUT", $result_output);
+			$template->parseCurrentBlock("question");
+			$counter ++;
+			$max_points += $question_gui->object->getMaximumPoints();
+		}
+
+		$template->setVariable("TITLE", ilUtil::prepareFormOutput($this->testObj->getTitle()));
+		$template->setVariable("PRINT_TEST", ilUtil::prepareFormOutput($this->lng->txt("tst_print")));
+		$template->setVariable("TXT_PRINT_DATE", ilUtil::prepareFormOutput($this->lng->txt("date")));
+		$template->setVariable("VALUE_PRINT_DATE", ilUtil::prepareFormOutput(strftime("%c",$print_date)));
+		$template->setVariable("TXT_MAXIMUM_POINTS", ilUtil::prepareFormOutput($this->lng->txt("tst_maximum_points")));
+		$template->setVariable("VALUE_MAXIMUM_POINTS", ilUtil::prepareFormOutput($max_points));
+		require_once 'Modules/Test/classes/class.ilTestPDFGenerator.php';
+		ilTestPDFGenerator::generatePDF($template->get(), ilTestPDFGenerator::PDF_OUTPUT_FILE, $this->workdir . '/solution.pdf', PDF_PRINT_VIEW_QUESTIONS);
 	}
 
 	/**
