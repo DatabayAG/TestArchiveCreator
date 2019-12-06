@@ -47,21 +47,26 @@ function doJobs ()
     page.paperSize = {
         format: 'A4',
         orientation: config.orientation,
-        margin: '1cm',
+        margin: {
+            left: '2.3cm',
+            bottom: '1.5cm',
+            top: '1cm',
+            right: '1.5cm'
+        },
         header: {
-            height: "1cm",
+            height: "1.5cm",
             contents: phantom.callback(function(pageNum, numPages) {
                 if (pageNum > 1) {
-                    return '<span style="font-size: 8pt; font-family:sans-serif; float:left">' + headLeft + '</span>' +
-                    '<span style="font-size: 8pt; font-family:sans-serif; float:right">' + headRight + '</span>';
+                    return '<span style="font-size: 6pt; font-family:sans-serif; font-style: italic; float:left">' + headLeft + '</span>' +
+                    '<span style="font-size: 6pt; font-family:sans-serif; font-style: italic; float:right">' + headRight + '</span>';
                 }
             })
         },
         footer: {
-            height: "1cm",
+            height: "1.5cm",
             contents: phantom.callback(function(pageNum, numPages) {
-                return '<span style="font-size: 8pt; font-family:sans-serif; float:left">' + footLeft + '</span>' +
-				'<span style="font-size: 8pt; font-family:sans-serif; float:right">' + pageNum + ' / ' + numPages + '</span>';
+                return '<span style="font-size: 6pt; font-style: italic; font-family:sans-serif; float:left">' + footLeft + '</span>' +
+				'<span style="font-size: 6pt; font-family:sans-serif; font-style: italic; float:right">' + pageNum + ' / ' + numPages + '</span>';
             })
         }
     };
