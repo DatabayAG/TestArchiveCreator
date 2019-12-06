@@ -44,25 +44,28 @@ class ilTestArchiveCreatorHTML
 	 */
 	public function initMainTemplate()
 	{
+		global $DIC;
 		// we need to rewrite the main template
-		$this->plugin->includeClass('class.ilTestArchiveCreatorTemplate.php');
-		$this->tpl =  new ilTestArchiveCreatorTemplate("tpl.main.html", true, true);
+		//$this->plugin->includeClass('class.ilTestArchiveCreatorTemplate.php');
+		//$this->tpl =  new ilTestArchiveCreatorTemplate("tpl.main.html", true, true);
+		$this->tpl =  $this->plugin->getTemplate('tpl.pdf.html');
 		$GLOBALS['tpl'] = $this->tpl;
-		$this->tpl_type = 'main';
+		$this->tpl_type = 'not_main'; // to ommit main build
 
 		$this->tpl->setVariable('BASE', ILIAS_HTTP_PATH . '/index.html');
-		if ($this->plugin->getConfig()->use_system_styles)
-		{
-			$this->tpl->setVariable("LOCATION_STYLESHEET",ilUtil::getStyleSheetLocation());
-		}
-		$this->tpl->addCss($this->testObj->getTestStyleLocation("output"), "all");
-        $this->tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'test_javascript.css', 'Modules/TestQuestionPool'), 'all');
+		//$this->tpl->addCss($this->testObj->getTestStyleLocation("output"), "all");
+		// required?
+		$this->tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'test_javascript.css', 'Modules/TestQuestionPool'), 'all');
+		//required?
 		$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_print.css", "Modules/Test"),'all');
-		$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_pdf.css", "Modules/Test"),'all');
+		//$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_pdf.css", "Modules/Test"),'all');
 
 		$css = file_get_contents($this->plugin->getDirectory().'/templates/tpl.styles.html');
 		$css = str_replace('BODY_ZOOM', $this->settings->zoom_factor, $css);
-
+		$delos = file_get_contents(ilUtil::getStyleSheetLocation('filesystem','delos.css'));
+		$test_pdf = file_get_contents(ilUtil::getStyleSheetLocation('filesystem','test_pdf.css','Modules/Test'));
+		$css = str_replace('DELOS_STYLE', $delos, $css);
+		$css = str_replace('TEST_PDF_STYLE', $test_pdf, $css);
 		$this->tpl->setCurrentBlock('HeadContent');
 		$this->tpl->setVariable('CONTENT_BLOCK', $css);
 		$this->tpl->parseCurrentBlock();
@@ -103,7 +106,6 @@ class ilTestArchiveCreatorHTML
 			$this->tpl->fillJavaScriptFiles();
 			$this->tpl->fillOnLoadCode();
 		}
-
 		$html = '';
 		if (!empty($title))
 		{
