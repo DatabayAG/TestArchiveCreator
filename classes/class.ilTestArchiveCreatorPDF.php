@@ -69,6 +69,16 @@ class ilTestArchiveCreatorPDF
 			$this->jobsid = date('Y-m-d_H-i-s_') . (string)rand(0, 9999);
 		}
 
+		// replace http(s) urls with file urls
+		if ($this->config->use_file_urls) {
+		    $content = file_get_contents($this->workdir.'/'.$sourceFile);
+            $content = str_replace(ILIAS_HTTP_PATH, 'file://'. ILIAS_ABSOLUTE_PATH, $content);
+
+            // temporary source file will be deleted in clearJobs()
+		    $sourceFile .= '.temp.html';
+            file_put_contents( $this->workdir.'/'.$sourceFile, $content);
+		}
+
 		$job = [
 			'sourceFile' => $this->workdir.'/'.$sourceFile,      // file must exist
 			'targetFile' => $this->workdir.'/'.$targetFile,
@@ -133,7 +143,12 @@ class ilTestArchiveCreatorPDF
 			{
 				$command .= ' --ignore-ssl-errors=true';
 			}
-			$command .= ' ' . $scriptFile . ' ' . $jobsFile;
+			// thanks to Stefan Schneider
+            if (ilProxySettings::_getInstance()->isActive()) {
+                $command .= ' --proxy='.ilProxySettings::_getInstance()->getHost() . ':' . ilProxySettings::_getInstance()->getPort();
+            }
+
+            $command .= ' ' . $scriptFile . ' ' . $jobsFile;
 
 			try
 			{
@@ -159,6 +174,13 @@ class ilTestArchiveCreatorPDF
 	{
 	    if (!($this->config->keep_creation_directory && $this->config->keep_jobfile)) {
             @unlink($this->workdir . '/' . $this->jobsid . '.json');
+        }
+
+	    // delete the temporary source files
+	    if ($this->config->use_file_urls) {
+	        foreach ($this->jobs as $job) {
+                @unlink($job['sourceFile']);
+            }
         }
 
 		$this->jobs = [];

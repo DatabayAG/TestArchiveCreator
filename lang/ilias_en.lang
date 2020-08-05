@@ -121,3 +121,5 @@ allow_planned_info#:#Create archives only planned. This requires a running cron 
 allow_none#:#Not Allowed
 allow_none_info#:#Only ILIAS administrators can create archives
 schedule_info#:#Earliest creation time. The actual time is determined by the system settings of the archiving cron job.
+use_file_urls#:#Use File URLs
+use_file_urls_info#:#Replace the URLs of images, styles and scripts with file URLs before PDF generation. Replacement can help prevent access errors on protected servers. For this purpose the specifications http_path and absolute_path in the ilias.ini.php must be correct.

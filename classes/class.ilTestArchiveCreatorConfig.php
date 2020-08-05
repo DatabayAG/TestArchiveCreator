@@ -61,6 +61,9 @@ class ilTestArchiveCreatorConfig
 	/** @var bool render_twice */
 	public $render_twice;
 
+	/** @var bool use_file_urls */
+	public $use_file_urls;
+
 	/** @var bool include questions */
 	public $include_questions;
 
@@ -101,6 +104,7 @@ class ilTestArchiveCreatorConfig
 		$this->any_ssl_protocol = (bool)  $this->settings->get('any_ssl_protocol', false);
 		$this->ignore_ssl_errors = (bool)  $this->settings->get('ignore_ssl_errors', false);
         $this->render_twice = (bool)  $this->settings->get('render_twice', false);
+        $this->use_file_urls = (bool)  $this->settings->get('use_file_urls', false);
 
 		$this->with_login = (bool) $this->settings->get('with_login', true);
 		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
@@ -136,6 +140,7 @@ class ilTestArchiveCreatorConfig
 		$this->settings->set('any_ssl_protocol', (bool) $this->any_ssl_protocol ? '1' : '0');
 		$this->settings->set('ignore_ssl_errors', (bool) $this->ignore_ssl_errors ? '1' : '0');
 		$this->settings->set('render_twice', (bool) $this->render_twice ? '1' : '0');
+        $this->settings->set('use_file_urls', (bool) $this->use_file_urls ? '1' : '0');
 
 		$this->settings->set('with_login', (bool) $this->with_login ? '1' : '0');
 		$this->settings->set('with_matriculation', (bool) $this->with_matriculation ? '1' : '0');

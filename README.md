@@ -109,6 +109,10 @@ If the PDF generation fails for some reason you may want to test it manually on 
 
 VERSIONS
 --------
+1.3.2 for ILIAS 5.4 (2020-08-05)
+- use proxy settings of ILIAS for PDF generation
+- added switch to replace http(s) url of images etc. by file urls for PDF generation
+
 1.3.1 for ILIAS 5.4 (2019-10-17)
 - compatibility with ILIAS 5.4.6
 

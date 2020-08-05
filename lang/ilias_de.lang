@@ -121,3 +121,5 @@ allow_planned_info#:#Archive nur geplant erzeugen. Dazu muss der Cron-Job laufen
 allow_none#:#Nicht erlaubt
 allow_none_info#:#Archive können nur von Administratoren erzeugt werden.
 schedule_info#:#Frühester Zeitpunkt der Generierung. Der tatsächliche hängt von den Systemeinstellungen des Archivierungs-Cron-Jobs ab.
+use_file_urls#:#Datei-Urls verwenden
+use_file_urls_info#:#Ersetze vor der PDF-Generierung die HTTP-URLs von Bildern, Styles und Skripten durch Datei-URLs. Mit der Ersetzung können auf geschützten Servern Zugriffsfehler vermieden werden. Dazu müssen in der ilias.ini.php die Angaben http_path und absolute_path stimmen.

@@ -104,6 +104,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$this->config->any_ssl_protocol = $form->getInput('any_ssl_protocol');
 		$this->config->ignore_ssl_errors = $form->getInput('ignore_ssl_errors');
         $this->config->render_twice = $form->getInput('render_twice');
+        $this->config->use_file_urls = $form->getInput('use_file_urls');
 
 		$this->config->with_login = $form->getInput('with_login');
 		$this->config->with_matriculation = $form->getInput('with_matriculation');
@@ -180,6 +181,11 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $twice->setInfo($this->plugin->txt('render_twice_info'));
         $twice->setChecked($this->config->render_twice);
         $form->addItem($twice);
+
+        $file_urls = new ilCheckboxInputGUI($this->plugin->txt('use_file_urls'), 'use_file_urls');
+        $file_urls->setInfo($this->plugin->txt('use_file_urls_info'));
+        $file_urls->setChecked($this->config->use_file_urls);
+        $form->addItem($file_urls);
 
         $min_wait = new ilNumberInputGUI($this->plugin->txt('min_rendering_wait'), 'min_rendering_wait');
         $min_wait->setInfo($this->plugin->txt('min_rendering_wait_info'));
