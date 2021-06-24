@@ -105,7 +105,7 @@ class ilTestArchiveCreatorSettingsGUI
 		{
 			switch ($this->settings->status) {
 				case ilTestArchiveCreatorPlugin::STATUS_PLANNED:
-					$text .= sprintf($this->plugin->txt('tb_archive_planned'), ilDatePresentation::formatDate($this->settings->schedule));
+					$text .= sprintf($this->plugin->txt('tb_archive_planned'), isset($this->settings->schedule) ? ilDatePresentation::formatDate($this->settings->schedule) : '');
 					break;
 				case ilTestArchiveCreatorPlugin::STATUS_FINISHED:
 					$text .= $this->plugin->txt('tb_archive_finished');
@@ -238,6 +238,7 @@ class ilTestArchiveCreatorSettingsGUI
 		$schedule->setMinuteStepSize(10);
 		$schedule->setDate($this->settings->schedule);
 		$schedule->setInfo($this->plugin->txt('schedule_info'));
+		$schedule->setRequired(true);
 		$st_planned->addSubItem($schedule);
 
 		if (!$this->plugin->checkCronPluginActive()) {
