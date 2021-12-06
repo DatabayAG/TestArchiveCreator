@@ -63,9 +63,11 @@ class ilTestArchiveCreatorHTML
 		$css = file_get_contents($this->plugin->getDirectory().'/templates/tpl.styles.html');
 		$css = str_replace('BODY_ZOOM', $this->settings->zoom_factor, $css);
 
-		$this->tpl->setCurrentBlock('HeadContent');
-		$this->tpl->setVariable('CONTENT_BLOCK', $css);
-		$this->tpl->parseCurrentBlock();
+		/* HeadContent does not exist in tpl.main.html
+			$this->tpl->setCurrentBlock('HeadContent');
+			$this->tpl->setVariable('CONTENT_BLOCK', $css);
+			$this->tpl->parseCurrentBlock();
+		*/
 
 		require_once('Services/MathJax/classes/class.ilMathJax.php');
 		ilMathJax::getInstance()->init(ilMathJax::PURPOSE_PDF)
@@ -96,8 +98,11 @@ class ilTestArchiveCreatorHTML
 			$this->tpl->removeMediaPlayer();
 
 			$this->tpl->fillCssFiles();
-			$this->tpl->fillInlineCss();
-			$this->tpl->fillContentStyle();
+			// $this->tpl->fillInlineCss(); method is private
+			// $this->tpl->fillContentStyle(); method is private
+			$this->tpl->fillInlineCss1();
+			$this->tpl->fillNewContentStyle1();
+
 			$this->tpl->fillBodyClass();
 
 			$this->tpl->fillJavaScriptFiles();

@@ -200,7 +200,10 @@ class ilTestArchiveCreatorSettingsGUI
 		$ilLocator->addRepositoryItems($this->testObj->getRefId());
 		$ilLocator->addItem($this->testObj->getTitle(),$this->ctrl->getLinkTargetByClass('ilObjTestGUI'));
 
-		$this->tpl->getStandardTemplate();
+		// $this->tpl->getStandardTemplate();
+		//https://github.com/ILIAS-eLearning/ILIAS/commit/0c199948c24dc454f36d6dc3fca3765dfa39e5a4
+		$this->tpl->loadStandardTemplate();
+
 		$this->tpl->setLocator();
 		$this->tpl->setTitle($this->testObj->getPresentationTitle());
 		$this->tpl->setDescription($this->testObj->getLongDescription());
@@ -331,7 +334,9 @@ class ilTestArchiveCreatorSettingsGUI
     {
 		$form = $this->initSettingsForm();
         $this->tpl->setContent($form->getHTML());
-        $this->tpl->show();
+		// https://github.com/ILIAS-eLearning/ILIAS/commit/84424ec7abfb0fa61acf3a606754ce654f70ca61
+        // $this->tpl->show();
+		$this->tpl->printToStdout();
     }
 
 
