@@ -46,7 +46,7 @@ class ilTestArchiveCreatorHTML
 	{
 		// we need to rewrite the main template
 		$this->plugin->includeClass('class.ilTestArchiveCreatorTemplate.php');
-		$this->tpl =  new ilTestArchiveCreatorTemplate("tpl.main.html", true, true);
+		$this->tpl =  new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.main.html", true, true);
 		$GLOBALS['tpl'] = $this->tpl;
 		$this->tpl_type = 'main';
 
@@ -63,11 +63,9 @@ class ilTestArchiveCreatorHTML
 		$css = file_get_contents($this->plugin->getDirectory().'/templates/tpl.styles.html');
 		$css = str_replace('BODY_ZOOM', $this->settings->zoom_factor, $css);
 
-		/* HeadContent does not exist in tpl.main.html
-			$this->tpl->setCurrentBlock('HeadContent');
-			$this->tpl->setVariable('CONTENT_BLOCK', $css);
-			$this->tpl->parseCurrentBlock();
-		*/
+        $this->tpl->setCurrentBlock('HeadContent');
+        $this->tpl->setVariable('CONTENT_BLOCK', $css);
+        $this->tpl->parseCurrentBlock();
 
 		require_once('Services/MathJax/classes/class.ilMathJax.php');
 		ilMathJax::getInstance()->init(ilMathJax::PURPOSE_PDF)
