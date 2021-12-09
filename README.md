@@ -109,8 +109,9 @@ If the PDF generation fails for some reason you may want to test it manually on 
 
 VERSIONS
 --------
-1.4.0 for ILIAS 7 (2021-12-09)
+1.4.1 for ILIAS 7 (2021-12-09)
 - compatibility with ILIAS 7
+- fixed redirection after manual cron job execution
 
 1.3.2 for ILIAS 5.4 (2020-08-05)
 - use proxy settings of ILIAS for PDF generation

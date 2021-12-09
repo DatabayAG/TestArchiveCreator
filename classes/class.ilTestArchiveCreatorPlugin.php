@@ -105,45 +105,52 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	 */
     public function handleCronJob()
 	{
-		$this->includeClass('class.ilTestArchiveCreatorCronInit.php');
+        global $DIC;
+
 		$this->includeClass('class.ilTestArchiveCreatorSettings.php');
 		$this->includeClass('class.ilTestArchiveCreator.php');
 
-		$created = 0;
+        // manual cron job execution in the admin gui
+        if (ilContext::usesHTTP())
+        {
+           // save the current controller parameters to be restored afterwards
+            $params = $DIC->http()->request()->getQueryParams();
+            $ref_id = $params['ref_id'];
+            $base_class = $params['baseClass'];
+            $cmd_class = $params['cmdClass'];
+            $node = $params['cmdNode'];
+        }
 
-		try
-		{
-			// initialize gui when called by cron job
-			ilTestArchiveCreatorCronInit::initCronCall();
+        // initialize controller for the Question GUI
+        $ctrl = $DIC->ctrl();
+        $ctrl->initBaseClass('ilUIPluginRouterGUI');
+        $ctrl->setCmdClass('iltestarchivecreatorsettingsgui');
 
-			foreach (ilTestArchiveCreatorSettings::getScheduledObjects() as $obj_id)
-			{
-				$creator = new ilTestArchiveCreator($this, $obj_id);
-				if ($creator->createArchive()) {
-					$creator->settings->status = self::STATUS_FINISHED;
-					$creator->settings->save();
-					$created++;
-				}
-				unset($creator);
-			}
+        $created = 0;
+        foreach (ilTestArchiveCreatorSettings::getScheduledObjects() as $obj_id)
+        {
+            $creator = new ilTestArchiveCreator($this, $obj_id);
+            if ($creator->createArchive()) {
+                $creator->settings->status = self::STATUS_FINISHED;
+                $creator->settings->save();
+                $created++;
+            }
+            unset($creator);
+        }
 
-			// ensure that the controller is restored
-			ilTestArchiveCreatorCronInit::exitCronCall();
+        // manual cron job execution in the admin gui
+        if (ilContext::usesHTTP())
+        {
+            // restore the controller status
+            // this allows a proper redirection after the return from the job run
+            $ctrl->initBaseClass($base_class);
+            $ctrl->setCmdClass($cmd_class);
+            $ctrl->setParameterbyClass($base_class, 'ref_id', $ref_id);
+            $ctrl->current_node = $node;
+        }
 
-		}
-		catch (exception $e)
-		{
-			// ensure that the controller is restored
-			ilTestArchiveCreatorCronInit::exitCronCall();
-			$error = $e->getMessage();
-		}
 
-
-		if (!empty($error)) {
-			throw new Exception($error);
-		}
-
-		return $created;
+        return $created;
 	}
 
 	/**
