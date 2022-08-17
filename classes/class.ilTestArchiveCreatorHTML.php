@@ -55,7 +55,6 @@ class ilTestArchiveCreatorHTML
 		{
 			$this->tpl->setVariable("LOCATION_STYLESHEET",ilUtil::getStyleSheetLocation());
 		}
-		$this->tpl->addCss($this->testObj->getTestStyleLocation("output"), "all");
         $this->tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'test_javascript.css', 'Modules/TestQuestionPool'), 'all');
 		$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_print.css", "Modules/Test"),'all');
 		$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_pdf.css", "Modules/Test"),'all');
