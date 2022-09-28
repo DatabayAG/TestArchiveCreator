@@ -28,6 +28,11 @@ You may prevent this by deactivating 'Use System Styles' in the plugin configura
 some problems with ssl and images, so you should set 'Any SSL Protocoll', 'Ignore SSL Errors', and 'Render Twice" in the
 plugin configuration.
 
+Issues
+------
+Please use the official ILIAS bug tracker "Mantis" for bug reporting: https://mantis.ilias.de
+* Select "ILIAS Plugins" as Project
+* Filter by Category "TestArchiveCreator"
 
 Plugin installation
 -------------------
