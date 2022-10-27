@@ -23,15 +23,15 @@ pass_scored#:#Bewerteter Testlauf
 pass_best#:#Bester Testlauf
 pass_last#:#Letzter Testlauf
 pass_all#:#Alle Testläufe
-settings_saved#:#Die Archivierung-Einstellungen wurden gespeichert.
+settings_saved#:#Die Archivierungs-Einstellungen wurden gespeichert.
 questions#:#Fragen
 question_id#:#ID
 question_title#:#Titel
 question_type#:#Typ
 max_points#:#Maximale Punktzahl
 files#:#Dateien
-participant#:#Teilnehmer
-participants#:#Teilnehmer
+participant#:#Teilnehmer*in
+participants#:#Teilnehmer*innen
 question_presentation#:#Voransicht
 question_best_solution#:#Musterlösung
 answers#:#Antworten
@@ -82,11 +82,11 @@ given_answer#:#Abgegebene Antwort
 answers_hash#:#Hash (sha1)
 message_cron_plugin_inactive#:#Bitte installieren und aktivieren Sie das Plugin TestArchiveCron (https://github.com/ilifau/TestArchiveCron), um die zeitgesteuerte Archivierung zu nutzen.
 keep_creation_directory#:#Verzeichnis behalten
-keep_creation_directory_info#:#Das Verzeichnis der Archiv-Erzeugung soll nach dem Packen als ZIP-Datei nicht gelöscht werden. Es ist im geschützten ILIAS-Datenberzeichnis unter tst_data/archive_plugin/tst_123 zu finden, wobei 123 die Objekt-ID des Tests ist.
+keep_creation_directory_info#:#Das Verzeichnis der Archiv-Erzeugung soll nach dem Packen als ZIP-Datei nicht gelöscht werden. Es ist im geschützten ILIAS-Datenverzeichnis unter tst_data/archive_plugin/tst_123 zu finden, wobei 123 die Objekt-ID des Tests ist.
 questions_csv#:#Fragenliste (CSV)
 questions_html#:#Fragenliste (HTML)
-participants_csv#:#Teilnehmer (CSV)
-participants_html#:#Teilnehmer (HTML)
+participants_csv#:#Teilnehmer*innen (CSV)
+participants_html#:#Teilnehmer*innen (HTML)
 settings_html#:#Test-Einstellungen (HTML)
 test_archive#:#Test-Archiv
 use_system_styles#:#System-Styles verwenden
@@ -106,13 +106,13 @@ render_twice_info#:#Generiert jede PDF-Datei zweimal (wird überschrieben). Work
 include_questions#:#Fragen einbinden
 include_questions_info#:#Erzeugt einen Ordner im Archiv mit den Fragen des Tests.
 include_answers#:#Antworten einbinden
-include_answers_info#:#Erzeugt einen Ordner im Archiv mit den Antworten der Test-Teilnehmer.
+include_answers_info#:#Erzeugt einen Ordner im Archiv mit den Antworten der Teilnehmer*innen.
 questions_with_best_solution#:#Fragen mit Musterlösung
 questions_with_best_solution_info#:#Erzeugt zu jeder Frage auch eine PDF-Datei mit der Musterlösung.
-answers_with_best_solution#:#Antwoten mit Musterlösung
-answers_with_best_solution_info#:#Fügt in die PDF-Dateien der Teilnehmerantworten unter jeder Frage die Musterlösung ein.
+answers_with_best_solution#:#Antworten mit Musterlösung
+answers_with_best_solution_info#:#Fügt in die PDF-Dateien der Antworten der Teilnehmer*innen unter jeder Frage die Musterlösung ein.
 permissions#:#Berechtigungen
-permissions_info#:#Berechtigung für Nutzer mit Schreibrecht im Test
+permissions_info#:#Berechtigung für Nutzer*innen mit Schreibrecht im Test
 allow#:#Archiv-Erzeugung
 allow_any#:#Beliebig
 allow_any_info#:#Archive sofort oder geplant erzeugen.
@@ -121,5 +121,5 @@ allow_planned_info#:#Archive nur geplant erzeugen. Dazu muss der Cron-Job laufen
 allow_none#:#Nicht erlaubt
 allow_none_info#:#Archive können nur von Administratoren erzeugt werden.
 schedule_info#:#Frühester Zeitpunkt der Generierung. Der tatsächliche hängt von den Systemeinstellungen des Archivierungs-Cron-Jobs ab.
-use_file_urls#:#Datei-Urls verwenden
+use_file_urls#:#Datei-URLs verwenden
 use_file_urls_info#:#Ersetze vor der PDF-Generierung die HTTP-URLs von Bildern, Styles und Skripten durch Datei-URLs. Mit der Ersetzung können auf geschützten Servern Zugriffsfehler vermieden werden. Dazu müssen in der ilias.ini.php die Angaben http_path und absolute_path stimmen.
