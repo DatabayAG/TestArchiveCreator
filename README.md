@@ -114,6 +114,10 @@ If the PDF generation fails for some reason you may want to test it manually on 
 
 VERSIONS
 --------
+1.4.2 for ILIAS 7 (2023-01-16)
+- corrected some typos anf gendered (thx to Mirco Hilbert)
+- removed adding of ta.css (causes error since ILIAS 7.8)
+
 1.4.1 for ILIAS 7 (2021-12-09)
 - compatibility with ILIAS 7
 - fixed redirection after manual cron job execution
