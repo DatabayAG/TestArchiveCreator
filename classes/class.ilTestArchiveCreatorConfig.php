@@ -10,8 +10,15 @@ class ilTestArchiveCreatorConfig
 	const ALLOW_PLANNED = 'planned';
 	const ALLOW_NONE = 'none';
 
+    const ENGINE_PHANTOM = 'phantom';
+    const ENGINE_BROWSERSHOT = 'browsershot';
+
+
 	/** @var string actions allowed for a standard user with write permissions on a test */
 	public $user_allow;
+
+    /** @var string */
+    public $pdf_engine;
 
 	/** @var  string path to the executable of PhantomJS */
 	public $phantomjs_path;
@@ -49,19 +56,25 @@ class ilTestArchiveCreatorConfig
 	/** @var bool allow any ssl protocol */
 	public $any_ssl_protocol;
 
-	/** @var bool ignore_ssl_errors */
+	/** @var bool ignore ssl errors */
 	public $ignore_ssl_errors;
 
-	/** @var bool min_rendering_wait */
+	/** @var bool minimum seconds to wait for rendering */
 	public $min_rendering_wait;
 
-	/** @var bool max_rendering_wait */
+	/** @var bool minimum seconds to wait for rendering */
 	public $max_rendering_wait;
 
-	/** @var bool render_twice */
+	/** @var bool render twice */
 	public $render_twice;
 
-	/** @var bool use_file_urls */
+    /** @var string browsershot node module path */
+    public $bs_node_module_path;
+
+    /** @var string browsershot chrome path */
+    public $bs_chrome_path;
+
+	/** @var bool use file urls */
 	public $use_file_urls;
 
 	/** @var bool include questions */
@@ -94,8 +107,9 @@ class ilTestArchiveCreatorConfig
 		$this->settings = new ilSetting('ilTestArchiveCreator');
 
 		$this->user_allow = (string) $this->settings->get('user_allow', self::ALLOW_ANY);
+        $this->pdf_engine = (string) $this->settings->get('pdf_engine', self::ENGINE_PHANTOM);
 
-		$this->phantomjs_path = (string) $this->settings->get('phantomjs_path', '/opt/phantomjs/phantomjs');
+        $this->phantomjs_path = (string) $this->settings->get('phantomjs_path', '/opt/phantomjs/phantomjs');
 		$this->hide_standard_archive = (bool) $this->settings->get('hide_standard_archive', true);
 		$this->keep_creation_directory = (bool) $this->settings->get('keep_creation_directory', false);
         $this->keep_jobfile = (bool) $this->settings->get('keep_jobfile', false);
@@ -104,6 +118,9 @@ class ilTestArchiveCreatorConfig
 		$this->ignore_ssl_errors = (bool)  $this->settings->get('ignore_ssl_errors', false);
         $this->render_twice = (bool)  $this->settings->get('render_twice', false);
         $this->use_file_urls = (bool)  $this->settings->get('use_file_urls', false);
+
+        $this->bs_node_module_path = (string) $this->settings->get('bs_node_module_path', '/home/www-data/node_modules/');
+        $this->bs_chrome_path = (string) $this->settings->get('bs_chrome_path', '/home/www-data/.cache/puppeteer/chrome/linux-1108766/chrome-linux/chrome');
 
 		$this->with_login = (bool) $this->settings->get('with_login', true);
 		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
@@ -130,6 +147,7 @@ class ilTestArchiveCreatorConfig
 	public function save()
 	{
 		$this->settings->set('user_allow', (string) $this->user_allow);
+        $this->settings->set('pdf_engine', (string) $this->pdf_engine);
 
 		$this->settings->set('phantomjs_path', (string) $this->phantomjs_path);
 		$this->settings->set('hide_standard_archive', (bool) $this->hide_standard_archive ? '1' : '0');
@@ -140,6 +158,9 @@ class ilTestArchiveCreatorConfig
 		$this->settings->set('ignore_ssl_errors', (bool) $this->ignore_ssl_errors ? '1' : '0');
 		$this->settings->set('render_twice', (bool) $this->render_twice ? '1' : '0');
         $this->settings->set('use_file_urls', (bool) $this->use_file_urls ? '1' : '0');
+
+        $this->settings->set('bs_node_module_path', (string) $this->bs_node_module_path);
+        $this->settings->set('bs_chrome_path', (string) $this->bs_chrome_path);
 
 		$this->settings->set('with_login', (bool) $this->with_login ? '1' : '0');
 		$this->settings->set('with_matriculation', (bool) $this->with_matriculation ? '1' : '0');

@@ -2,8 +2,14 @@
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
 
-class ilTestArchiveCreatorPDF
+abstract class ilTestArchiveCreatorPDF
 {
+    /** @var \ILIAS\DI\Container */
+    public $dic;
+
+    /** @var ilLogger */
+    public $logger;
+
 	/** @var ilTestArchiveCreatorPlugin */
 	public $plugin;
 
@@ -40,7 +46,12 @@ class ilTestArchiveCreatorPDF
 	 * @param $plugin
 	 * @param $settings
 	 */
-	public function __construct($plugin, $settings, $workdir) {
+	public function __construct($plugin, $settings, $workdir)
+    {
+        global $DIC;
+
+        $this->dic = $DIC;
+        $this->logger = $DIC->logger()->root();
 		$this->plugin = $plugin;
 		$this->config = $this->plugin->getConfig();
 		$this->settings = $settings;
@@ -95,77 +106,19 @@ class ilTestArchiveCreatorPDF
 		return $job;
 	}
 
+    /**
+     * Get the file to which the jos information shoud be written
+     */
+    protected function getJobsFile() : string
+    {
+        return $this->workdir . '/' . $this->jobsid . '.json';
+    }
+
 	/**
 	 * Generate the added batch files as PDF in one step
 	 * PDF rendering is done at this step
 	 */
-	public function generateJobs()
-	{
-		global $DIC;
-		$log = $DIC->logger();
-
-		if (empty($this->jobs))
-        {
-            return;
-        }
-
-		$phantomJs = $this->config->phantomjs_path;
-		$scriptFile = $this->plugin->getDirectory() . '/js/doPhantomJobs.js';
-		$jobsFile = $this->workdir . '/' . $this->jobsid . '.json';
-
-		$content = [
-		    'clientId' => CLIENT_ID,
-            'sessionId' => session_id(),
-            'cookieDomain' => $_SERVER['HTTP_HOST'],
-            'cookiePath' => IL_COOKIE_PATH,
-            'cookieSecure' => IL_COOKIE_SECURE,
-            'cookieHttpOnly' => IL_COOKIE_HTTPONLY,
-            'orientation' => $this->settings->orientation,
-            'minRenderingWait' => $this->config->min_rendering_wait,
-            'maxRenderingWait' => $this->config->max_rendering_wait,
-
-            'jobs' => $this->jobs
-        ];
-
-		file_put_contents($jobsFile, json_encode($content));
-
-		$jobinfo = print_r($content, true);
-		$log->root()->debug($jobinfo);
-
-		if (is_executable($phantomJs))
-		{
-			$command = $phantomJs;
-			if ($this->config->any_ssl_protocol)
-			{
-				$command .= ' --ssl-protocol=any';
-			}
-			if ($this->config->ignore_ssl_errors)
-			{
-				$command .= ' --ignore-ssl-errors=true';
-			}
-			// thanks to Stefan Schneider
-            if (ilProxySettings::_getInstance()->isActive()) {
-                $command .= ' --proxy='.ilProxySettings::_getInstance()->getHost() . ':' . ilProxySettings::_getInstance()->getPort();
-            }
-
-            $command .= ' ' . $scriptFile . ' ' . $jobsFile;
-
-			try
-			{
-				$log->root()->info($command);
-				$output = exec($command);
-				$log->root()->info($output);
-			}
-			catch (Exception $e)
-			{
-				$log->root()->warning($e->getMessage());
-			}
-		}
-		else
-		{
-			$log->root()->warning("$phantomJs is not executable");
-		}
-	}
+	abstract public function generateJobs();
 
 	/**
 	 * Remove the job files and clear the variables

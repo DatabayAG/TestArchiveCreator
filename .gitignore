@@ -4,6 +4,8 @@
 # add * to commit directories with .gitkeep
 .idea
 /nbproject
+vendor
+composer.lock
 
 # Don't ignore .gitkeep and .htaccess files
 # these are used to commit empty directories

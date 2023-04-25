@@ -43,14 +43,14 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
 				$this->tabs = $DIC->tabs();
 
 				// Export tab is shown
-				if ($this->ctrl->getCmdClass() == 'iltestexportgui')
+				if (strtolower($this->ctrl->getCmdClass()) == 'iltestexportgui')
 				{
 					$this->saveTabs('iltestexportgui');
 					$this->modifyExportToolbar();
 				}
 
 				// Archive Creator settings are shown
-				if ($this->ctrl->getCmdClass()  == 'iltestarchivecreatorsettingsgui')
+				if (strtolower($this->ctrl->getCmdClass())  == 'iltestarchivecreatorsettingsgui')
 				{
 					$this->restoreTabs('iltestexportgui');
 				}

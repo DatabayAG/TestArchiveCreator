@@ -97,6 +97,8 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 			return;
 		}
 
+        $this->config->pdf_engine = $form->getInput('pdf_engine');
+
 		$this->config->phantomjs_path = $form->getInput('phantomjs_path');
 		$this->config->hide_standard_archive = $form->getInput('hide_standard_archive');
         $this->config->keep_creation_directory = $form->getInput('keep_creation_directory');
@@ -106,6 +108,9 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$this->config->ignore_ssl_errors = $form->getInput('ignore_ssl_errors');
         $this->config->render_twice = $form->getInput('render_twice');
         $this->config->use_file_urls = $form->getInput('use_file_urls');
+
+        $this->config->bs_node_module_path = $form->getInput('bs_node_module_path');
+        $this->config->bs_chrome_path = $form->getInput('bs_chrome_path');
 
 		$this->config->with_login = $form->getInput('with_login');
 		$this->config->with_matriculation = $form->getInput('with_matriculation');
@@ -142,12 +147,8 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$form->setFormAction($this->ctrl->getFormAction($this, 'editConfiguration'));
 		$form->setTitle($this->plugin->txt('plugin_configuration'));
 
-		$path = new ilTextInputGUI($this->plugin->txt('phantomjs_path'), 'phantomjs_path');
-		$path->setInfo($this->plugin->txt('phantomjs_path_info'));
-		$path->setValue($this->config->phantomjs_path);
-		$form->addItem($path);
 
-		$hide = new ilCheckboxInputGUI($this->plugin->txt('hide_standard_archive'), 'hide_standard_archive');
+        $hide = new ilCheckboxInputGUI($this->plugin->txt('hide_standard_archive'), 'hide_standard_archive');
 		$hide->setInfo($this->plugin->txt('hide_standard_archive_info'));
 		$hide->setChecked($this->config->hide_standard_archive);
 		$form->addItem($hide);
@@ -157,35 +158,41 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$keep->setChecked($this->config->keep_creation_directory);
 		$form->addItem($keep);
 
-            $job = new ilCheckboxInputGUI($this->plugin->txt('keep_jobfile'), 'keep_jobfile');
-            $job->setInfo($this->plugin->txt('keep_jobfile_info'));
-            $job->setChecked($this->config->keep_jobfile);
-            $keep->addSubItem($job);
+        $job = new ilCheckboxInputGUI($this->plugin->txt('keep_jobfile'), 'keep_jobfile');
+        $job->setInfo($this->plugin->txt('keep_jobfile_info'));
+        $job->setChecked($this->config->keep_jobfile);
+        $keep->addSubItem($job);
+
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->plugin->txt('pdf_generation'));
+        $form->addItem($header);
+
+        $engine = new ilRadioGroupInputGUI($this->plugin->txt('pdf_engine'), 'pdf_engine');
+        $engine->setValue($this->config->pdf_engine);
+        $form->addItem($engine);
+
+        $phantom = new ilRadioOption($this->plugin->txt('pdf_engine_phantom'), ilTestArchiveCreatorConfig::ENGINE_PHANTOM);
+        $engine->addOption($phantom);
+
+        $path = new ilTextInputGUI($this->plugin->txt('phantomjs_path'), 'phantomjs_path');
+        $path->setInfo($this->plugin->txt('phantomjs_path_info'));
+        $path->setValue($this->config->phantomjs_path);
+        $phantom->addSubItem($path);
 
         $styles = new ilCheckboxInputGUI($this->plugin->txt('use_system_styles'), 'use_system_styles');
-		$styles->setInfo($this->plugin->txt('use_system_styles_info'));
-		$styles->setChecked($this->config->use_system_styles);
-		$form->addItem($styles);
+        $styles->setInfo($this->plugin->txt('use_system_styles_info'));
+        $styles->setChecked($this->config->use_system_styles);
+        $phantom->addSubItem($styles);
 
-		$protocol = new ilCheckboxInputGUI($this->plugin->txt('any_ssl_protocol'), 'any_ssl_protocol');
-		$protocol->setInfo($this->plugin->txt('any_ssl_protocol_info'));
-		$protocol->setChecked($this->config->any_ssl_protocol);
-		$form->addItem($protocol);
-
-		$errors = new ilCheckboxInputGUI($this->plugin->txt('ignore_ssl_errors'), 'ignore_ssl_errors');
-		$errors->setInfo($this->plugin->txt('ignore_ssl_errors_info'));
-		$errors->setChecked($this->config->ignore_ssl_errors);
-		$form->addItem($errors);
+        $protocol = new ilCheckboxInputGUI($this->plugin->txt('any_ssl_protocol'), 'any_ssl_protocol');
+        $protocol->setInfo($this->plugin->txt('any_ssl_protocol_info'));
+        $protocol->setChecked($this->config->any_ssl_protocol);
+        $phantom->addSubItem($protocol);
 
         $twice = new ilCheckboxInputGUI($this->plugin->txt('render_twice'), 'render_twice');
         $twice->setInfo($this->plugin->txt('render_twice_info'));
         $twice->setChecked($this->config->render_twice);
-        $form->addItem($twice);
-
-        $file_urls = new ilCheckboxInputGUI($this->plugin->txt('use_file_urls'), 'use_file_urls');
-        $file_urls->setInfo($this->plugin->txt('use_file_urls_info'));
-        $file_urls->setChecked($this->config->use_file_urls);
-        $form->addItem($file_urls);
+        $phantom->addSubItem($twice);
 
         $min_wait = new ilNumberInputGUI($this->plugin->txt('min_rendering_wait'), 'min_rendering_wait');
         $min_wait->setInfo($this->plugin->txt('min_rendering_wait_info'));
@@ -193,7 +200,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $min_wait->allowDecimals(false);
         $min_wait->setValue($this->config->min_rendering_wait);
         $min_wait->setMinValue(1);
-        $form->addItem($min_wait);
+        $phantom->addSubItem($min_wait);
 
         $max_wait = new ilNumberInputGUI($this->plugin->txt('max_rendering_wait'), 'max_rendering_wait');
         $max_wait->setInfo($this->plugin->txt('max_rendering_wait_info'));
@@ -201,7 +208,31 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $max_wait->allowDecimals(false);
         $max_wait->setMinValue(1);
         $max_wait->setValue($this->config->max_rendering_wait);
-        $form->addItem($max_wait);
+        $phantom->addSubItem($max_wait);
+
+        $browsershot = new ilRadioOption($this->plugin->txt('pdf_engine_browsershot'), ilTestArchiveCreatorConfig::ENGINE_BROWSERSHOT);
+        $engine->addOption($browsershot);
+
+        $path = new ilTextInputGUI($this->plugin->txt('bs_node_module_path'), 'bs_node_module_path');
+        $path->setInfo($this->plugin->txt('bs_node_module_path_info'));
+        $path->setValue($this->config->bs_node_module_path);
+        $browsershot->addSubItem($path);
+
+        $path = new ilTextInputGUI($this->plugin->txt('bs_chrome_path'), 'bs_chrome_path');
+        $path->setInfo($this->plugin->txt('bs_chrome_path_info'));
+        $path->setValue($this->config->bs_chrome_path);
+        $browsershot->addSubItem($path);
+
+        $file_urls = new ilCheckboxInputGUI($this->plugin->txt('use_file_urls'), 'use_file_urls');
+        $file_urls->setInfo($this->plugin->txt('use_file_urls_info'));
+        $file_urls->setChecked($this->config->use_file_urls);
+        $form->addItem($file_urls);
+
+        $errors = new ilCheckboxInputGUI($this->plugin->txt('ignore_ssl_errors'), 'ignore_ssl_errors');
+        $errors->setInfo($this->plugin->txt('ignore_ssl_errors_info'));
+        $errors->setChecked($this->config->ignore_ssl_errors);
+        $form->addItem($errors);
+
 
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->plugin->txt('object_defaults'));

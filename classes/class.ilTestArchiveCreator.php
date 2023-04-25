@@ -114,7 +114,16 @@ class ilTestArchiveCreator
         $this->utils->makeDirParents($this->workdir);
 
 		$this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings, $this->testObj);
-		$this->pdfCreator = new ilTestArchiveCreatorPDF($this->plugin, $this->settings, $this->workdir);
+
+        switch($this->config->pdf_engine) {
+            case ilTestArchiveCreatorConfig::ENGINE_PHANTOM:
+                $this->pdfCreator = new ilTestArchiveCreatorPhantomJS($this->plugin, $this->settings, $this->workdir);
+                break;
+
+            case ilTestArchiveCreatorConfig::ENGINE_BROWSERSHOT:
+                $this->pdfCreator = new ilTestArchiveCreatorBrowsershot($this->plugin, $this->settings, $this->workdir);
+                break;
+        }
 
 		$this->questions = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorQuestion($this));
 		$this->questions->setTitle($this->plugin->txt('questions'));
