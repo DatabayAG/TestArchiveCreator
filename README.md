@@ -114,6 +114,11 @@ If the PDF generation fails for some reason you may want to test it manually on 
 
 VERSIONS
 --------
+1.5.0 for ILIAS 8 (2023-04-25)
+- first version for ILIAS 8
+- not yet extensively tested
+- Workaround for deleted ilUtil filesystem functions, needs refactoring
+
 1.4.2 for ILIAS 7 (2023-01-16)
 - corrected some typos anf gendered (thx to Mirco Hilbert)
 - removed adding of ta.css (causes error since ILIAS 7.8)
