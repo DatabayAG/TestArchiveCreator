@@ -1,8 +1,6 @@
 <?php
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
-require_once('./Modules/Test/classes/class.ilObjTest.php');
-
 /**
  * GUI for Limited Media Control
  *
@@ -29,7 +27,7 @@ class ilTestArchiveCreatorSettingsGUI
 	/** @var  ilToolbarGUI $toolbar */
 	protected $toolbar;
 
-	/** @var ilTemplate $tpl */
+	/** @var ilGlobalTemplate $tpl */
 	protected $tpl;
 
 	/** @var ilTestArchiveCreatorPlugin $plugin */
@@ -62,7 +60,9 @@ class ilTestArchiveCreatorSettingsGUI
 
 		$this->testObj = new ilObjTest($_GET['ref_id'], true);
 
-		$this->plugin = ilPlugin::getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'TestArchiveCreator');
+        /** @var ilComponentFactory $factory */
+        $factory = $DIC["component.factory"];
+        $this->plugin = $factory->getPlugin('tarc_ui');
 		$this->config = $this->plugin->getConfig();
 		$this->settings = $this->plugin->getSettings($this->testObj->getId());
     }
@@ -86,7 +86,7 @@ class ilTestArchiveCreatorSettingsGUI
 		if ($this->config->hide_standard_archive) {
 			foreach ($this->toolbar->getItems() as $item) {
 				/** @var ilSelectInputGUI $select */
-				if ($item['input'] instanceof ilSelectInputGUI) {
+				if (isset($item['input']) && $item['input'] instanceof ilSelectInputGUI) {
 					$select = $item['input'];
 					if ($select->getPostVar() == 'format') {
 						$options = $select->getOptions();
@@ -123,7 +123,6 @@ class ilTestArchiveCreatorSettingsGUI
 		$this->toolbar->addText($text);
 
 		if ($this->config->isPlannedCreationAllowed()) {
-			include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
 			$button = ilLinkButton::getInstance();
 			$button->setCaption($this->lng->txt('settings'), false);
 			$button->setUrl($this->getLinkTarget('editSettings'));
@@ -131,7 +130,6 @@ class ilTestArchiveCreatorSettingsGUI
 		}
 
 		if ($this->config->isInstantCreationAllowed()) {
-			include_once "Services/UIComponent/Button/classes/class.ilLinkButton.php";
 			$button = ilLinkButton::getInstance();
 			$button->setCaption($this->lng->txt('create'), false);
 			$button->setUrl($this->getLinkTarget('createArchive'));
@@ -148,12 +146,12 @@ class ilTestArchiveCreatorSettingsGUI
 
 		if (!$this->access->checkAccess('write','',$this->testObj->getRefId()))
 		{
-            ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
             ilUtil::redirect("goto.php?target=tst_".$this->testObj->getRefId());
 		}
 
 		if (!$this->config->isPlannedCreationAllowed()) {
-			ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
 			$this->ctrl->redirectToURL("goto.php?target=tst_".$this->testObj->getRefId());
 		}
 
@@ -173,14 +171,14 @@ class ilTestArchiveCreatorSettingsGUI
 				break;
             case "createArchive":
 				if (!$this->config->isInstantCreationAllowed()) {
-					ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+                    $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
 					$this->ctrl->redirectToURL("goto.php?target=tst_".$this->testObj->getRefId());
 				}
 				$this->$cmd();
 				break;
 
 			default:
-                ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
                 $this->ctrl->redirectToURL("goto.php?target=tst_".$this->testObj->getRefId());
 				break;
 		}
@@ -207,7 +205,7 @@ class ilTestArchiveCreatorSettingsGUI
 		$this->tpl->setLocator();
 		$this->tpl->setTitle($this->testObj->getPresentationTitle());
 		$this->tpl->setDescription($this->testObj->getLongDescription());
-		$this->tpl->setTitleIcon(ilObject::_getIcon('', 'big', 'tst'), $lng->txt('obj_tst'));
+		$this->tpl->setTitleIcon(ilObject::_getIcon(0, 'big', 'tst'), $lng->txt('obj_tst'));
 
 		return true;
 	}
@@ -217,7 +215,6 @@ class ilTestArchiveCreatorSettingsGUI
 	 */
 	protected function initSettingsForm()
 	{
-		require_once('Services/Form/classes/class.ilPropertyFormGUI.php');
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this, 'editSettings'));
 		$form->setTitle($this->plugin->txt('edit_archive_settings'));
@@ -375,7 +372,7 @@ class ilTestArchiveCreatorSettingsGUI
 
         $this->settings->save();
 
-        ilUtil::sendSuccess($this->plugin->txt('settings_saved'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
 		$this->returnToExport();
     }
 
@@ -414,7 +411,7 @@ class ilTestArchiveCreatorSettingsGUI
 	protected function returnToExport()
 	{
 		$this->ctrl->setParameterByClass('ilTestExportGUI', 'ref_id', $this->testObj->getRefId());
-		$this->ctrl->redirectByClass(array('ilObjTestGUI', 'ilTestExportGUI'));
+		$this->ctrl->redirectByClass(array('ilobjtestgui', 'iltestexportgui'));
 	}
 }
 ?>

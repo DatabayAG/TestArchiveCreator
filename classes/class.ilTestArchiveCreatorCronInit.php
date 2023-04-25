@@ -24,7 +24,6 @@ class ilTestArchiveCreatorCronInit extends ilInitialisation
 		}
 
 		if(!ilContext::hasHTML()) {
-			require_once "./Services/UICore/classes/class.ilTemplate.php";
 			self::initHTML();
 		}
 

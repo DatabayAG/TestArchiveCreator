@@ -1,8 +1,7 @@
 <?php
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
-include_once("Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php");
- 
+
 /**
  * Basic plugin file
  *
@@ -39,7 +38,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	 * Get the plugin name
 	 * @return string
 	 */
-	public function getPluginName()
+	public function getPluginName() : string
 	{
 		return "TestArchiveCreator";
 	}
@@ -51,7 +50,6 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	public function getConfig()
 	{
 		if (!isset($this->config)) {
-			$this->includeClass('class.ilTestArchiveCreatorConfig.php');
 			$this->config = new ilTestArchiveCreatorConfig($this);
 		}
 		return $this->config;
@@ -66,7 +64,6 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	public function getSettings($obj_id)
 	{
 		if (!isset($this->settings[$obj_id])) {
-			$this->includeClass('class.ilTestArchiveCreatorSettings.php');
 			$this->settings[$obj_id] = new ilTestArchiveCreatorSettings($this, $obj_id);
 		}
 		return $this->settings[$obj_id];
@@ -80,7 +77,6 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	 */
 	public function getArchiveCreator($obj_id)
 	{
-		$this->includeClass('class.ilTestArchiveCreator.php');
 		return new ilTestArchiveCreator($this, $obj_id);
 	}
 
@@ -92,10 +88,17 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	public function checkCronPluginActive()
     {
     	global $DIC;
-		/** @var ilPluginAdmin $ilPluginAdmin */
-    	$ilPluginAdmin = $DIC['ilPluginAdmin'];
 
-        return $ilPluginAdmin->isActive('Services', 'Cron', 'crnhk', 'TestArchiveCron');
+        /** @var ilComponentFactory $factory */
+        $factory = $DIC["component.factory"];
+
+        /** @var ilPlugin $plugin */
+        Foreach ($factory->getActivePluginsInSlot('crnhk') as $plugin) {
+            if ($plugin->getPluginName() == 'TestArchiveCron') {
+                return $plugin->isActive();
+            }
+        }
+        return false;
     }
 
 	/**
@@ -106,9 +109,6 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
     public function handleCronJob()
 	{
         global $DIC;
-
-		$this->includeClass('class.ilTestArchiveCreatorSettings.php');
-		$this->includeClass('class.ilTestArchiveCreator.php');
 
         // manual cron job execution in the admin gui
         if (ilContext::usesHTTP())
@@ -199,7 +199,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	/**
 	 * Cleanup when uninstalling
 	 */
-	public function beforeUninstall()
+	public function beforeUninstall() : bool
 	{
 		global $DIC;
 		$ilDB = $DIC->database();

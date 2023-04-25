@@ -146,7 +146,6 @@ class ilTestArchiveCreatorSettings
 		global $DIC;
 		$db = $DIC->database();
 
-		require_once('Services/Calendar/classes/class.ilDateTime.php');
 		$time = new ilDateTime(time(), IL_CAL_UNIX);
 
 		$query = "SELECT obj_id FROM tarc_ui_settings WHERE status = %s AND schedule <= %s";

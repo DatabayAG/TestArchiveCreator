@@ -18,7 +18,7 @@ class ilTestArchiveCreator
 	/** @var ilObjTest $testObj */
 	public $testObj;
 
-	/** @var  ilDB $db */
+	/** @var  ilDBInterface $db */
 	protected $db;
 
 	/** @var ilLanguage $lng */
@@ -46,6 +46,9 @@ class ilTestArchiveCreator
 	/** @see getUsedQuestionIds() */
 	protected $usedQuestionIds;
 
+    /** @var ilTestArchiveCreatorUtils */
+    protected $utils;
+
 	/**
 	 * Constructor
 	 * @param ilTestArchiveCreatorPlugin $plugin
@@ -62,15 +65,10 @@ class ilTestArchiveCreator
 		$this->config = $plugin->getConfig();
 		$this->settings = $plugin->getSettings($obj_id);
 
-		require_once ('Modules/Test/classes/class.ilObjTest.php');
-		$this->testObj = new ilObjTest($obj_id, false);
+        $this->utils = new ilTestArchiveCreatorUtils();
 
-		// workaround for missing include in ilObjTest::getQuestionCount()
-		if ($this->testObj->isRandomTest())
-		{
-			require_once('Modules/Test/classes/class.ilTestRandomQuestionSetConfig.php');
-		}
-	}
+		$this->testObj = new ilObjTest($obj_id, false);
+    }
 
 
 	/**
@@ -109,20 +107,11 @@ class ilTestArchiveCreator
 	 */
 	protected function initCreation()
 	{
-		require_once('Services/Calendar/classes/class.ilDatePresentation.php');
 		ilDatePresentation::setUseRelativeDates(false);
 
 		$this->workdir = CLIENT_DATA_DIR . '/tst_data/archive_plugin/tst_'.$this->testObj->getId();
-		ilUtil::delDir($this->workdir);
-		ilUtil::makeDirParents($this->workdir);
-
-		$this->plugin->includeClass('class.ilTestArchiveCreatorPDF.php');
-		$this->plugin->includeClass('class.ilTestArchiveCreatorHTML.php');
-		$this->plugin->includeClass('models/class.ilTestArchiveCreatorElement.php');
-		$this->plugin->includeClass('models/class.ilTestArchiveCreatorList.php');
-		$this->plugin->includeClass('models/class.ilTestArchiveCreatorQuestion.php');
-		$this->plugin->includeClass('models/class.ilTestArchiveCreatorParticipant.php');
-		$this->plugin->includeClass('models/class.ilTestArchiveCreatorMark.php');
+		$this->utils->delDir($this->workdir);
+        $this->utils->makeDirParents($this->workdir);
 
 		$this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings, $this->testObj);
 		$this->pdfCreator = new ilTestArchiveCreatorPDF($this->plugin, $this->settings, $this->workdir);
@@ -143,14 +132,14 @@ class ilTestArchiveCreator
 	protected function finishCreation()
 	{
 		$export_dir = CLIENT_DATA_DIR . '/tst_data/archive_exports/tst_'.$this->testObj->getId();
-		ilUtil::makeDirParents($export_dir);
+        $this->utils->makeDirParents($export_dir);
 
 		$zipfile = 'test_archive_obj_'.$this->testObj->getId().'_'.time().'_plugin';
-		ilUtil::zip($this->workdir, $export_dir .'/'. $zipfile, true);
+		$this->utils->zip($this->workdir, $export_dir .'/'. $zipfile, true);
 
 		if (!$this->config->keep_creation_directory)
 		{
-			ilUtil::delDir($this->workdir);
+            $this->utils->delDir($this->workdir);
 		}
 	}
 
@@ -190,9 +179,7 @@ class ilTestArchiveCreator
 		$info[$this->lng->txt('title')] = $this->testObj->getTitle();
 		$info[$this->lng->txt("tst_introduction")] = $this->testObj->getIntroduction();
 		$info[$this->lng->txt("tst_question_set_type")] = $this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_FIXED ?
-			$this->lng->txt("tst_question_set_type_fixed") : ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM ?
-				$this->lng->txt("tst_question_set_type_random") : ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_DYNAMIC ?
-					$this->lng->txt("tst_question_set_type_dynamic") : ''));
+            $this->lng->txt("tst_question_set_type_fixed") : $this->lng->txt("tst_question_set_type_random");
 		$info[$this->lng->txt("tst_nr_of_tries")] = $this->testObj->getNrOfTries() > 0 ?
 			$this->testObj->getNrOfTries() : $this->lng->txt('unlimited');
 		$info[$this->lng->txt("tst_processing_time_duration")] = $this->testObj->getEnableProcessingTime() ?
@@ -200,7 +187,6 @@ class ilTestArchiveCreator
 		$info[$this->lng->txt("tst_shuffle_questions")] = $this->testObj->getShuffleQuestions() ?
 			$this->lng->txt("tst_shuffle_questions_description") : $this->lng->txt('no');
 		$info[$this->lng->txt("tst_text_count_system")] = $this->lng->txt(($this->testObj->getCountSystem() == COUNT_PARTIAL_SOLUTIONS)? "tst_count_partial_solutions":"tst_count_correct_solutions");
-		$info[$this->lng->txt("tst_score_mcmr_questions")]= $this->lng->txt(($this->testObj->getMCScoring() == SCORE_ZERO_POINTS_WHEN_UNANSWERED)? "tst_score_mcmr_zero_points_when_unanswered":"tst_score_mcmr_use_scoring_system");
 		$info[$this->lng->txt("tst_pass_scoring")] = $this->lng->txt(($this->testObj->getPassScoring() == SCORE_BEST_PASS)? "tst_pass_best_pass":"tst_pass_last_pass");
 
 		// get the mark scheme
@@ -248,7 +234,6 @@ class ilTestArchiveCreator
 	{
 		$this->makeDir('questions');
 
-		require_once('Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php');
 		$type_translations = ilObjQuestionPool::getQuestionTypeTranslations();
 
 		// Title for header in PDFs
@@ -259,9 +244,6 @@ class ilTestArchiveCreator
 		{
 			case ilObjTest::QUESTION_SET_TYPE_FIXED:
 				$question_ids = $this->testObj->getQuestions();
-				break;
-			case ilObjTest::QUESTION_SET_TYPE_DYNAMIC:
-				$question_ids = array_keys($this->getUsedQuestionIds());
 				break;
 
 			case ilObjTest::QUESTION_SET_TYPE_RANDOM:
@@ -461,7 +443,7 @@ class ilTestArchiveCreator
 
 
 							// answer and solution output
-							$question_gui = $this->testObj->createQuestionGUI($row['type_tag'], $row['qid']);
+							$question_gui = $this->testObj->createQuestionGUI($row['type'], $row['qid']);
 							$html_answer = $question_gui->getSolutionOutput($active_id, $pass, TRUE, FALSE, FALSE, FALSE, FALSE);
 
 							if ($this->settings->answers_with_best_solution)
@@ -472,7 +454,6 @@ class ilTestArchiveCreator
 							//manual feedback
 							if (!empty($row['manualFeedback']))
 							{
-								include_once("./Services/RTE/classes/class.ilRTE.php");
 								$tpl->setCurrentBlock('manual_feedback');
 								$tpl->setVariable('TXT_MANUAL_FEEDBACK', $this->plugin->txt('manual_feedback'));
 								$tpl->setVariable('HTML_MANUAL_FEEDBACK', $feedback = ilRTE::_replaceMediaObjectImageSrc($row['manualFeedback'], 1));
@@ -646,7 +627,7 @@ class ilTestArchiveCreator
 			$question_id = $data['qid'];
 			$question['qid'] = $data['qid'];
 			$question['title'] = $data['title'];
-			$question["type_tag"] = $data['type_tag'];
+			$question["type"] = $data['type'];
 			$question['nr'] = $data['nr'];
 			$question['max'] = $data['max'];
 			$question['reached'] = $data['reached'];
@@ -695,7 +676,7 @@ class ilTestArchiveCreator
 	{
 		if (!is_dir($this->workdir .'/'. $directory))
 		{
-			ilUtil::makeDir($this->workdir .'/'. $directory);
+			$this->utils->makeDir($this->workdir .'/'. $directory);
 		}
 	}
 

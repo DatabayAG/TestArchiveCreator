@@ -1,13 +1,14 @@
 <?php
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
-include_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
 
 /**
  * Test archive creator configuration user interface class
  *
  * @author Fred Neumann <fred.neumann@fau.de>
  * @author Jesus Copado <jesus.copado@fau.de>
+ *
+ *  @ilCtrl_IsCalledBy ilTestArchiveCreatorConfigGUI: ilObjComponentSettingsGUI
  */
 class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 {
@@ -26,7 +27,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 	/** @var  ilToolbarGUI $toolbar */
 	protected $toolbar;
 
-	/** @var ilTemplate $tpl */
+	/** @var ilGlobalTemplate $tpl */
 	protected $tpl;
 
 	/** @var ilTestArchiveCreatorPlugin $plugin */
@@ -47,7 +48,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$this->lng = $DIC->language();
 		$this->tabs = $DIC->tabs();
 		$this->toolbar = $DIC->toolbar();
-		$this->tpl = $DIC['tpl'];
+		$this->tpl = $DIC->ui()->mainTemplate();
 
 		$this->lng->loadLanguageModule('assessment');
 	}
@@ -56,7 +57,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 	/**
 	 * Handles all commands, default is "configure"
 	 */
-	public function performCommand($cmd)
+	public function performCommand(string $cmd) : void
 	{
 		$this->plugin = $this->getPluginObject();
 		$this->config = $this->plugin->getConfig();
@@ -127,7 +128,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 
         $this->config->save();
 
-		ilUtil::sendSuccess($this->plugin->txt('settings_saved'), true);
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
 		$this->ctrl->redirect($this, 'editConfiguration');
 	}
 
@@ -137,7 +138,6 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 	 */
 	protected function initConfigForm()
 	{
-		require_once('Services/Form/classes/class.ilPropertyFormGUI.php');
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this, 'editConfiguration'));
 		$form->setTitle($this->plugin->txt('plugin_configuration'));

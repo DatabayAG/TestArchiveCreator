@@ -91,7 +91,6 @@ class ilTestArchiveCreatorConfig
 	public function __construct($plugin) {
 		$this->plugin = $plugin;
 
-		require_once("Services/Administration/classes/class.ilSetting.php");
 		$this->settings = new ilSetting('ilTestArchiveCreator');
 
 		$this->user_allow = (string) $this->settings->get('user_allow', self::ALLOW_ANY);

@@ -45,7 +45,6 @@ class ilTestArchiveCreatorHTML
 	public function initMainTemplate()
 	{
 		// we need to rewrite the main template
-		$this->plugin->includeClass('class.ilTestArchiveCreatorTemplate.php');
 		$this->tpl =  new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.main.html", true, true);
 		$GLOBALS['tpl'] = $this->tpl;
 		$this->tpl_type = 'main';
@@ -66,7 +65,6 @@ class ilTestArchiveCreatorHTML
         $this->tpl->setVariable('CONTENT_BLOCK', $css);
         $this->tpl->parseCurrentBlock();
 
-		require_once('Services/MathJax/classes/class.ilMathJax.php');
 		ilMathJax::getInstance()->init(ilMathJax::PURPOSE_PDF)
 			->setRendering(ilMathJax::RENDER_SVG_AS_XML_EMBED);
 	}

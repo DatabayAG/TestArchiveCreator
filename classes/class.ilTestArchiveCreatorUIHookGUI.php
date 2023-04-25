@@ -2,7 +2,6 @@
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
 
-include_once("Services/UIComponent/classes/class.ilUIHookPluginGUI.php");
 
 /**
  * User interface hook class
@@ -18,7 +17,7 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
 	protected $tabs;
 
 	/** @var  ilTestArchiveCreatorPlugin $plugin_object */
-	protected $plugin_object;
+    protected ?ilUserInterfaceHookPlugin $plugin_object = null;
 
 	/**
 	 * Modify GUI objects, before they generate ouput
@@ -27,7 +26,11 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
 	 * @param string $a_part string that identifies the part of the UI that is handled
 	 * @param array $a_par array of parameters (depend on $a_comp and $a_part)
 	 */
-	public function modifyGUI($a_comp, $a_part, $a_par = array())
+    public function modifyGUI(
+        string $a_comp,
+        string $a_part,
+        array $a_par = array()
+    ): void
 	{
 		switch ($a_part)
 		{
@@ -106,7 +109,6 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
 	 */
 	protected function modifyExportToolbar()
 	{
-		$this->plugin_object->includeClass('class.ilTestArchiveCreatorSettingsGUI.php');
 		$gui = new ilTestArchiveCreatorSettingsGUI();
 		$gui->modifyExportToolbar();
 	}

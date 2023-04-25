@@ -80,7 +80,6 @@ class ilTestArchiveCreatorList
 			$rows[] = $row;
 		}
 
-		include_once('Services/Utilities/classes/class.ilCSVWriter.php');
 		$writer = new ilCSVWriter();
 		$writer->setSeparator(';');
 
