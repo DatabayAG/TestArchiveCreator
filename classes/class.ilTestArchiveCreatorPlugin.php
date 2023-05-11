@@ -1,6 +1,6 @@
 <?php
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
-
+use ILIAS\DI\Container;
 
 /**
  * Basic plugin file
@@ -124,13 +124,10 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
             $ref_id = $params['ref_id'];
             $base_class = $params['baseClass'];
             $cmd_class = $params['cmdClass'];
-            $node = $params['cmdNode'];
         }
 
         // initialize controller for the Question GUI
-        $ctrl = $DIC->ctrl();
-        $ctrl->initBaseClass('ilUIPluginRouterGUI');
-        $ctrl->setCmdClass('iltestarchivecreatorsettingsgui');
+        $this->initCtrl($DIC, 'ilUIPluginRouterGUI', 'ilTestArchiveCreatorSettingsGUI');
 
         $created = 0;
         foreach (ilTestArchiveCreatorSettings::getScheduledObjects() as $obj_id)
@@ -147,19 +144,81 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
         // manual cron job execution in the admin gui
         if (ilContext::usesHTTP())
         {
-            // restore the controller status
+            // restore the former controller status
             // this allows a proper redirection after the return from the job run
-            $ctrl->initBaseClass($base_class);
-            $ctrl->setCmdClass($cmd_class);
-            $ctrl->setParameterbyClass($base_class, 'ref_id', $ref_id);
-            $ctrl->current_node = $node;
+            $this->initCtrl($DIC, $base_class, $cmd_class);
+            $DIC->ctrl()->setParameterbyClass($base_class, 'ref_id', $ref_id);
         }
 
 
         return $created;
 	}
 
-	/**
+    /**
+     * Initialize the controller to get working base and command classes for the question page GUI
+     *
+     * This is needed to allow a rendering of question page content in PRESENTATION mode
+     * An alternative approach would be to render the pages in OFFLINE mode
+     *
+     * @see \InitCtrlService::init
+     * @see \ilTestArchiveCreator::addILIASPage
+     *
+     * @throws ilCtrlException if the initialization fails.
+     */
+    public function initCtrl(Container $dic, string $base_class, string $cmd_class): void
+    {
+        $ilias_path = dirname(__FILE__, 9) . '/';
+
+        try {
+            $ctrl_structure = new ilCtrlStructure(
+                require $ilias_path . ilCtrlStructureArtifactObjective::ARTIFACT_PATH,
+                require $ilias_path . ilCtrlBaseClassArtifactObjective::ARTIFACT_PATH,
+                require $ilias_path . ilCtrlSecurityArtifactObjective::ARTIFACT_PATH
+            );
+        } catch (Throwable $t) {
+            throw new ilCtrlException(self::class . " could not require artifacts, try `composer du` first.");
+        }
+
+        $token_repository = new ilCtrlTokenRepository();
+        $path_factory = new ilCtrlPathFactory($ctrl_structure);
+
+        $own_wrapper = new \ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper([
+           'baseClass' => $base_class,
+           'cmdClass' => $cmd_class,
+           'cmdNode' => $ctrl_structure->getClassCidByName($base_class) . ': ' . $ctrl_structure->getClassCidByName($cmd_class)
+        ]);
+
+        $context = new ilCtrlContext(
+            $path_factory,
+            $own_wrapper,
+            $dic->refinery()
+        );
+
+        // create global instance of ilCtrl
+        $GLOBALS['ilCtrl'] = new ilCtrl(
+            $ctrl_structure,
+            $token_repository,
+            $path_factory,
+            $context,
+            $dic["http.response_sender_strategy"],
+            $dic->http()->request(),
+            $dic->http()->wrapper()->post(),
+            $own_wrapper,
+            $dic->refinery(),
+            $dic["component.factory"]
+        );
+
+        // add helper function to DI container that
+        // returns the global instance.
+        // but unset the previous entry
+        $dic->offsetUnset('ilCtrl');
+        $dic['ilCtrl'] = static function () {
+            return $GLOBALS['ilCtrl'];
+        };
+    }
+
+
+    /**
 	 * Build the exam id and allow ids without active_id and pass
 	 * @param ilObjTest $testObj
 	 * @param null $active_id

@@ -24,6 +24,8 @@ class ilTestArchiveCreatorBrowsershot extends ilTestArchiveCreatorPDF
                 $engine = Browsershot::html($html)
                     ->setNodeModulePath($this->config->bs_node_module_path)
                     ->setChromePath($this->config->bs_chrome_path)
+                    ->setNodeBinary($this->config->bs_node_path)
+                    ->setNpmBinary($this->config->bs_npm_path)
                     ->waitUntilNetworkIdle(true)
                     ->format('A4')
                     ->margins(20,10,20,10,'mm')

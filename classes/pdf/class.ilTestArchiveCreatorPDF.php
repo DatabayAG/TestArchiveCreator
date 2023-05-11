@@ -81,7 +81,7 @@ abstract class ilTestArchiveCreatorPDF
 		}
 
 		// replace http(s) urls with file urls
-		if ($this->config->use_file_urls) {
+		if ($this->config->pdf_engine == ilTestArchiveCreatorConfig::ENGINE_PHANTOM && $this->config->use_file_urls) {
 		    $content = file_get_contents($this->workdir.'/'.$sourceFile);
             $content = str_replace(ILIAS_HTTP_PATH, 'file://'. ILIAS_ABSOLUTE_PATH, $content);
 
@@ -130,7 +130,7 @@ abstract class ilTestArchiveCreatorPDF
         }
 
 	    // delete the temporary source files
-	    if ($this->config->use_file_urls) {
+	    if ($this->config->pdf_engine == ilTestArchiveCreatorConfig::ENGINE_PHANTOM && $this->config->use_file_urls) {
 	        foreach ($this->jobs as $job) {
                 @unlink($job['sourceFile']);
             }

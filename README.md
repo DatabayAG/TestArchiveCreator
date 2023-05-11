@@ -1,32 +1,17 @@
 # TestArchiveCreator
 
-Copyright (c) 2017-2019 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+Copyright (c) 2017-2023 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
 GPLv3, see LICENSE
 
 Author: Fred Neumann <fred.neumann@ili.fau.de>
 
 This plugin for the LMS ILIAS open source allows the creation of zipped archives with PDF files for written tests.
-It requires an installation of PhantomJS on the ILIAS server.
-http://phantomjs.org
 
-Please look at the PhantomJS web site for general installation instructions. Short hint for Debian based systems (thanks to Rachid Rabah):
-    `apt-get install phantomjs`
-PhantomJS will be located in `/user/bin/phantomjs`
-Set the following environment variables:
-    `export QT_QPA_PLATFORM=offscreen`
-    `export QT_QPA_FONTDIR=/usr/share/fonts/truetype`
-If you need a font with Japanese characters:
-    `apt-get install fonts-takao`
+The actual PDF rendering is done by a headless browser which has to be installed in the web server. Corrently the plugin 
+supports two renderers:
 
-
-You may also take binary distribution fom https://bitbucket.org/ariya/phantomjs/downloads/
-
-* PhantomJS 2.1.1 is the preferred one, but renders web fons as graphis which results in large, unsearchable PDFs.
-You may prevent this by deactivating 'Use System Styles' in the plugin configuration, but this leads to ugly output.
-
-* PhantomJS 1.9.8 is able to render web fonts, so 'Use System Styles' can be activated. But this older version seems to have
-some problems with ssl and images, so you should set 'Any SSL Protocoll', 'Ignore SSL Errors', and 'Render Twice" in the
-plugin configuration.
+* PhantomJS (deprecated), see [Installation](./docs/install-phantomjs.md)
+* Puppeteer via Browsershot (beta), see [Installation](./docs/install-pupeteer.md)
 
 Issues
 ------
@@ -38,11 +23,13 @@ Plugin installation
 -------------------
 
 1. Put the content of the plugin directory in a subdirectory under your ILIAS main directory:
-Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator
-2. Open ILIAS > Administration > Plugins
-3. Update/Activate the plugin
-4. Open the plugin configuration
-5. Edit the plugin configuration and enter at least the server path to an executable of PhantomJS
+`Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator`
+2. Move to the plugin directory and call `composer install --no-dev`. You should do this after each update.
+3. Move to the base directory of your ILIAS and run `composer du` to reload the current plugin version
+4. Open ILIAS > Administration > Plugins
+5. Update/Activate the plugin
+6. Open the plugin configuration
+7. Edit the plugin configuration and enter at least the server paths of the chosen renderer.
 
 
 Usage
@@ -79,15 +66,16 @@ Using with Web Access Checker
 -----------------------------
 
 Using the plugin with an activated ILIAS web access checker (WAC) may cause missing images in the PDF files.
-ILIAS 5.2 does not sign all images for the WAC and the valid time of the signature may be too short for the rendering jobs
-of large archives. In this case the WAC tries to determine the access based on the user session. The plugin Version 1.2 provides
-the session cookie for PhantomJs, but the session based check of the WAC may take too long for the rendering timeout.
+ILIAS does not sign all images for the WAC and the valid time of the signature may be too short for the rendering jobs
+of large archives. In this case the WAC tries to determine the access based on the user session. The plugin provides
+the session cookie, but the session based check of the WAC may take too long for the rendering timeout.
 A call from the TestArchiveCron plugin does not set the session cookie correctly.
 
-To prevent these problems, the best solution is to deactivate the WAC for rendering calls from PhantomJS.
+To prevent these problems, the best solution is to deactivate the WAC for rendering calls. If the renderer is installed
+on the same server, requests coming from this server can bypass the WAC.
 
 Edit `/etc/hosts` and add the hostname of your ILIAS installation to the localhost addresses
-This will keep all requests from phantomjs on the same host.
+This will keep all requests from the renderer on the same host.
 
     127.0.0.1       localhost www.my-ilias-host.de
     ::1             localhost ip6-localhost ip6-loopback www.my-ilias-host.de
@@ -110,10 +98,14 @@ If the PDF generation fails for some reason you may want to test it manually on 
 4. Copy the whole logged command line
 5. Open a shell on your server and change to the root folder of your ILIAS installation
 6. Paste the command and run it
-7. Look at the debugging output pf PhantomJS
+7. Look at the debugging output
 
 VERSIONS
 --------
+1.5.1 for ILIAS 8 (2023-05-11)
+- works with the cron job plugin 
+- initial support for browsershot
+
 1.5.0 for ILIAS 8 (2023-04-25)
 - first version for ILIAS 8
 - not yet extensively tested

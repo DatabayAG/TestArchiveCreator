@@ -71,10 +71,17 @@ class ilTestArchiveCreatorConfig
     /** @var string browsershot node module path */
     public $bs_node_module_path;
 
-    /** @var string browsershot chrome path */
+    /** @var string browsershot chrome binary path */
     public $bs_chrome_path;
 
-	/** @var bool use file urls */
+    /** @var string browsershot node binary path */
+    public $bs_node_path;
+
+    /** @var string browsershot npm binary path */
+    public $bs_npm_path;
+
+
+    /** @var bool use file urls */
 	public $use_file_urls;
 
 	/** @var bool include questions */
@@ -121,6 +128,8 @@ class ilTestArchiveCreatorConfig
 
         $this->bs_node_module_path = (string) $this->settings->get('bs_node_module_path', '/home/www-data/node_modules/');
         $this->bs_chrome_path = (string) $this->settings->get('bs_chrome_path', '/home/www-data/.cache/puppeteer/chrome/linux-1108766/chrome-linux/chrome');
+        $this->bs_node_path = (string) $this->settings->get('bs_node_path', '/usr/bin/node');
+        $this->bs_npm_path = (string) $this->settings->get('bs_npm_path', '/usr/bin/npm');
 
 		$this->with_login = (bool) $this->settings->get('with_login', true);
 		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
@@ -161,6 +170,8 @@ class ilTestArchiveCreatorConfig
 
         $this->settings->set('bs_node_module_path', (string) $this->bs_node_module_path);
         $this->settings->set('bs_chrome_path', (string) $this->bs_chrome_path);
+        $this->settings->set('bs_node_path', (string) $this->bs_node_path);
+        $this->settings->set('bs_npm_path', (string) $this->bs_npm_path);
 
 		$this->settings->set('with_login', (bool) $this->with_login ? '1' : '0');
 		$this->settings->set('with_matriculation', (bool) $this->with_matriculation ? '1' : '0');

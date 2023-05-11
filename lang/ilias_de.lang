@@ -94,7 +94,7 @@ use_system_styles_info#:#Verwendet die System-Styles (Standard: delos.css) bei d
 any_ssl_protocol#:#Beliebiges SSL-Protokoll
 any_ssl_protocol_info#:#Erlaubt beliebige SSL-Protokolle beim Laden von eingebetteten Bildern, Styles und Skripten. Wird für PhantomJS 1.9.8 benötigt.
 ignore_ssl_errors#:#SSL-Fehler ignorieren
-ignore_ssl_errors_info#:#Ignoriert SSL-Zertifikatsfehler beim Laden von eingebetteten Bildern, Styles und Skripten. Wird für PhantomJS 1.9.8 benötigt.
+ignore_ssl_errors_info#:#Ignoriert SSL-Zertifikatsfehler beim Laden von eingebetteten Bildern, Styles und Skripten.
 keep_jobfile#:#Jobfile behalten
 keep_jobfile_info#:#Die Jobdatei zur PDF-Erzeugung soll im Archiv-Ordner behalten bleiben. Sie kann zur Fehlersuche verwendet werden.
 min_rendering_wait#:#Minimale Wartezeit (ms)
@@ -125,9 +125,13 @@ use_file_urls#:#Datei-URLs verwenden
 use_file_urls_info#:#Ersetze vor der PDF-Generierung die HTTP-URLs von Bildern, Styles und Skripten durch Datei-URLs. Mit der Ersetzung können auf geschützten Servern Zugriffsfehler vermieden werden. Dazu müssen in der ilias.ini.php die Angaben http_path und absolute_path stimmen.
 pdf_generation#:#PDF Generierung
 pdf_engine#:#PDF Engine
-pdf_engine_phantom#:#PhantomJS
-pdf_engine_browsershot#:#Browsershot
+pdf_engine_phantom#:#PhantomJS (deprecated)
+pdf_engine_browsershot#:#Browsershot (beta)
 bs_node_module_path#:#Node Modules
 bs_node_module_path_info#:#Pfad zum Verzeichnis node_modules der puppeteer-Installation (mit / am Ende)
 bs_chrome_path#:#Chrome
 bs_chrome_path_info#:#Pfad zum zum Executable von chrome der puppeteer-Installation
+bs_node_path#:#Node
+bs_node_path_info#:#Pfad zum zum Executable von node der puppeteer-Installation
+bs_npm_path#:#Npm
+bs_npm_path_info#:#Pfad zum zum Executable von npm der puppeteer-Installation

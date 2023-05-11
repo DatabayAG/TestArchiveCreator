@@ -111,8 +111,10 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 
         $this->config->bs_node_module_path = $form->getInput('bs_node_module_path');
         $this->config->bs_chrome_path = $form->getInput('bs_chrome_path');
+        $this->config->bs_node_path = $form->getInput('bs_node_path');
+        $this->config->bs_npm_path = $form->getInput('bs_npm_path');
 
-		$this->config->with_login = $form->getInput('with_login');
+        $this->config->with_login = $form->getInput('with_login');
 		$this->config->with_matriculation = $form->getInput('with_matriculation');
 
         $this->config->include_questions = $form->getInput('include_questions');
@@ -189,6 +191,12 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $protocol->setChecked($this->config->any_ssl_protocol);
         $phantom->addSubItem($protocol);
 
+        $file_urls = new ilCheckboxInputGUI($this->plugin->txt('use_file_urls'), 'use_file_urls');
+        $file_urls->setInfo($this->plugin->txt('use_file_urls_info'));
+        $file_urls->setChecked($this->config->use_file_urls);
+        $phantom->addSubItem($file_urls);
+
+
         $twice = new ilCheckboxInputGUI($this->plugin->txt('render_twice'), 'render_twice');
         $twice->setInfo($this->plugin->txt('render_twice_info'));
         $twice->setChecked($this->config->render_twice);
@@ -223,10 +231,16 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $path->setValue($this->config->bs_chrome_path);
         $browsershot->addSubItem($path);
 
-        $file_urls = new ilCheckboxInputGUI($this->plugin->txt('use_file_urls'), 'use_file_urls');
-        $file_urls->setInfo($this->plugin->txt('use_file_urls_info'));
-        $file_urls->setChecked($this->config->use_file_urls);
-        $form->addItem($file_urls);
+        $path = new ilTextInputGUI($this->plugin->txt('bs_node_path'), 'bs_node_path');
+        $path->setInfo($this->plugin->txt('bs_node_path_info'));
+        $path->setValue($this->config->bs_node_path);
+        $browsershot->addSubItem($path);
+
+        $path = new ilTextInputGUI($this->plugin->txt('bs_npm_path'), 'bs_npm_path');
+        $path->setInfo($this->plugin->txt('bs_npm_path_info'));
+        $path->setValue($this->config->bs_npm_path);
+        $browsershot->addSubItem($path);
+
 
         $errors = new ilCheckboxInputGUI($this->plugin->txt('ignore_ssl_errors'), 'ignore_ssl_errors');
         $errors->setInfo($this->plugin->txt('ignore_ssl_errors_info'));

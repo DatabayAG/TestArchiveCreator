@@ -274,6 +274,8 @@ class ilTestArchiveCreator
 		{
 			$this->htmlCreator->initMainTemplate();
 			$question_gui = $this->testObj->createQuestionGUI("", $question_id);
+            $content = $question_gui->getPreview(true);
+            $content = $this->addILIASPage((int) $question_id, $content);
 
 			/** @var assQuestion $question */
 			$question = $question_gui->object;
@@ -295,7 +297,7 @@ class ilTestArchiveCreator
 			$tpl = $this->plugin->getTemplate('tpl.question.html');
 			$tpl->setVariable('QUESTION_ID', $question_id);
 			$tpl->setVariable('TITLE', $question->getTitle());
-			$tpl->setVariable('CONTENT', $question_gui->getPreview(FALSE));
+			$tpl->setVariable('CONTENT', $content);
 
 			$source_file = $question_dir.'/'.$element->getFilePrefix(). '_presentation.html';
 			$target_file = $question_dir.'/'.$element->getFilePrefix(). '_presentation.pdf';
@@ -309,14 +311,16 @@ class ilTestArchiveCreator
                 // re-initialize the template and gui for a new generation
                 $this->htmlCreator->initMainTemplate();
                 $question_gui = $this->testObj->createQuestionGUI("", $question_id);
+                $content =  $question_gui->getSolutionOutput(
+                    0, null, true, true,
+                    true, false, true, false);
+                $content = $this->addILIASPage((int) $question_id, $content);
 
                 // create best solution files
                 $tpl = $this->plugin->getTemplate('tpl.question.html');
                 $tpl->setVariable('QUESTION_ID', $question_id);
                 $tpl->setVariable('TITLE', $question->getTitle());
-                $tpl->setVariable('CONTENT', $question_gui->getSolutionOutput(
-                    0, null, true, true,
-                    false, false, true, false));
+                $tpl->setVariable('CONTENT', $content);
 
                 $source_file = $question_dir.'/'.$element->getFilePrefix(). '_best_solution.html';
                 $target_file = $question_dir.'/'.$element->getFilePrefix(). '_best_solution.pdf';
@@ -453,11 +457,13 @@ class ilTestArchiveCreator
 
 							// answer and solution output
 							$question_gui = $this->testObj->createQuestionGUI($row['type'], $row['qid']);
-							$html_answer = $question_gui->getSolutionOutput($active_id, $pass, TRUE, FALSE, FALSE, FALSE, FALSE);
+							$html_answer = $question_gui->getSolutionOutput($active_id, $pass, TRUE, FALSE, TRUE, FALSE, FALSE);
+                            $html_answer = $this->addILIASPage((int) $row['qid'], $html_answer);
 
 							if ($this->settings->answers_with_best_solution)
 							{
-								$html_solution = $question_gui->getSolutionOutput($active_id, $pass, FALSE, FALSE, FALSE, FALSE, TRUE);
+								$html_solution = $question_gui->getSolutionOutput($active_id, $pass, FALSE, FALSE, TRUE, FALSE, TRUE);
+                                $html_solution = $this->addILIASPage((int) $row['qid'], $html_solution);
 							}
 
 							//manual feedback
@@ -612,6 +618,32 @@ class ilTestArchiveCreator
     }
 
     /**
+     * Add the ILIAS page around a question
+     * Currently the page is renered in PRESENTATION mode and the controller is tweaked by the plugin
+     * If that causes problems, switing to OFFLINE here would be an alternatove
+     *
+     * @see ilTestArchiveCreatorPlugin::initCtrl
+     * @see assQuestionGUI::getILIASPage
+     */
+    public function addILIASPage(int $question_id, string $html = ""): string
+    {
+        $page_gui = new ilAssQuestionPageGUI($question_id);
+        $page_gui->setQuestionHTML(
+            [$question_id => $html]
+        );
+        $presentation = $page_gui->presentation(ilPageObjectGUI::PRESENTATION);
+
+        // like in assQuestionGUI::getILIASPage()
+        $presentation = preg_replace("/src=\"\\.\\//ims", "src=\"" . ILIAS_HTTP_PATH . "/", $presentation);
+
+        // revert local media paths that are generate for the offline mode
+        $presentation = preg_replace('/src=\"mobs\//ims', "src=\"" . ILIAS_HTTP_PATH . "/data/" . CLIENT_ID . '/mobs/', $presentation);
+
+        return $presentation;
+    }
+
+
+    /**
 	 * Get the pass question data for a dynamic test
 	 * @param	int		$active_id
 	 * @param	int		$pass
@@ -676,6 +708,8 @@ class ilTestArchiveCreator
 
 		return array_values($sorted_questions);
 	}
+
+
 
 	/**
 	 * Create a sub directory of the working directory
