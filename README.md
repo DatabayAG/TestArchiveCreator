@@ -11,7 +11,7 @@ The actual PDF rendering is done by a headless browser which has to be installed
 supports two renderers:
 
 * PhantomJS (deprecated), see [Installation](./docs/install-phantomjs.md)
-* Puppeteer via Browsershot (beta), see [Installation](./docs/install-pupeteer.md)
+* Puppeteer via Browsershot (beta), see [Installation](./docs/install-puppeteer.md)
 
 Issues
 ------
