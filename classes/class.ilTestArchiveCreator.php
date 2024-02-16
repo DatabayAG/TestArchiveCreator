@@ -113,7 +113,8 @@ class ilTestArchiveCreator
 		$this->utils->delDir($this->workdir);
         $this->utils->makeDirParents($this->workdir);
 
-		$this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings, $this->testObj);
+        $assets = new ilTestArchiveCreatorAssets($this->plugin, $this->settings, $this->workdir);
+		$this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings, $assets, $this->testObj);
 
         switch($this->config->pdf_engine) {
             case ilTestArchiveCreatorConfig::ENGINE_PHANTOM:

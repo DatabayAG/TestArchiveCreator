@@ -10,6 +10,8 @@ class ilTestArchiveCreatorHTML
 	/** @var ilTestArchiveCreatorSettings $settings */
 	public $settings;
 
+    public ilTestArchiveCreatorAssets $assets;
+
 	/** @var ilObjTest */
 	public $testObj;
 
@@ -26,13 +28,15 @@ class ilTestArchiveCreatorHTML
 
 	/**
 	 * constructor.
-	 * @param $plugin
-	 * @param $settings
-	 * @param $base
 	 */
-	public function __construct($plugin, $settings, $testObj) {
+	public function __construct(
+        ilTestArchiveCreatorPlugin $plugin,
+        ilTestArchiveCreatorSettings $settings,
+        ilTestArchiveCreatorAssets $assets,
+        ilObjTest $testObj) {
 		$this->plugin = $plugin;
 		$this->settings = $settings;
+        $this->assets = $assets;
 		$this->testObj = $testObj;
 		$this->initMainTemplate();
 	}
@@ -116,6 +120,6 @@ class ilTestArchiveCreatorHTML
 		$html .= $content;
 
 		$this->tpl->setVariable('CONTENT', $html);
-		return $this->tpl->get();
+		return $this->assets->handleContent($this->tpl->get());
 	}
 }
