@@ -1,12 +1,19 @@
 <?php
 
+use ILIAS\Filesystem\Filesystem;
+
 class ilTestArchiveCreatorAssets
 {
-    const assetpath = '/assets';
-
     protected ilTestArchiveCreatorPlugin $plugin;
     protected ilTestArchiveCreatorSettings $settings;
-    protected string $workdir;
+    protected ilTestArchiveCreatorFileSystems $filesystems;
+
+    /** @var Filesystem|null filesystem to store the assets */
+    protected ?Filesystem $system;
+
+    /** @var string|null relative path to the assets folder in the file system */
+    protected ?string $path;
+
 
     /**
      * constructor.
@@ -18,8 +25,9 @@ class ilTestArchiveCreatorAssets
     {
         $this->plugin = $plugin;
         $this->settings = $settings;
-        $this->workdir = $workdir;
-
+        $this->filesystems = new ilTestArchiveCreatorFileSystems();
+        $this->system = $this->filesystems->deriveFilesystemFrom($workdir);
+        $this->path = $this->filesystems->createRelativePath($workdir. '/assets') ;
     }
 
     /**
@@ -53,14 +61,10 @@ class ilTestArchiveCreatorAssets
 
             // get the html document
             $dom_doc = new \DOMDocument('1.0', 'UTF-8');
-            $dom_doc->loadHTML('<?xml encoding="UTF-8"?'.'>'. $html);
+            $dom_doc->loadHTML($html, LIBXML_NOWARNING | LIBXML_NOERROR);
 
-            //$xml = $xslt->transformToXml($dom_doc);
             $result = $xslt->transformToDoc($dom_doc);
             $xml= $result->saveHTML();
-
-            $xml = preg_replace('/<\?xml.*\?>/', '', $xml);
-            $xml = str_replace( ' xmlns:php="http://php.net/xsl"', '', $xml);
 
             return $xml;
         }
@@ -69,17 +73,27 @@ class ilTestArchiveCreatorAssets
         }
     }
 
+    protected function processStyle(string $css) : string
+    {
+        // regular expression for url()
+    }
+
     protected function processUrl(string $url) : string
     {
-        return $url . '#fred';
+        $parsed = parse_url($url);
+        $system = $this->filesystems->deriveFilesystemFrom($parsed['path']);
+        $path = $this->filesystems->createRelativePath($parsed['path']);
+
+        if (isset($system) && isset($path)) {
+            $info = pathinfo($path);
+            $asset = md5($parsed['path']) . '.' . $info['extension'];
+            if (!$this->system->has($this->path . '/' . $asset)) {
+                $this->system->writeStream($this->path . '/' . $asset, $system->readStream($path));
+            }
+            return $asset;
+        }
+
+        return $url;
     }
 
-
-    /**
-     * Check if an asset url is local
-     */
-    protected function isLocalUrl(string $url) : bool
-    {
-
-    }
 }

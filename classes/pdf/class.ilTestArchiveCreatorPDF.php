@@ -107,7 +107,7 @@ abstract class ilTestArchiveCreatorPDF
 	}
 
     /**
-     * Get the file to which the jos information shoud be written
+     * Get the file to which the jos information should be written
      */
     protected function getJobsFile() : string
     {
@@ -129,7 +129,7 @@ abstract class ilTestArchiveCreatorPDF
             @unlink($this->workdir . '/' . $this->jobsid . '.json');
         }
 
-	    // delete the temporary source files
+	    // delete the temporary source files with file urls (see addJob)
 	    if ($this->config->pdf_engine == ilTestArchiveCreatorConfig::ENGINE_PHANTOM && $this->config->use_file_urls) {
 	        foreach ($this->jobs as $job) {
                 @unlink($job['sourceFile']);
