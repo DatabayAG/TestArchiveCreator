@@ -18,39 +18,36 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 
 	/**
 	 * Get a name of the folder where generated files are stored
-	 * @return mixed
 	 */
-	public function getFolderName()
+	public function getFolderName() : string
 	{
-		return $this->creator->sanitizeFilename($this->title.'_'.$this->question_id);
+		return $this->creator->filesystems->sanitizeFilename($this->title.'_'.$this->question_id);
 	}
 
 
 
 	/**
 	 * Get a unique prefix that can be used for file and directory names
-	 * @return mixed
 	 */
-	public function getFilePrefix()
+	public function getFilePrefix() : string
 	{
-		return $this->creator->sanitizeFilename($this->exam_question_id);
+		return $this->creator->filesystems->sanitizeFilename($this->exam_question_id);
 	}
 
 	/**
 	 * Get a unique index for sorting the list of elements
-	 * @return mixed
 	 */
-	function getSortIndex()
+	function getSortIndex() : string
 	{
-		return $this->title.'_'.$this->question_id;
+		return $this->title . '_' . $this->question_id;
 	}
 
 	/**
 	 * Get the list of columns for this element type
 	 * The file list should have the key 'files'
-	 * @return array    key => title
+	 * @return string[]    key => title
 	 */
-	function getColumns()
+	function getColumns() : array
 	{
 		$columns = array(
 			'exam_question_id' => $this->plugin->txt('question_id'),
@@ -69,13 +66,15 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 
 	/**
 	 * Get the labels of contents where the data is a link
-	 * @return array key => label
+	 * @return string[] key => label
 	 */
-	function getLinkedLabels()
+	function getLinkedLabels() : array
 	{
+        $label = empty($this->config->pdf_engine) ? 'HTML' : 'PDF';
+
 		return array(
-			'presentation' => $this->plugin->txt('question_presentation'),
-			'best_solution' => $this->plugin->txt('question_best_solution'),
+			'presentation' => $label,
+			'best_solution' => $label
 		);
 	}
 
@@ -84,18 +83,18 @@ class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 	 * @param string $format ('csv' or 'html')
 	 * @return array key => content
 	 */
-	function getRowData($format = 'csv')
+	function getRowData(string $format = 'csv') : array
 	{
 		$row = array(
 			'exam_question_id' => $this->exam_question_id,
 			'title' => $this->title,
 			'type' => $this->type,
 			'max_points' => $this->max_points,
-			'presentation' => $this->presentation,
+			'presentation' => $this->presentation . (empty($this->config->pdf_engine) ? '.html' : '.pdf'),
 		);
 		if ($this->settings->questions_with_best_solution)
         {
-            $row['best_solution'] = $this->best_solution;
+            $row['best_solution'] = $this->best_solution. (empty($this->config->pdf_engine) ? '.html' : '.pdf');
         }
 
         return $row;

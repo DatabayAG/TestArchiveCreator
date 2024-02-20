@@ -24,27 +24,24 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 
 	/**
 	 * Get a unique prefix that can be used for file and directory names
-	 * @return mixed
 	 */
-	public function getFolderName()
+	public function getFolderName() : string
 	{
-		return $this->creator->sanitizeFilename($this->lastname.'_'.$this->firstname.'_'.$this->active_id);
+		return $this->creator->filesystems->sanitizeFilename($this->lastname.'_'.$this->firstname.'_'.$this->active_id);
 	}
 
 	/**
 	 * Get a unique prefix that can be used for file and directory names
-	 * @return mixed
 	 */
-	public function getFilePrefix()
+	public function getFilePrefix() : string
 	{
-		return $this->creator->sanitizeFilename($this->exam_id);
+		return $this->creator->filesystems->sanitizeFilename($this->exam_id);
 	}
 
 	/**
 	 * Get a unique index for sorting the list of elements
-	 * @return mixed
 	 */
-	function getSortIndex()
+	function getSortIndex() : string
 	{
 		return $this->lastname.'_'.$this->firstname.'_'.$this->exam_id;
 	}
@@ -52,9 +49,9 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 	/**
 	 * Get the list of columns for this element type
 	 * The file list should have the key 'files'
-	 * @return array    key => title
+	 * @return string[]    key => title
 	 */
-	function getColumns()
+	function getColumns() : array
 	{
 		$columns = array(
 			'firstname' => $this->lng->txt('firstname'),
@@ -82,12 +79,12 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 
 	/**
 	 * Get the labels of contents where the data is a link
-	 * @return array key => label
+	 * @return string[] key => label
 	 */
-	function getLinkedLabels()
+	function getLinkedLabels() : array
 	{
 		return array(
-			'answers_file' => $this->plugin->txt('answers')
+			'answers_file' => empty($this->config->pdf_engine) ? 'HTML' : 'PDF'
 		);
 	}
 
@@ -95,9 +92,9 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 	/**
 	 * Get the data row for this element
 	 * @param string $format ('csv' or 'html')
-	 * @return array key => content
+	 * @return string[] key => content
 	 */
-	function getRowData($format = 'csv')
+	function getRowData(string $format = 'csv') : array
 	{
 		$pass_finish_date = new ilDateTime($this->pass_finish_date, IL_CAL_UNIX);
 		return array(
@@ -111,7 +108,7 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 			'pass_finish_date' => $format == 'csv' ? $pass_finish_date->get(IL_CAL_DATETIME) : ilDatePresentation::formatDate( $pass_finish_date),
 			'pass_working_time' => $format == 'csv' ? $this->pass_working_time : ilDatePresentation::secondsToString($this->pass_working_time),
 			'pass_reached_points' => $this->pass_reached_points,
-			'answers_file' => $this->answers_file,
+			'answers_file' => $this->answers_file . (empty($this->config->pdf_engine) ? '.html' : '.pdf'),
 			'answers_hash' => $this->answers_hash,
 		);
 	}

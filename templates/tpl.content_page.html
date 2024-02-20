@@ -36,7 +36,7 @@
     <link rel="stylesheet" type="text/css" href="{CSS_FILE}" media="{CSS_MEDIA}" />
     <!-- END css_file -->
     <!-- BEGIN css_inline -->
-    <style type="text/css">
+    <style>
         {CSS_INLINE}
     </style>
     <!-- END css_inline -->
@@ -59,8 +59,7 @@
 <!-- BEGIN on_load_code -->
 <script>
     il.Util.addOnLoad(function() {
-        <!-- BEGIN on_load_code_inner -->{OLCODE}
-        <!-- END on_load_code_inner -->
+        <!-- BEGIN on_load_code_inner -->{OLCODE}<!-- END on_load_code_inner -->
     });
 </script>
 <!-- END on_load_code -->

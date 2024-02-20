@@ -42,7 +42,7 @@ class ilTestArchiveCreatorSettings
 	/** @var string */
 	public $orientation;
 
-	/** @var  ilDB $db */
+	/** @var  ilDBInterface $db */
 	protected $db;
 
 	/** @var ilTestArchiveCreatorPlugin $plugin */

@@ -154,15 +154,47 @@ class ilTestArchiveCreatorFileSystems
 
         switch (true) {
             case $possible_path === $absolute_path:
-                return true;
             case $real_possible_path === $absolute_path:
-                return true;
-            case is_string($possible_path) && strpos($absolute_path, $possible_path) === 0:
-                return true;
+            case strpos($absolute_path, $possible_path) === 0:
             case is_string($real_possible_path) && strpos($absolute_path, $real_possible_path) === 0:
                 return true;
             default:
                 return false;
         }
+    }
+
+    /**
+     * Sanitize a file name
+     * @see http://www.house6.com/blog/?p=83
+     * @param string $f
+     * @param string $a_space_replace
+     * @return mixed|string
+     */
+    public function sanitizeFilename($f, $a_space_replace = '_') {
+        // a combination of various methods
+        // we don't want to convert html entities, or do any url encoding
+        // we want to retain the "essence" of the original file name, if possible
+        // char replace table found at:
+        // http://www.php.net/manual/en/function.strtr.php#98669
+        $replace_chars = array(
+            'Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'Ae',
+            'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I',
+            'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'Oe', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U',
+            'Û'=>'U', 'Ü'=>'Ue', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'ss','à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'ae', 'ä'=>'a',
+            'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i',
+            'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'oe', 'ø'=>'o', 'ù'=>'u',
+            'ü'=>'ue', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f'
+        );
+        $f = strtr($f, $replace_chars);
+        // convert & to "and", @ to "at", and # to "number"
+        $f = preg_replace(array('/[\&]/', '/[\@]/', '/[\#]/'), array('-and-', '-at-', '-number-'), $f);
+        $f = preg_replace('/[^(\x20-\x7F)]*/','', $f); // removes any special chars we missed
+        $f = str_replace(' ', $a_space_replace, $f); // convert space to hyphen
+        $f = str_replace("'", '', $f); 	// removes single apostrophes
+        $f = str_replace('"', '', $f);  // removes double apostrophes
+        $f = preg_replace('/[^\w\-\.\,_ ]+/', '', $f); // remove non-word chars (leaving hyphens and periods)
+        $f = preg_replace('/[\-]+/', '-', $f); // converts groups of hyphens into one
+        $f = preg_replace('/[_]+/', '_', $f); // converts groups of dashes into one
+        return $f;
     }
 }

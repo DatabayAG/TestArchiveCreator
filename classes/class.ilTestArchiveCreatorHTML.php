@@ -10,20 +10,8 @@ class ilTestArchiveCreatorHTML
 	/** @var ilTestArchiveCreatorSettings $settings */
 	public $settings;
 
-    public ilTestArchiveCreatorAssets $assets;
-
-	/** @var ilObjTest */
-	public $testObj;
-
-	/** @var  string base tag for the header */
-	public $base;
-
-
 	/** @var  ilTestArchiveCreatorTemplate $tpl */
 	protected $tpl;
-
-	/** @var string $tpl_type */
-	public $tpl_type = 'index';
 
 
 	/**
@@ -31,13 +19,9 @@ class ilTestArchiveCreatorHTML
 	 */
 	public function __construct(
         ilTestArchiveCreatorPlugin $plugin,
-        ilTestArchiveCreatorSettings $settings,
-        ilTestArchiveCreatorAssets $assets,
-        ilObjTest $testObj) {
+        ilTestArchiveCreatorSettings $settings) {
 		$this->plugin = $plugin;
 		$this->settings = $settings;
-        $this->assets = $assets;
-		$this->testObj = $testObj;
 		$this->initMainTemplate();
 	}
 
@@ -49,9 +33,8 @@ class ilTestArchiveCreatorHTML
 	public function initMainTemplate()
 	{
 		// we need to rewrite the main template
-		$this->tpl =  new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.main.html", true, true);
+		$this->tpl =  new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.content_page.html", true, true);
 		$GLOBALS['tpl'] = $this->tpl;
-		$this->tpl_type = 'main';
 
 		$this->tpl->setVariable('BASE', ILIAS_HTTP_PATH . '/index.html');
 		if ($this->plugin->getConfig()->use_system_styles)
@@ -73,40 +56,43 @@ class ilTestArchiveCreatorHTML
 			->setRendering(ilMathJax::RENDER_SVG_AS_XML_EMBED);
 	}
 
-	/**
-	 * Init the template for index files
-	 */
-	public function initIndexTemplate()
-	{
-		$this->tpl = $this->plugin->getTemplate('tpl.index.html');
-		$this->tpl_type = 'index';
-	}
+    /**
+     * Build an index page
+     */
+    public function buildIndex(string $title = '', string $description = '', string $content = '')
+    {
+        $tpl = $this->plugin->getTemplate('tpl.index_page.html');
+        $this->tpl->setVariable('TITLE', $title);
+        $this->tpl->setVariable('DESCRIPTION', $description);
+        $this->tpl->setVariable('CONTENT', $content);
+        return $tpl->get();
+    }
 
 
 	/**
-	 * Build am HTML file
+	 * Build a contentPage
+     * This uses the
 	 * @param string $title
 	 * @param string $description
 	 * @param string $content
 	 * @return string
+     *
+     * @see ilLMPresentationGUI::page()
 	 */
-	public function build($title = '', $description = '', $content = '')
+	public function buildContent(string $title = '', string $description = '', string$content = '')
 	{
-		if ($this->tpl_type == 'main')
-		{
-			$this->tpl->removeMediaPlayer();
+        $this->tpl->removeMediaPlayer();
 
-			$this->tpl->fillCssFiles();
-			// $this->tpl->fillInlineCss(); method is private
-			// $this->tpl->fillContentStyle(); method is private
-			$this->tpl->fillInlineCss1();
-			$this->tpl->fillNewContentStyle1();
+        $this->tpl->fillCssFiles();
+        // $this->tpl->fillInlineCss(); method is private
+        // $this->tpl->fillContentStyle(); method is private
+        $this->tpl->fillInlineCss1();
+        $this->tpl->fillNewContentStyle1();
 
-			$this->tpl->fillBodyClass();
+        $this->tpl->fillBodyClass();
 
-			$this->tpl->fillJavaScriptFiles();
-			$this->tpl->fillOnLoadCode();
-		}
+        $this->tpl->fillJavaScriptFiles();
+        $this->tpl->fillOnLoadCode();
 
 		$html = '';
 		if (!empty($title))
@@ -120,6 +106,6 @@ class ilTestArchiveCreatorHTML
 		$html .= $content;
 
 		$this->tpl->setVariable('CONTENT', $html);
-		return $this->assets->handleContent($this->tpl->get());
+		return $this->tpl->get();
 	}
 }

@@ -2,16 +2,11 @@
 
 /**
  * Class ilTestArchiveCreatorTemplate
- * @uses ilTemplate
  */
-/* class ilTestArchiveCreatorTemplate extends ilTemplate */
-//https://github.com/ILIAS-eLearning/ILIAS/commit/04ac77df7c8f04b03b7abc85c3f447b2c4df1f11#diff-37ad6c723e0df7f90af7d648621698255049e73693ecc54f2ba71c56ecb55331
-class ilTestArchiveCreatorTemplate extends ilGlobalTemplate 
+class ilTestArchiveCreatorTemplate extends ilGlobalTemplate
 {
 	/**
      * Fill in the inline css
-     *
-     * @param boolean $a_force
      */
     public function fillInlineCss1()
     {

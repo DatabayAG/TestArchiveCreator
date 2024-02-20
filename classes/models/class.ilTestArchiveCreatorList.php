@@ -50,10 +50,9 @@ class ilTestArchiveCreatorList
 
 	/**
 	 * Get the index as comma separated content
-	 * @param ilObjTest $testObj
 	 * @return string
 	 */
-	public function getCSV($testObj)
+	public function getCSV()
 	{
 		ksort($this->elements, SORT_NATURAL);
 

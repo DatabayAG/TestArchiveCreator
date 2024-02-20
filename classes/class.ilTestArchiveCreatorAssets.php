@@ -32,7 +32,7 @@ class ilTestArchiveCreatorAssets
 
     /**
      * copy local media as assets to a subdirectory and replace their URLs
-     * @param string $content
+     * @param string $html
      * @return string
      */
     public function handleContent(string $html) : string
@@ -93,6 +93,7 @@ class ilTestArchiveCreatorAssets
             return $asset;
         }
 
+        // leave original url if asset can't be copied
         return $url;
     }
 

@@ -6,18 +6,11 @@
  */
 abstract class ilTestArchiveCreatorElement
 {
-	/** @var ilLanguage $lng */
-	protected $lng;
-
-	/** @var ilTestArchiveCreator $creator */
-	protected $creator;
-
-	/** @var  ilTestArchiveCreatorPlugin $plugin */
-	protected $plugin;
-
-
-	/** @var ilTestArchiveCreatorSettings */
-	protected $settings;
+	protected ilLanguage $lng;
+    protected ilTestArchiveCreator $creator;
+    protected ilTestArchiveCreatorPlugin $plugin;
+    protected ilTestArchiveCreatorSettings $settings;
+    protected ilTestArchiveCreatorConfig $config;
 
 	/**
 	 * Constructor
@@ -31,45 +24,43 @@ abstract class ilTestArchiveCreatorElement
 		$this->creator = $creator;
 		$this->plugin = $this->creator->plugin;
 		$this->settings = $this->creator->settings;
+        $this->config = $this->creator->config;
 	}
 
 	/**
 	 * Get a name of the folder where generated files are stored
-	 * @return mixed
 	 */
-	abstract public function getFolderName();
+	abstract public function getFolderName() : string;
 
 	/**
 	 * Get a unique prefix that can be used for generated files
-	 * @return mixed
 	 */
-	abstract public function getFilePrefix();
+	abstract public function getFilePrefix() : string;
 
 	/**
 	 * Get a unique index for sorting the list of elements
-	 * @return mixed
 	 */
-	abstract function getSortIndex();
+	abstract function getSortIndex() : string;
 
 
 	/**
 	 * Get the list of columns for this element type
 	 * The file list should have the key 'files'
-	 * @return array	key => title
+	 * @return string[]	key => title
 	 */
-	abstract function getColumns();
+	abstract function getColumns() : array;
 
 
 	/**
 	 * Get the labels of contents where the data is a link
-	 * @return array key => label
+	 * @return string[] key => label
 	 */
-	abstract function getLinkedLabels();
+	abstract function getLinkedLabels() : array;
 
 	/**
 	 * Get the data row for this element
 	 * @param string $format	('csv' or 'html')
-	 * @return array key => content
+	 * @return string[] key => content
 	 */
-	abstract function getRowData($format = 'csv');
+	abstract function getRowData(string $format = 'csv') : array;
 }

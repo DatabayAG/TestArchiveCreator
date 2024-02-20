@@ -1,62 +1,50 @@
 <?php
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
+use ILIAS\DI\Container;
 
 abstract class ilTestArchiveCreatorPDF
 {
-    /** @var \ILIAS\DI\Container */
-    public $dic;
+    public Container $dic;
+    public ilLogger $logger;
+    public ILIAS\Filesystem\Filesystem $storage;
 
-    /** @var ilLogger */
-    public $logger;
-
-	/** @var ilTestArchiveCreatorPlugin */
-	public $plugin;
-
-	/** @var ilTestArchiveCreatorSettings */
-	public $settings;
-
-	/** @var ilTestArchiveCreatorConfig */
-	public $config;
+	public ilTestArchiveCreatorPlugin $plugin;
+	public ilTestArchiveCreatorSettings $settings;
+	public ilTestArchiveCreatorConfig $config;
 
 	/**
 	 * @var array [ ['sourceUrl' => string,
 	 *                'targetFile' => string,
 	 *                'targetName' =>  string ] ... ]
 	 */
-	protected $jobs = [];
+	protected array $jobs = [];
 
-	/**
-	 * @var string
-	 */
-	protected $workdir;
+	/** @var string working directory (relative path in the storage)  */
+	protected string $workdir;
 
-	/**
-	 * @var string job number
-	 */
-	protected $jobsid = '';
+	/** @var string job number */
+	protected string $jobsid = '';
 
-	/**
-	 * @var string time for the footer
-	 */
-	protected $time;
+	/** @var string time for the footer  */
+	protected string $time;
 
 	/**
 	 * constructor.
-	 * @param $plugin
-	 * @param $settings
+     * @param string $workdir   working directory (relative path in the storage)
 	 */
-	public function __construct($plugin, $settings, $workdir)
+	public function __construct(ilTestArchiveCreatorPlugin $plugin, ilTestArchiveCreatorSettings $settings, string $workdir)
     {
         global $DIC;
 
         $this->dic = $DIC;
         $this->logger = $DIC->logger()->root();
+        $this->storage = $DIC->filesystem()->storage();
+
 		$this->plugin = $plugin;
 		$this->config = $this->plugin->getConfig();
 		$this->settings = $settings;
 		$this->workdir = $workdir;
-
 
 		ilDatePresentation::setUseRelativeDates(false);
 		$this->time = ilDatePresentation::formatDate(new ilDateTime(time(), IL_CAL_UNIX));
@@ -73,22 +61,22 @@ abstract class ilTestArchiveCreatorPDF
 	 * @param string	$headRight
 	 * @return array    job data
 	 */
-	public function addJob($sourceFile, $targetFile, $headLeft = '', $headRight = '')
+	public function addJob(string $sourceFile, string$targetFile, string$headLeft = '', string $headRight = '') : array
 	{
 
 		if (empty($this->jobsid)) {
-			$this->jobsid = date('Y-m-d_H-i-s_') . (string)rand(0, 9999);
+			$this->jobsid = date('Y-m-d_H-i-s_') . rand(0, 9999);
 		}
 
-		// replace http(s) urls with file urls
-		if ($this->config->pdf_engine == ilTestArchiveCreatorConfig::ENGINE_PHANTOM && $this->config->use_file_urls) {
-		    $content = file_get_contents($this->workdir.'/'.$sourceFile);
-            $content = str_replace(ILIAS_HTTP_PATH, 'file://'. ILIAS_ABSOLUTE_PATH, $content);
-
-            // temporary source file will be deleted in clearJobs()
-		    $sourceFile .= '.temp.html';
-            file_put_contents( $this->workdir.'/'.$sourceFile, $content);
-		}
+//		// replace http(s) urls with file urls (insecure)
+//		if ($this->config->pdf_engine == ilTestArchiveCreatorConfig::ENGINE_PHANTOM && $this->config->use_file_urls) {
+//		    $content = file_get_contents($this->workdir.'/'.$sourceFile);
+//            $content = str_replace(ILIAS_HTTP_PATH, 'file://'. ILIAS_ABSOLUTE_PATH, $content);
+//
+//            // temporary source file will be deleted in clearJobs()
+//		    $sourceFile .= '.temp.html';
+//            file_put_contents( $this->workdir.'/'.$sourceFile, $content);
+//		}
 
 		$job = [
 			'sourceFile' => $this->workdir.'/'.$sourceFile,      // file must exist
@@ -115,25 +103,21 @@ abstract class ilTestArchiveCreatorPDF
     }
 
 	/**
-	 * Generate the added batch files as PDF in one step
+	 * Generate the added batch files as PDF in one-step
 	 * PDF rendering is done at this step
 	 */
-	abstract public function generateJobs();
+	abstract public function generateJobs() : void;
 
 	/**
 	 * Remove the job files and clear the variables
 	 */
-	public function clearJobs()
+	public function clearJobs() : void
 	{
-	    if (!($this->config->keep_creation_directory && $this->config->keep_jobfile)) {
-            @unlink($this->workdir . '/' . $this->jobsid . '.json');
-        }
-
-	    // delete the temporary source files with file urls (see addJob)
-	    if ($this->config->pdf_engine == ilTestArchiveCreatorConfig::ENGINE_PHANTOM && $this->config->use_file_urls) {
-	        foreach ($this->jobs as $job) {
-                @unlink($job['sourceFile']);
+	    if (!($this->config->keep_jobfile)) {
+            foreach ($this->jobs as $job) {
+                $this->storage->delete($job['sourceFile']);
             }
+            $this->storage->delete($this->getJobsFile());
         }
 
 		$this->jobs = [];

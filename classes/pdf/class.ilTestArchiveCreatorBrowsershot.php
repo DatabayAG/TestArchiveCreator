@@ -5,17 +5,15 @@ use \Spatie\Browsershot\Browsershot;
 class ilTestArchiveCreatorBrowsershot extends ilTestArchiveCreatorPDF
 {
     /**
-     * Generate the added batch files as PDF in one step
+     * Generate the added batch files as PDF in one-step
      * PDF rendering is done at this step
      */
-    public function generateJobs()
+    public function generateJobs() : void
     {
         if (empty($this->jobs))
         {
             return;
         }
-
-        $jobsFile = $this->getJobsFile();
 
         try {
             foreach ($this->jobs as $job) {

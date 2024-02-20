@@ -3,10 +3,10 @@
 class ilTestArchiveCreatorPhantomJS extends ilTestArchiveCreatorPDF
 {
     /**
-     * Generate the added batch files as PDF in one step
+     * Generate the added batch files as PDF in one-step
      * PDF rendering is done at this step
      */
-    public function generateJobs()
+    public function generateJobs() : void
     {
         if (empty($this->jobs))
         {
@@ -31,7 +31,7 @@ class ilTestArchiveCreatorPhantomJS extends ilTestArchiveCreatorPDF
             'jobs' => $this->jobs
         ];
 
-        file_put_contents($jobsFile, json_encode($content));
+        $this->storage->write($jobsFile, json_encode($content));
 
         $jobinfo = print_r($content, true);
         $this->logger->debug($jobinfo);
@@ -52,7 +52,7 @@ class ilTestArchiveCreatorPhantomJS extends ilTestArchiveCreatorPDF
                 $command .= ' --proxy='.ilProxySettings::_getInstance()->getHost() . ':' . ilProxySettings::_getInstance()->getPort();
             }
 
-            $command .= ' ' . $scriptFile . ' ' . $jobsFile;
+            $command = escapeshellcmd($command) . ' ' . escapeshellarg($scriptFile) . ' ' . escapeshellarg(CLIENT_DATA_DIR . '/' . $jobsFile);
 
             try
             {

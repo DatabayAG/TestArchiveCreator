@@ -14,29 +14,25 @@ class ilTestArchiveCreatorMark extends ilTestArchiveCreatorElement
 
 	/**
 	 * Get a name of the folder where generated files are stored
-	 * @return mixed
 	 */
-	public function getFolderName()
+	public function getFolderName() : string
 	{
 		return "";
 	}
 
 
-
 	/**
 	 * Get a unique prefix that can be used for file and directory names
-	 * @return mixed
 	 */
-	public function getFilePrefix()
+	public function getFilePrefix() : string
 	{
 		return "";
 	}
 
 	/**
 	 * Get a unique index for sorting the list of elements
-	 * @return mixed
 	 */
-	function getSortIndex()
+	function getSortIndex() : string
 	{
 		return $this->minimum_level;
 	}
@@ -44,9 +40,9 @@ class ilTestArchiveCreatorMark extends ilTestArchiveCreatorElement
 	/**
 	 * Get the list of columns for this element type
 	 * The file list should have the key 'files'
-	 * @return array    key => title
+	 * @return string[]    key => title
 	 */
-	function getColumns()
+	function getColumns() : array
 	{
 		return array(
 			'short_form' => $this->lng->txt('tst_mark_short_form'),
@@ -58,9 +54,9 @@ class ilTestArchiveCreatorMark extends ilTestArchiveCreatorElement
 
 	/**
 	 * Get the labels of contents where the data is a link
-	 * @return array key => label
+	 * @return string[] key => label
 	 */
-	function getLinkedLabels()
+	function getLinkedLabels() : array
 	{
 		return array();
 	}
@@ -68,9 +64,9 @@ class ilTestArchiveCreatorMark extends ilTestArchiveCreatorElement
 	/**
 	 * Get the data row for this element
 	 * @param string $format ('csv' or 'html')
-	 * @return array key => content
+	 * @return string[] key => content
 	 */
-	function getRowData($format = 'csv')
+	function getRowData(string $format = 'csv') : array
 	{
 		return array(
 			'short_form' => $this->short_form,
