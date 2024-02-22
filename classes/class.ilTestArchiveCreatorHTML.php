@@ -64,7 +64,8 @@ class ilTestArchiveCreatorHTML
 	public function buildContent(string $title = '', string $description = '', string $content = '', bool $for_pdf = false)
 	{
         // allow separate building for HTML and PDF based on the same main template after content is rendered with it
-        $tpl = clone $this->tpl;
+        $tpl = new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.content_page.html", true, true);
+        $tpl->getDataFrom($this->tpl);
 
         if ($for_pdf) {
             $tpl->removeMediaPlayer();

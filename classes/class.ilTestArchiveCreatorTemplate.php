@@ -5,6 +5,14 @@
  */
 class ilTestArchiveCreatorTemplate extends ilGlobalTemplate
 {
+    public function getDataFrom(ilTestArchiveCreatorTemplate $tpl)
+    {
+        $this->js_files = $tpl->js_files;
+        $this->js_files_vp = $tpl->js_files_vp;
+        $this->js_files_batch = $tpl->js_files_batch;
+        $this->css_files = $tpl->css_files;
+    }
+
 	/**
 	 * Remove the embedding of the mediaelement player
 	 */

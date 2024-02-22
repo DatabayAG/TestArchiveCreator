@@ -2,6 +2,7 @@
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
 use ILIAS\DI\Container;
+use ILIAS\Filesystem\Util\LegacyPathHelper;
 
 abstract class ilTestArchiveCreatorPDF
 {
@@ -79,8 +80,8 @@ abstract class ilTestArchiveCreatorPDF
 //		}
 
 		$job = [
-			'sourceFile' => $this->workdir.'/'.$sourceFile,      // file must exist
-			'targetFile' => $this->workdir.'/'.$targetFile,
+			'sourceFile' => CLIENT_DATA_DIR . '/'. $this->workdir .'/' . $sourceFile,      // file must exist
+			'targetFile' => CLIENT_DATA_DIR . '/'. $this->workdir .'/' . $targetFile,
 			'headLeft' => $headLeft,
 			'headRight' => $headRight,
 			'footLeft' => $this->plugin->txt('label_generated') . ' '. $this->time,
@@ -115,7 +116,8 @@ abstract class ilTestArchiveCreatorPDF
 	{
 	    if (!($this->config->keep_jobfile)) {
             foreach ($this->jobs as $job) {
-                $this->storage->delete($job['sourceFile']);
+                // path was made absolute in addJob
+                $this->storage->delete(LegacyPathHelper::createRelativePath($job['sourceFile']));
             }
             $this->storage->delete($this->getJobsFile());
         }

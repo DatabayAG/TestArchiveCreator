@@ -672,8 +672,8 @@ class ilTestArchiveCreator
 
         if (isset($this->pdfCreator)) {
             $html = $this->htmlCreator->buildContent($title, $description, $content, true);
-            $this->createFile($file . '.job.html', $this->assets->processForPdfGeneration($html));
-            $this->pdfCreator->addJob($file . '.job.html', $file . '.pdf', $headLeft, $headRight);
+            $this->createFile($file . '.job.html', $html);
+            $this->pdfCreator->addJob( $file . '.job.html', $file . '.pdf', $headLeft, $headRight);
         }
     }
 
