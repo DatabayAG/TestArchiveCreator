@@ -139,3 +139,4 @@ bs_node_path#:#Node
 bs_node_path_info#:#Path to the executable of node from the puppeteer installation
 bs_npm_path#:#Npm
 bs_npm_path_info#:#Path to the executable of npm from the puppeteer installation
+examination_protocol_html#:#Exam Event Protocol (HTML)

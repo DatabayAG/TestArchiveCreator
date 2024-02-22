@@ -141,3 +141,4 @@ bs_npm_path#:#Npm
 bs_npm_path_info#:#Pfad zum zum Executable von npm der puppeteer-Installation
 archive_created#:#Das Archiv wurde erzeugt.
 archive_errors#:#Bei der Erzeugung des Archivs traten Fehler auf:
+examination_protocol_html#:#Prüfungsereignis-Protokoll (HTML)

@@ -300,4 +300,31 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 		return $rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID);
 	}
 
+
+    /**
+     * Get the examination protocol plugin object
+     * @return ilPlugin|null
+     */
+    public function getExaminationProtocolPlugin() : ?ilPlugin
+    {
+        /** @var \ILIAS\DI\Container $DIC */
+        global $DIC;
+
+        try {
+            /** @var ilComponentFactory $factory */
+            $factory = $DIC["component.factory"];
+
+            /** @var ilPlugin $plugin */
+            Foreach ($factory->getActivePluginsInSlot('uihk') as $plugin) {
+                if ($plugin->getPluginName() == 'ExaminationProtocol') {
+                    return $plugin;
+                }
+            }
+        }
+        catch (Exception $e) {
+            return null;
+        }
+
+        return null;
+    }
 }

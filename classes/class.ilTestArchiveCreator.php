@@ -93,6 +93,8 @@ class ilTestArchiveCreator
         }
 
 		$this->handleSettings();
+        $this->handleExaminationProtocol();
+
 		if ($this->settings->include_answers) {
             // handle before questions to prefill the used question ids
             $this->handleParticipants();
@@ -131,6 +133,10 @@ class ilTestArchiveCreator
 		$tpl = $this->plugin->getTemplate('tpl.main_index.html');
 		$tpl->setVariable('TXT_TEST_ARCHIVE', $this->plugin->txt('test_archive'));
 		$tpl->setVariable('TXT_SETTINGS_HTML', $this->plugin->txt('settings_html'));
+        if ($this->storage->has($this->workdir . '/examination_protocol.html')) {
+            $tpl->setVariable('TXT_EXAMINATION_PROTOCOL_HTML', $this->plugin->txt('examination_protocol_html'));
+        }
+
 		if ($this->settings->include_questions) {
             $tpl->setVariable('TXT_QUESTIONS_HTML', $this->plugin->txt('questions_html'));
             $tpl->setVariable('TXT_QUESTIONS_CSV', $this->plugin->txt('questions_csv'));
@@ -193,6 +199,28 @@ class ilTestArchiveCreator
 
         $this->createIndex('settings.html',  $tpl->get());
 	}
+
+    /**
+     * @return void
+     */
+    public function handleExaminationProtocol()
+    {
+        global $DIC;
+
+        try {
+            /** @var ilExaminationProtocolPlugin $plugin */
+            $plugin = $this->plugin->getExaminationProtocolPlugin();
+            if (isset($plugin)) {
+                $identifier = $plugin->getProtocolExportByTestID($this->testObj->getTestId());
+                $irss = $DIC->resourceStorage();
+                $content = $irss->consume()->stream($identifier)->getStream()->getContents();
+                $this->createFile('examination_protocol.html', $content);
+            }
+        }
+        catch (Exception $e) {
+            // do nothing
+        }
+    }
 
 	/**
 	 * Add the test questions to the archive
