@@ -1,0 +1,59 @@
+
+/**
+ Partial fix for https://mantis.ilias.de/view.php?id=36506
+ -  without this setting the rendering will be greyscales in firefox
+ -  but content still gets gradually in printview of firefox
+ - chrome renders the printview correctly
+*/
+img.small {
+    height: 20px!important; width: 20px!important;
+}
+
+
+@media screen {
+    body {
+        margin: 10px;
+        overflow: scroll!important;
+    }
+}
+
+@media print {
+
+    .pageBreakBefore {
+        page-break-before: always;
+    }
+
+    div.ilLimitedMediaPlayer iframe {
+        display: none;
+    }
+
+    div.ilLimitedMediaPlayer::before {
+        content: "Limited Audio";
+        display: block;
+        width: 100px;
+        height: 100px;
+        background-image: url(../../../../../../../../templates/default/images/media_placeholder.png);
+    }
+
+    audio::before {
+        position: absolute;
+        content: "Audio";
+        display: block;
+        width: 100px;
+        height: 100px;
+        background-image: url(../../../../../../../../templates/default/images/media_placeholder.png);
+    }
+
+    video::before {
+        position: absolute;
+        content: "Video";
+        display: block;
+        width: 100px;
+        height: 100px;
+        background-image: url(../../../../../../../../templates/default/images/media_placeholder.png);
+    }
+
+    h2 {
+        border: none;
+    }
+}

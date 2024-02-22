@@ -392,7 +392,12 @@ class ilTestArchiveCreatorSettingsGUI
     protected function createArchive()
     {
     	$creator = $this->plugin->getArchiveCreator($this->testObj->getId());
-    	$creator->createArchive();
+    	if ($creator->createArchive()) {
+            $this->tpl->setOnScreenMessage('success', $this->plugin->txt('archive created'));
+        } else {
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt('archive errors')
+            . '<br>' . implode('<br>', $creator->getErrors()));
+        }
 		$this->returnToExport();
     }
 

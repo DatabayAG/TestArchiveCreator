@@ -23,6 +23,7 @@ use ILIAS\Filesystem\Filesystem;
 use ILIAS\Filesystem\Provider\DelegatingFilesystemFactory;
 use ILIAS\Filesystem\Provider\Configuration\LocalConfig;
 use ILIAS\Filesystem\Util\LegacyPathHelper;
+use ILIAS\Filesystem\Provider\FlySystem\FlySystemFilesystemFactory;
 
 /**
  * Class ilTestArchiveCreatorFileSystems
@@ -38,6 +39,7 @@ use ILIAS\Filesystem\Util\LegacyPathHelper;
 class ilTestArchiveCreatorFileSystems
 {
     protected Filesystem $modules;
+    protected Filesystem $services;
     protected Filesystem $templates;
 
     public function __construct()
@@ -48,8 +50,20 @@ class ilTestArchiveCreatorFileSystems
         $factory = $DIC['filesystem.factory'];
 
         $this->modules = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/Modules'), true);
+        $this->services = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/Services'), true);
         $this->templates = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/templates'), true);
     }
+
+    /**
+     * Get the storage filesystem without whitelist decorator
+     * Used to prevent .sec files written when fonts are copied to the archive
+     */
+    public function getPureStorage() : Filesystem
+    {
+        $factory =  new FlySystemFilesystemFactory();
+        return $factory->getLocal(new LocalConfig(CLIENT_DATA_DIR));
+    }
+
 
     /**
      * Get the plugin specific relation from paths to filesystems
@@ -59,8 +73,10 @@ class ilTestArchiveCreatorFileSystems
     {
         return [
             './Modules' => $this->modules,
+            './Services' => $this->services,
             './templates' => $this->templates,
             ILIAS_ABSOLUTE_PATH . '/Modules' => $this->modules,
+            ILIAS_ABSOLUTE_PATH . '/Services' => $this->services,
             ILIAS_ABSOLUTE_PATH . '/templates' => $this->templates,
         ];
     }
@@ -196,5 +212,30 @@ class ilTestArchiveCreatorFileSystems
         $f = preg_replace('/[\-]+/', '-', $f); // converts groups of hyphens into one
         $f = preg_replace('/[_]+/', '_', $f); // converts groups of dashes into one
         return $f;
+    }
+
+    /**
+     * Remove the sots from a path
+     * @see https://stackoverflow.com/questions/10064499/php-normalize-path-of-not-existing-directories-to-prevent-directory-traversals
+     * @param string $path
+     * @return string
+     */
+    public function removeDots(string $path) :string
+    {
+        $root = ($path[0] === '/') ? '/' : '';
+
+        $segments = explode('/', trim($path, '/'));
+        $ret = array();
+        foreach($segments as $segment){
+            if (($segment == '.') || strlen($segment) === 0) {
+                continue;
+            }
+            if ($segment == '..') {
+                array_pop($ret);
+            } else {
+                array_push($ret, $segment);
+            }
+        }
+        return $root . implode('/', $ret);
     }
 }

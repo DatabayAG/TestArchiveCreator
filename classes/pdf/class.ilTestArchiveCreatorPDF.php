@@ -55,13 +55,13 @@ abstract class ilTestArchiveCreatorPDF
 	 * Add the current report as batch file for the PDF genration
 	 * HTML rendering is done at this step
 	 *
-	 * @param string    $sourceFile
-	 * @param string	$targetFile
-	 * @param string	$headLeft
-	 * @param string	$headRight
+	 * @param string    $sourceFile     path of source file relative to the working directory
+	 * @param string	$targetFile     path of target file relative to the working directory
+	 * @param string	$headLeft       left content of the PDF header
+	 * @param string	$headRight      right content of the PDF header
 	 * @return array    job data
 	 */
-	public function addJob(string $sourceFile, string$targetFile, string$headLeft = '', string $headRight = '') : array
+	public function addJob(string $sourceFile, string$targetFile, string $headLeft = '', string $headRight = '') : array
 	{
 
 		if (empty($this->jobsid)) {

@@ -123,8 +123,12 @@ allow_none_info#:#Archive können nur von Administratoren erzeugt werden.
 schedule_info#:#Frühester Zeitpunkt der Generierung. Der tatsächliche hängt von den Systemeinstellungen des Archivierungs-Cron-Jobs ab.
 use_file_urls#:#Datei-URLs verwenden
 use_file_urls_info#:#Ersetze vor der PDF-Generierung die HTTP-URLs von Bildern, Styles und Skripten durch Datei-URLs. Mit der Ersetzung können auf geschützten Servern Zugriffsfehler vermieden werden. Dazu müssen in der ilias.ini.php die Angaben http_path und absolute_path stimmen.
-pdf_generation#:#PDF Generierung
-pdf_engine#:#PDF Engine
+generation_settings#:#Einstellungen zur Generierung
+embed_assets#:#Lokale Medien einbinden
+embed_assets_info#:#Benötigte Bilder, Audios, Videos, Styles und JavaScript-Dateien aus dieser ILIAS-Installation, werden ins Archiv kopiert und von dort in den HTML-Dateien des Archivs verwendet. Medien aus anderen Quellen werden weiterhin mit ihrer externen URL verwendet.
+pdf_engine#:#PDF Generierung
+pdf_engine_none#:#Keine
+pdf_engine_none_info#:#Es werden nur HTML-Dateien erzeugt. Sie sollten dann die lokalen Medien ins Archiv einbinden, damit diese auch bei aktivem WebAccessChecker oder nach dem Löschen des Tests verfügbar sind.
 pdf_engine_phantom#:#PhantomJS (deprecated)
 pdf_engine_browsershot#:#Browsershot (beta)
 bs_node_module_path#:#Node Modules
@@ -135,3 +139,5 @@ bs_node_path#:#Node
 bs_node_path_info#:#Pfad zum zum Executable von node der puppeteer-Installation
 bs_npm_path#:#Npm
 bs_npm_path_info#:#Pfad zum zum Executable von npm der puppeteer-Installation
+archive_created#:#Das Archiv wurde erzeugt.
+archive_errors#:#Bei der Erzeugung des Archivs traten Fehler auf:

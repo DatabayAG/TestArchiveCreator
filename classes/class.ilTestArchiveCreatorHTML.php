@@ -4,14 +4,10 @@
 
 class ilTestArchiveCreatorHTML
 {
-	/** @var ilTestArchiveCreatorPlugin $plugin */
-	public $plugin;
-
-	/** @var ilTestArchiveCreatorSettings $settings */
-	public $settings;
-
-	/** @var  ilTestArchiveCreatorTemplate $tpl */
-	protected $tpl;
+	public ilTestArchiveCreatorPlugin $plugin;
+	public ilTestArchiveCreatorConfig $config;
+    public ilTestArchiveCreatorSettings $settings;
+	protected ilTestArchiveCreatorTemplate$tpl;
 
 
 	/**
@@ -19,12 +15,13 @@ class ilTestArchiveCreatorHTML
 	 */
 	public function __construct(
         ilTestArchiveCreatorPlugin $plugin,
-        ilTestArchiveCreatorSettings $settings) {
+        ilTestArchiveCreatorSettings $settings
+    ) {
 		$this->plugin = $plugin;
-		$this->settings = $settings;
+        $this->settings = $settings;
+		$this->config = $plugin->getConfig();
 		$this->initMainTemplate();
 	}
-
 
 	/**
 	 * Init the main ilias template
@@ -33,28 +30,12 @@ class ilTestArchiveCreatorHTML
 	public function initMainTemplate()
 	{
 		// we need to rewrite the main template
-		$this->tpl =  new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.content_page.html", true, true);
+		$this->tpl = new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.content_page.html", true, true);
 		$GLOBALS['tpl'] = $this->tpl;
 
-		$this->tpl->setVariable('BASE', ILIAS_HTTP_PATH . '/index.html');
-		if ($this->plugin->getConfig()->use_system_styles)
-		{
-			$this->tpl->setVariable("LOCATION_STYLESHEET",ilUtil::getStyleSheetLocation());
-		}
-        $this->tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'test_javascript.css', 'Modules/TestQuestionPool'), 'all');
-		$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_print.css", "Modules/Test"),'all');
-		$this->tpl->addCss(ilUtil::getStyleSheetLocation("filesystem", "test_pdf.css", "Modules/Test"),'all');
-
-		$css = file_get_contents($this->plugin->getDirectory().'/templates/tpl.styles.html');
-		$css = str_replace('BODY_ZOOM', $this->settings->zoom_factor, $css);
-
-        $this->tpl->setCurrentBlock('HeadContent');
-        $this->tpl->setVariable('CONTENT_BLOCK', $css);
-        $this->tpl->parseCurrentBlock();
-
-		ilMathJax::getInstance()->init(ilMathJax::PURPOSE_PDF)
-			->setRendering(ilMathJax::RENDER_SVG_AS_XML_EMBED);
-	}
+        ilMathJax::getInstance()->init(ilMathJax::PURPOSE_EXPORT)
+                 ->setRendering(ilMathJax::RENDER_SVG_AS_XML_EMBED);
+    }
 
     /**
      * Build an index page
@@ -62,9 +43,9 @@ class ilTestArchiveCreatorHTML
     public function buildIndex(string $title = '', string $description = '', string $content = '')
     {
         $tpl = $this->plugin->getTemplate('tpl.index_page.html');
-        $this->tpl->setVariable('TITLE', $title);
-        $this->tpl->setVariable('DESCRIPTION', $description);
-        $this->tpl->setVariable('CONTENT', $content);
+        $tpl->setVariable('TITLE', $title);
+        $tpl->setVariable('DESCRIPTION', $description);
+        $tpl->setVariable('CONTENT', $content);
         return $tpl->get();
     }
 
@@ -75,37 +56,73 @@ class ilTestArchiveCreatorHTML
 	 * @param string $title
 	 * @param string $description
 	 * @param string $content
+     * @param bool $for_pdf
 	 * @return string
      *
      * @see ilLMPresentationGUI::page()
 	 */
-	public function buildContent(string $title = '', string $description = '', string$content = '')
+	public function buildContent(string $title = '', string $description = '', string $content = '', bool $for_pdf = false)
 	{
-        $this->tpl->removeMediaPlayer();
+        // allow separate building for HTML and PDF based on the same main template after content is rendered with it
+        $tpl = clone $this->tpl;
 
-        $this->tpl->fillCssFiles();
-        // $this->tpl->fillInlineCss(); method is private
-        // $this->tpl->fillContentStyle(); method is private
-        $this->tpl->fillInlineCss1();
-        $this->tpl->fillNewContentStyle1();
+        if ($for_pdf) {
+            $tpl->removeMediaPlayer();
+        }
 
-        $this->tpl->fillBodyClass();
+        $tpl->addCss(ilUtil::getStyleSheetLocation('output', 'test_javascript.css', 'Modules/TestQuestionPool'), 'all');
+        $tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_print.css", "Modules/Test"),'print');
+        $tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_pdf.css", "Modules/Test"),'print');
 
-        $this->tpl->fillJavaScriptFiles();
-        $this->tpl->fillOnLoadCode();
+        $tpl->fillContentLanguage();
+        $tpl->fillCssFiles();
+        $tpl->fillJavaScriptFiles();
+        $tpl->fillOnLoadCode();
 
-		$html = '';
-		if (!empty($title))
-		{
-			$html = "<h1>". $title ."</h1>\n";
+        $tpl->setVariable('HEAD_TITLE', $title);
+        if ($for_pdf || !$this->config->embed_assets) {
+            $tpl->setVariable('BASE', ILIAS_HTTP_PATH . '/index.html');
+        }
+
+        // specific content styles, see ilPortfolioPageGUI
+        $tpl->setVariable("LOCATION_ADDITIONAL_STYLESHEET", ilObjStyleSheet::getPlaceHolderStylePath());
+        $tpl->setVariable("LOCATION_SYNTAX_STYLESHEET", ilObjStyleSheet::getSyntaxStylePath());
+
+        // system style
+        // inclusion is optional for phantomjs
+        // web fonts may produce large pdf files with unselectable text
+        if (!$for_pdf
+            || $this->config->pdf_engine != ilTestArchiveCreatorConfig::ENGINE_PHANTOM
+            || $this->plugin->getConfig()->use_system_styles) {
+            $tpl->setVariable("LOCATION_STYLESHEET",ilUtil::getStyleSheetLocation());
+        }
+
+        // content styles
+        // add the stylesheet of the plugin as last one
+        $content_styles = [
+            ilObjStyleSheet::getContentStylePath(0),
+            ilUtil::getNewContentStyleSheetLocation(),
+            ilObjStyleSheet::getContentPrintStyle(),
+            './' . $this->plugin->getDirectory().'/templates/archive.css'
+        ];
+
+        foreach ( $content_styles as $style) {
+            $tpl->setCurrentBlock('ContentStyle');
+            $tpl->setVariable("LOCATION_CONTENT_STYLESHEET", $style);
+            $tpl->parseCurrentBlock();
+        }
+
+        $tpl->setVariable('ZOOM', sprintf('style="zoom:%s;"', $this->settings->zoom_factor));
+
+        // fill the body
+		if (!empty($title)) {
+			$tpl->setVariable('TITLE', $title);
 		}
-		if (!empty($description))
-		{
-			$html .= "<p>". $description ."</p>\n";
+		if (!empty($description)) {
+            $tpl->setVariable('DESCRIPTION', $description);
 		}
-		$html .= $content;
+		$tpl->setVariable('CONTENT', $content);
 
-		$this->tpl->setVariable('CONTENT', $html);
-		return $this->tpl->get();
+		return $tpl->get();
 	}
 }

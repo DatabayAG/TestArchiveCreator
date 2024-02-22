@@ -98,6 +98,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		}
 
         $this->config->pdf_engine = $form->getInput('pdf_engine');
+        $this->config->embed_assets = $form->getInput('embed_assets');
 
 		$this->config->phantomjs_path = $form->getInput('phantomjs_path');
 		$this->config->hide_standard_archive = $form->getInput('hide_standard_archive');
@@ -166,12 +167,21 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $keep->addSubItem($job);
 
         $header = new ilFormSectionHeaderGUI();
-        $header->setTitle($this->plugin->txt('pdf_generation'));
+        $header->setTitle($this->plugin->txt('generation_settings'));
         $form->addItem($header);
+
+        $assets = new ilCheckboxInputGUI($this->plugin->txt('embed_assets'), 'embed_assets');
+        $assets->setInfo($this->plugin->txt('embed_assets_info'));
+        $assets->setChecked($this->config->embed_assets);
+        $form->addItem($assets);
 
         $engine = new ilRadioGroupInputGUI($this->plugin->txt('pdf_engine'), 'pdf_engine');
         $engine->setValue($this->config->pdf_engine);
         $form->addItem($engine);
+
+        $none = new ilRadioOption($this->plugin->txt('pdf_engine_none'), ilTestArchiveCreatorConfig::ENGINE_NONE);
+        $none->setInfo($this->plugin->txt('pdf_engine_none_info'));
+        $engine->addOption($none);
 
         $phantom = new ilRadioOption($this->plugin->txt('pdf_engine_phantom'), ilTestArchiveCreatorConfig::ENGINE_PHANTOM);
         $engine->addOption($phantom);
@@ -191,11 +201,10 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $protocol->setChecked($this->config->any_ssl_protocol);
         $phantom->addSubItem($protocol);
 
-        $file_urls = new ilCheckboxInputGUI($this->plugin->txt('use_file_urls'), 'use_file_urls');
-        $file_urls->setInfo($this->plugin->txt('use_file_urls_info'));
-        $file_urls->setChecked($this->config->use_file_urls);
-        $phantom->addSubItem($file_urls);
-
+//        $file_urls = new ilCheckboxInputGUI($this->plugin->txt('use_file_urls'), 'use_file_urls');
+//        $file_urls->setInfo($this->plugin->txt('use_file_urls_info'));
+//        $file_urls->setChecked($this->config->use_file_urls);
+//        $phantom->addSubItem($file_urls);
 
         $twice = new ilCheckboxInputGUI($this->plugin->txt('render_twice'), 'render_twice');
         $twice->setInfo($this->plugin->txt('render_twice_info'));

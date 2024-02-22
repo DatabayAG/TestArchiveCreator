@@ -10,6 +10,7 @@ class ilTestArchiveCreatorConfig
 	const ALLOW_PLANNED = 'planned';
 	const ALLOW_NONE = 'none';
 
+    const ENGINE_NONE = '';
     const ENGINE_PHANTOM = 'phantom';
     const ENGINE_BROWSERSHOT = 'browsershot';
 
@@ -49,6 +50,9 @@ class ilTestArchiveCreatorConfig
 
     /** @var  bool keep the jobfile */
     public $keep_jobfile;
+
+    /** @var bool embed the asset files */
+    public $embed_assets;
 
 	/** @var  bool use the system styles */
 	public $use_system_styles;
@@ -113,8 +117,9 @@ class ilTestArchiveCreatorConfig
 
 		$this->settings = new ilSetting('ilTestArchiveCreator');
 
+        $this->embed_assets = (bool) $this->settings->get('embed_assets', false);
 		$this->user_allow = (string) $this->settings->get('user_allow', self::ALLOW_ANY);
-        $this->pdf_engine = (string) $this->settings->get('pdf_engine', self::ENGINE_PHANTOM);
+        $this->pdf_engine = (string) $this->settings->get('pdf_engine', self::ENGINE_NONE);
 
         $this->phantomjs_path = (string) $this->settings->get('phantomjs_path', '/opt/phantomjs/phantomjs');
 		$this->hide_standard_archive = (bool) $this->settings->get('hide_standard_archive', true);
@@ -156,8 +161,8 @@ class ilTestArchiveCreatorConfig
 	public function save()
 	{
 		$this->settings->set('user_allow', (string) $this->user_allow);
+        $this->settings->set('embed_assets', (bool) $this->embed_assets ? '1' : '0');
         $this->settings->set('pdf_engine', (string) $this->pdf_engine);
-
 		$this->settings->set('phantomjs_path', (string) $this->phantomjs_path);
 		$this->settings->set('hide_standard_archive', (bool) $this->hide_standard_archive ? '1' : '0');
 		$this->settings->set('keep_creation_directory', (bool) $this->keep_creation_directory ? '1' : '0');

@@ -52,10 +52,10 @@ class ilTestArchiveCreator
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
 
 		$this->testObj = new ilObjTest($obj_id, false);
-        $this->workdir = 'tst_data/archive_plugin/tst_'. $this->testObj->getId();
+        $this->workdir = $this->plugin->getWorkdir($this->testObj->getId());
 
-        $this->assets = new ilTestArchiveCreatorAssets($this->plugin, $this->settings, $this->workdir);
         $this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings);
+        $this->assets = new ilTestArchiveCreatorAssets($this->workdir, $this->plugin->getAssetsUrl($this->testObj->getId()));
 
         switch($this->config->pdf_engine) {
             case ilTestArchiveCreatorConfig::ENGINE_PHANTOM:
@@ -84,7 +84,13 @@ class ilTestArchiveCreator
         $this->settings->status = ilTestArchiveCreatorPlugin::STATUS_RUNNING;
         $this->settings->save();
 
+        $relativeDates = ilDatePresentation::useRelativeDates();
         ilDatePresentation::setUseRelativeDates(false);
+
+        // cleanup an old generation
+        if ($this->storage->hasDir($this->workdir)) {
+            $this->storage->deleteDir($this->workdir);
+        }
 
 		$this->handleSettings();
 		if ($this->settings->include_answers) {
@@ -96,12 +102,20 @@ class ilTestArchiveCreator
         }
 
         // generate before list files to get the pdf hashes
-		$this->pdfCreator->generateJobs();
-		$this->pdfCreator->clearJobs();
+        if (isset($this->pdfCreator)) {
+            $this->pdfCreator->generateJobs();
+            $this->pdfCreator->clearJobs();
+        }
 
 		$this->handleListFiles();
         $this->handleMainIndex();
         $this->createZipFile();
+
+        if ($this->storage->hasDir($this->workdir) && !$this->config->keep_creation_directory) {
+            $this->storage->deleteDir($this->workdir);
+        }
+
+        ilDatePresentation::setUseRelativeDates($relativeDates);
 
         $this->settings->status = ilTestArchiveCreatorPlugin::STATUS_FINISHED;
         $this->settings->save();
@@ -466,13 +480,13 @@ class ilTestArchiveCreator
 
 		// questions
         if ($this->settings->include_questions) {
-            $this->storage->write('questions.csv', $this->questions->getCSV());
+            $this->createFile('questions.csv', $this->questions->getCSV());
             $this->createIndex('questions.html', $this->questions->getHTML());
         }
 
 		// participants
         if ($this->settings->include_answers) {
-            $this->storage->write('participants.csv', $this->participants->getCSV());
+            $this->createFile('participants.csv', $this->participants->getCSV());
             $this->createIndex('participants.html', $this->participants->getHTML());
         }
 	}
@@ -649,22 +663,17 @@ class ilTestArchiveCreator
     protected function createContent(string $file, string $title, string $description, string $content,
         string $headLeft, string $headRight) : void
     {
-        // build only once to use the pre-initialized template
-        $html = $this->htmlCreator->buildContent($title, $description, $content);
-
-        // todo: get setting if html with local assets should be generated
-        if (true) {
-            // todo: add parameter to copy assets
-            $this->createFile($file . '.html',  $this->assets->handleContent($html));
-        }
-        else {
+        $html = $this->htmlCreator->buildContent($title, $description, $content, false);
+        if ($this->config->embed_assets) {
+            $this->createFile($file . '.html',  $this->assets->processForEmbedding($html, $file));
+        } else {
             $this->createFile($file . '.html', $html);
         }
 
         if (isset($this->pdfCreator)) {
-            // todo: add parameter to deliver assets via script
-            $this->createFile($file . '.temp.html', $this->assets->handleContent($html));
-            $this->pdfCreator->addJob($file . '.temp.html', $file . '.pdf', $headLeft, $headRight);
+            $html = $this->htmlCreator->buildContent($title, $description, $content, true);
+            $this->createFile($file . '.job.html', $this->assets->processForPdfGeneration($html));
+            $this->pdfCreator->addJob($file . '.job.html', $file . '.pdf', $headLeft, $headRight);
         }
     }
 
@@ -682,8 +691,8 @@ class ilTestArchiveCreator
             // prevent FileAlreadyExistsException and ensure newest content
             if ($this->storage->has($path)) {
                 $this->storage->delete($path);
-                $this->storage->write($path, $content);
             }
+            $this->storage->write($path, $content);
         }
         catch(Exception $exception) {
             $this->errors[] = "ERROR writing $file :" . $exception->getMessage();
@@ -701,14 +710,20 @@ class ilTestArchiveCreator
         $export_dir = 'tst_data/archive_exports/tst_'.$this->testObj->getId();
         $zip_file = 'test_archive_obj_'. $this->testObj->getId().'_'.time().'_plugin';
 
-        $this->storage->createDir($export_dir);
-        \ilFileUtils::zip(
-            CLIENT_DATA_DIR . '/' . $this->workdir,
-            CLIENT_DATA_DIR . '/' . $export_dir .'/'. $zip_file, true);
+        try {
+            if (!$this->storage->hasDir($export_dir)) {
+                $this->storage->createDir($export_dir);
+            }
 
-        if (!$this->config->keep_creation_directory) {
-            $this->storage->deleteDir($this->workdir);
+            \ilFileUtils::zip(
+                CLIENT_DATA_DIR . '/' . $this->workdir,
+                CLIENT_DATA_DIR . '/' . $export_dir .'/'. $zip_file, true);
         }
+
+        catch(Exception $exception) {
+            $this->errors[] = "ERROR writing $zip_file :" . $exception->getMessage();
+        }
+
     }
 
     /**
