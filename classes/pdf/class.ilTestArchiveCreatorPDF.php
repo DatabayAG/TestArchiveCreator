@@ -117,9 +117,13 @@ abstract class ilTestArchiveCreatorPDF
 	    if (!($this->config->keep_jobfile)) {
             foreach ($this->jobs as $job) {
                 // path was made absolute in addJob
-                $this->storage->delete(LegacyPathHelper::createRelativePath($job['sourceFile']));
+                if ($this->storage->has(LegacyPathHelper::createRelativePath($job['sourceFile']))) {
+                    $this->storage->delete(LegacyPathHelper::createRelativePath($job['sourceFile']));
+                }
             }
-            $this->storage->delete($this->getJobsFile());
+            if ($this->storage->has($this->getJobsFile())) {
+                $this->storage->delete($this->getJobsFile());
+            }
         }
 
 		$this->jobs = [];

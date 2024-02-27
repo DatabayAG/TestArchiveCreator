@@ -7,7 +7,7 @@
 class ilTestArchiveCreatorList
 {
 	/** @var ilTestArchiveCreator $creator */
-	protected $creator;
+	public $creator;
 
 	/** @var  ilTestArchiveCreatorElement */
 	public $prototype;
@@ -38,6 +38,16 @@ class ilTestArchiveCreatorList
 		$this->title = $title;
 	}
 
+    /**
+     * Check if an element is already in the list
+     * @param ilTestArchiveCreatorElement $element
+     */
+    public function has($element)
+    {
+        $index = $element->getSortIndex();
+        return isset($this->elements[$index]);
+    }
+
 	/**
 	 * Add an element to the list
 	 * @param ilTestArchiveCreatorElement $element
@@ -57,7 +67,6 @@ class ilTestArchiveCreatorList
 		ksort($this->elements, SORT_NATURAL);
 
 		$rows = array();
-
 		$columns = $this->prototype->getColumns();
 
 		$row = array();

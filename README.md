@@ -81,7 +81,7 @@ This will keep all requests from the renderer on the same host.
     ::1             localhost ip6-localhost ip6-loopback www.my-ilias-host.de
 
 Edit `.htaccess` in the ILIAS root directory (or the copied settings in your Apache configuration, if you don't allow overrides).
-Add two condition before the rewrite rule for the WAC, so that it is only active for foreighn requests:
+Add two condition before the rewrite rule for the WAC, so that it is only active for foreign requests:
 
     RewriteCond %{REMOTE_ADDR} !=127.0.0.1
     RewriteCond %{REMOTE_ADDR} !=::1
@@ -96,7 +96,7 @@ If the PDF generation fails for some reason you may want to test it manually on 
 2. Generate an archive with the config options 'Keep Directory' and 'Keep Jobfile'
 3. Search in the ILIAS log for 'ilTestArchiveCreatorPDF::generateJobs'
 4. Copy the whole logged command line
-5. Open a shell on your server and change to the root folder of your ILIAS installation
+5. Open a shell on your server and move to the root folder of your ILIAS installation
 6. Paste the command and run it
 7. Look at the debugging output
 

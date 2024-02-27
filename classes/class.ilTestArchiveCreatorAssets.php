@@ -1,12 +1,14 @@
 <?php
 
 use ILIAS\Filesystem\Filesystem;
+use ILIAS\Filesystem\Exception\FileAlreadyExistsException;
+use ILIAS\Filesystem\Exception\FileNotFoundException;
+use ILIAS\Filesystem\Exception\IOException;
 
 class ilTestArchiveCreatorAssets
 {
-    protected ilTestArchiveCreatorPlugin $plugin;
-    protected ilTestArchiveCreatorSettings $settings;
     protected ilTestArchiveCreatorFileSystems $filesystems;
+    protected ilTestArchiveCreatorList $assets;
     protected Filesystem $storage;
 
     /** @var string url for loading assets for PDF generation */
@@ -24,18 +26,17 @@ class ilTestArchiveCreatorAssets
     /** @var bool indicator whether assets should be copied */
     protected $copy_assets = false;
 
-    /** @var array for debugging */
-    protected $urls = [];
-
     /**
      * Constructor
      * @param string $workdir storage of working directory for the archive creation
      * @param string $assets_url url for loading assets for PDF generation
      */
-    public function __construct(string $workdir, string $assets_url)
+    public function __construct(ilTestArchiveCreatorList $assets, string $workdir, string $assets_url)
     {
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
         $this->storage = $this->filesystems->getPureStorage();
+        $this->assets = $assets;
+
         $this->storage_path = $workdir. '/assets';
         $this->assets_url = $assets_url;
     }
@@ -65,9 +66,8 @@ class ilTestArchiveCreatorAssets
     }
 
     /**
-     * Process html code with XSLT
-     * The process_version is a number which can be increased with a new version of the processing
-     * This number is provided as a parameter to the XSLT processing
+     * Process HTML code with XSLT
+     * This will replace URLs in attributes line 'src' with the function process URL
      */
     protected function processXslt(string $html, string $xslt_file) : string
     {
@@ -89,12 +89,6 @@ class ilTestArchiveCreatorAssets
 
             $result = $xslt->transformToDoc($dom_doc);
             $processed = $result->saveHTML();
-
-//            echo "<pre>";
-//            print_r($this->urls);
-//            exit;
-
-            //return implode("\n", $this->urls);
             return $processed;
         }
         catch (\Throwable $e) {
@@ -103,21 +97,34 @@ class ilTestArchiveCreatorAssets
         }
     }
 
-    protected function processStyle(string $css, $url_path) : string
+    /**
+     * Process the URLs found in a css style sheet
+     *
+     * @param string $css           css code to be processed
+     * @param string $url_path      path of the css file relative to the ilias directory
+     * @param bool $in_asset        css code is already in an asset file that is copied to the archive
+     * @return string               the processed css code
+     */
+    protected function processStyle(string $css, string $url_path, bool $in_asset = true) : string
     {
         // get the prefix for relative urls
         $info = pathinfo($url_path);
         $prefix = $info['dirname'] ?? '';
 
-        // find and replace the urls in css
+        // find and replace the contents of url() expressions in the css code
         if (preg_match_all('/url\s*\(([^)]*)\)/', $css, $matches)) {
             if (isset($matches[1])) {
                 foreach ($matches[1] as $url) {
+                    // remove quotation and whitespaces
                     $new = str_replace('\'','', $url);
                     $new = str_replace('"','', $new);
-                    $new = './' . $this->filesystems->removeDots($prefix . '/' . trim($new));
-                    $new = $this->processUrl($new, true);
-                    //$this->urls[$prefix . ' / ' . $url] = $new;
+                    $new= trim($url);
+
+                    // make relative to the ilias directory
+                    $new = './' . $this->filesystems->removeDots($prefix . '/' .$new);
+
+                    // replaced with processed url
+                    $new = $this->processUrl($new, $in_asset);
                     $css = str_replace($url, $new, $css);
                 }
             }
@@ -125,7 +132,14 @@ class ilTestArchiveCreatorAssets
         return $css;
     }
 
-    protected function processUrl(string $url, $in_asset = false) : string
+    /**
+     * Process url found in HTML or CSS
+     *
+     * @param string $url               URL to be processed
+     * @param bool $in_asset            URL is already in an asset file, target will be copied to the same directory
+     * @return string                   Offline URL to the asset folder in the archive or online URL to the asset delivery script
+     */
+    protected function processUrl(string $url, bool $in_asset = false) : string
     {
         $parsed = parse_url(str_replace(ILIAS_HTTP_PATH, '.', $url));
 
@@ -140,26 +154,36 @@ class ilTestArchiveCreatorAssets
                 $sec_name = sha1($parsed['path']) . $extension . '.sec';
 
                 if ($this->checkExtension($info['extension'] ?? '') && $system->has($path) && !$system->hasDir($path)) {
+                    $content = null;
+
+                    // process urls in the asset content
+                    if ($extension == 'css') {
+                        $content = $this->processStyle($system->read($path), $parsed['path'], true);
+                    }
 
                     if ($this->copy_assets
                         && !$this->storage->has($this->storage_path . '/' . $asset_name)
                         && !$this->storage->has($this->storage_path . '/' . $sec_name)) {
-                        if ($extension == 'css') {
-                            $css = $this->processStyle($system->read($path), $parsed['path']);
-                            $this->storage->write($this->storage_path . '/' . $asset_name, $css);
+                        if (isset($content)) {
+                            $this->storage->write($this->storage_path . '/' . $asset_name, $content);
                         } else {
                             $this->storage->writeStream($this->storage_path . '/' . $asset_name, $system->readStream($path));
                         }
                     }
 
-                    // todo: add asset o the list of assets
+                    $asset = new ilTestArchiveCreatorAsset($this->assets->creator);
+                    $asset->asset_name = $asset_name;
+                    $asset->original_url = $url;
+                    if (!$this->assets->has($asset)) {
+                        $this->assets->add($asset);
+                    }
 
                     if (!$in_asset || $this->linking_path == $this->assets_url) {
-                        // local url in html or pdf generation
+                        // offline link to asset directory or online url to delivery script
                         return $this->linking_path . '/' . $asset_name;
                     }
                     else {
-                        // local access from asset to asset (same directory)
+                        // offline link from asset to asset (same directory)
                         return $asset_name;
                     }
                 }
@@ -172,7 +196,8 @@ class ilTestArchiveCreatorAssets
     }
 
     /**
-     * Check if an extension is allowed
+     * Check if an extension is allowed for being copied to the archive
+     * PHP files should not be copied
      */
     protected function checkExtension(string $extension) : bool
     {

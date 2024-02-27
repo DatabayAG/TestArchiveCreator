@@ -95,8 +95,8 @@ any_ssl_protocol#:#Any SSL Protocol
 any_ssl_protocol_info#:#Allows any SSL protocol for loading of images, styles or scripts. Needed by PhantomJS 1.9.8.
 ignore_ssl_errors#:#Ignore SSL Errors
 ignore_ssl_errors_info#:#Ignore SSL certificate errors for loading of images, styles or scripts.
-keep_jobfile#:#Keep Jobfile
-keep_jobfile_info#:#Keep the jobfile for PDF generation in the creation directory. It can be used for debugging purposes.
+keep_jobfile#:#Keep Jobfiles
+keep_jobfile_info#:#Keep the temporary files for PDF generation in the creation directory. They can be used for debugging purposes.
 min_rendering_wait#:#Minimum Waiting Time (ms)
 min_rendering_wait_info#:#Minimum time in milliseconds after loading an HTML file in PhantomJS before saving it as PDF. This is also the interval for cyclic testing if all page contents are loaded.
 max_rendering_wait#:#Maximum Waiting Time (ms)

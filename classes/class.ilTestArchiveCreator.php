@@ -16,12 +16,13 @@ class ilTestArchiveCreator
     public ilTestArchiveCreatorSettings $settings;
     public ilTestArchiveCreatorFileSystems $filesystems;
 
-    protected ilTestArchiveCreatorAssets $assets;
+    protected ilTestArchiveCreatorAssets $assetsProcessor;
     protected ilTestArchiveCreatorHTML $htmlCreator;
     protected ?ilTestArchiveCreatorPDF $pdfCreator = null;
 
     protected ilTestArchiveCreatorList $questions;
     protected ilTestArchiveCreatorList $participants;
+    protected ilTestArchiveCreatorList $assets;
 
     public ilObjTest $testObj;
 
@@ -54,8 +55,17 @@ class ilTestArchiveCreator
 		$this->testObj = new ilObjTest($obj_id, false);
         $this->workdir = $this->plugin->getWorkdir($this->testObj->getId());
 
+        $this->questions = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorQuestion($this));
+        $this->questions->setTitle($this->plugin->txt('questions'));
+
+        $this->participants = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorParticipant($this));
+        $this->participants->setTitle($this->plugin->txt('participants'));
+
+        $this->assets = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorAsset($this));
+        $this->assets->setTitle($this->plugin->txt('assets'));
+
         $this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings);
-        $this->assets = new ilTestArchiveCreatorAssets($this->workdir, $this->plugin->getAssetsUrl($this->testObj->getId()));
+        $this->assetsProcessor = new ilTestArchiveCreatorAssets($this->assets, $this->workdir, $this->plugin->getAssetsUrl($this->testObj->getId()));
 
         switch($this->config->pdf_engine) {
             case ilTestArchiveCreatorConfig::ENGINE_PHANTOM:
@@ -66,12 +76,6 @@ class ilTestArchiveCreator
                 $this->pdfCreator = new ilTestArchiveCreatorBrowsershot($this->plugin, $this->settings, $this->workdir);
                 break;
         }
-
-        $this->questions = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorQuestion($this));
-        $this->questions->setTitle($this->plugin->txt('questions'));
-
-        $this->participants = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorParticipant($this));
-        $this->participants->setTitle($this->plugin->txt('participants'));
     }
 
 
@@ -517,6 +521,10 @@ class ilTestArchiveCreator
             $this->createFile('participants.csv', $this->participants->getCSV());
             $this->createIndex('participants.html', $this->participants->getHTML());
         }
+
+        // assets
+        $this->createFile('assets.csv', $this->assets->getCSV());
+        $this->createIndex('assets.html', $this->assets->getHTML());
 	}
 
 
@@ -693,7 +701,7 @@ class ilTestArchiveCreator
     {
         $html = $this->htmlCreator->buildContent($title, $description, $content, false);
         if ($this->config->embed_assets) {
-            $this->createFile($file . '.html',  $this->assets->processForEmbedding($html, $file));
+            $this->createFile($file . '.html',  $this->assetsProcessor->processForEmbedding($html, $file));
         } else {
             $this->createFile($file . '.html', $html);
         }

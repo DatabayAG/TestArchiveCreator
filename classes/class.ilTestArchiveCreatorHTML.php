@@ -24,7 +24,8 @@ class ilTestArchiveCreatorHTML
 	}
 
 	/**
-	 * Init the main ilias template
+	 * Init an own version of the main ilias template with a content page template file
+     * It is used by the question GUI to register css and js files
 	 * This should be done always before a question or participant file is rendered
 	 */
 	public function initMainTemplate()
@@ -39,6 +40,7 @@ class ilTestArchiveCreatorHTML
 
     /**
      * Build an index page
+     * This does not need the main template
      */
     public function buildIndex(string $title = '', string $description = '', string $content = '')
     {
@@ -51,17 +53,13 @@ class ilTestArchiveCreatorHTML
 
 
 	/**
-	 * Build a contentPage
-     * This uses the
-	 * @param string $title
-	 * @param string $description
-	 * @param string $content
-     * @param bool $for_pdf
-	 * @return string
+	 * Build a content page
+     * This uses a new instance of the content page template with collected css and js files from the main template
+     * The function can be called twice for HTML and PDF outout after processing the content
      *
      * @see ilLMPresentationGUI::page()
 	 */
-	public function buildContent(string $title = '', string $description = '', string $content = '', bool $for_pdf = false)
+	public function buildContent(string $title = '', string $description = '', string $content = '', bool $for_pdf = false) : string
 	{
         // allow separate building for HTML and PDF based on the same main template after content is rendered with it
         $tpl = new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.content_page.html", true, true);
@@ -113,6 +111,7 @@ class ilTestArchiveCreatorHTML
             $tpl->parseCurrentBlock();
         }
 
+        // zoom factor of the body
         $tpl->setVariable('ZOOM', sprintf('style="zoom:%s;"', $this->settings->zoom_factor));
 
         // fill the body

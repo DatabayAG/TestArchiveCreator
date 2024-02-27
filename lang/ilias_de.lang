@@ -95,8 +95,8 @@ any_ssl_protocol#:#Beliebiges SSL-Protokoll
 any_ssl_protocol_info#:#Erlaubt beliebige SSL-Protokolle beim Laden von eingebetteten Bildern, Styles und Skripten. Wird für PhantomJS 1.9.8 benötigt.
 ignore_ssl_errors#:#SSL-Fehler ignorieren
 ignore_ssl_errors_info#:#Ignoriert SSL-Zertifikatsfehler beim Laden von eingebetteten Bildern, Styles und Skripten.
-keep_jobfile#:#Jobfile behalten
-keep_jobfile_info#:#Die Jobdatei zur PDF-Erzeugung soll im Archiv-Ordner behalten bleiben. Sie kann zur Fehlersuche verwendet werden.
+keep_jobfile#:#Jobfiles behalten
+keep_jobfile_info#:#Die temporären Datien zur PDF-Erzeugung soll im Archiv-Ordner behalten bleiben. Sie können zur Fehlersuche verwendet werden.
 min_rendering_wait#:#Minimale Wartezeit (ms)
 min_rendering_wait_info#:#Minimale Zeit in Millisekunden nach dem Laden einer HTML-Datei in PhantomJS vor ihrem Speichern als PDF. Mit diesem Intervall wird auch zyklisch getestet, ob alle Seiteninhalte geladen sind.
 max_rendering_wait#:#Maximale Wartezeit (ms)
@@ -142,3 +142,4 @@ bs_npm_path_info#:#Pfad zum zum Executable von npm der puppeteer-Installation
 archive_created#:#Das Archiv wurde erzeugt.
 archive_errors#:#Bei der Erzeugung des Archivs traten Fehler auf:
 examination_protocol_html#:#Prüfungsereignis-Protokoll (HTML)
+assets#:#Assets
