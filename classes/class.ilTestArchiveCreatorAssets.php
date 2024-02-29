@@ -61,6 +61,7 @@ class ilTestArchiveCreatorAssets
      */
     public function processForPdfGeneration(string $html) : string
     {
+        $this->copy_assets = true; // needed for asset delivery script
         $this->linking_path = $this->assets_url;
         return $this->processXslt($html, __DIR__. '/../templates/assets.xsl');
     }
@@ -118,7 +119,7 @@ class ilTestArchiveCreatorAssets
                     // remove quotation and whitespaces
                     $new = str_replace('\'','', $url);
                     $new = str_replace('"','', $new);
-                    $new= trim($url);
+                    $new= trim($new);
 
                     // make relative to the ilias directory
                     $new = './' . $this->filesystems->removeDots($prefix . '/' .$new);

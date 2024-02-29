@@ -115,6 +115,12 @@ class ilTestArchiveCreator
 
 		$this->handleListFiles();
         $this->handleMainIndex();
+
+        // assets may have been copied for pdf generation only, don't put into zip
+        if ($this->storage->hasDir($this->workdir . '/assets') && !$this->config->embed_assets) {
+            $this->storage->deleteDir($this->workdir . '/assets');
+        }
+
         $this->createZipFile();
 
         if ($this->storage->hasDir($this->workdir) && !$this->config->keep_creation_directory) {
@@ -523,8 +529,10 @@ class ilTestArchiveCreator
         }
 
         // assets
-        $this->createFile('assets.csv', $this->assets->getCSV());
-        $this->createIndex('assets.html', $this->assets->getHTML());
+        if ($this->config->embed_assets) {
+            $this->createFile('assets.csv', $this->assets->getCSV());
+            $this->createIndex('assets.html', $this->assets->getHTML());
+        }
 	}
 
 
@@ -708,7 +716,7 @@ class ilTestArchiveCreator
 
         if (isset($this->pdfCreator)) {
             $html = $this->htmlCreator->buildContent($title, $description, $content, true);
-            $this->createFile($file . '.job.html', $html);
+            $this->createFile($file . '.job.html', $this->assetsProcessor->processForPdfGeneration($html));
             $this->pdfCreator->addJob( $file . '.job.html', $file . '.pdf', $headLeft, $headRight);
         }
     }
