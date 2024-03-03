@@ -75,7 +75,8 @@ class ilTestArchiveCreatorAssetsDelivery
      */
     protected function deliver(string $path, string $disposition = 'inline'): void
     {
-        $wacPath = new ilWACPath($path);
+        // don't normalize because this would check if path is in web data directory
+        $wacPath = new ilWACPath($path, false);
 
         $ilFileDelivery = new Delivery($path, $this->http);
         $ilFileDelivery->setCache(true);
