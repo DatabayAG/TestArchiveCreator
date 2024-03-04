@@ -6,14 +6,14 @@
  */
 class ilTestArchiveCreatorQuestion extends ilTestArchiveCreatorElement
 {
-	public $question_id;
-	public $exam_question_id;
-	public $title;
-	public $type;
-	public $max_points;
+	public int $question_id = 0;
+	public string $exam_question_id = '';
+	public string $title = '';
+	public string $type= '';
+	public float $max_points = 0;
 
-	public $presentation;
-	public $best_solution;
+	public string $presentation = '';
+	public string $best_solution = '';
 
 
 	/**

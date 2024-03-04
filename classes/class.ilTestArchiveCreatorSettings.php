@@ -6,58 +6,28 @@
  */
 class ilTestArchiveCreatorSettings
 {
-	/** @var string archive status */
-	public $status = ilTestArchiveCreatorPlugin::STATUS_INACTIVE;
+    protected ilDBInterface $db;
+    protected ilTestArchiveCreatorPlugin $plugin;
+    protected int $obj_id;
 
-	/** @var ilDateTime */
-	public $schedule;
-
-	/** @var string pass selection */
-	public $pass_selection;
-
-	/** @var  string  selection of the random questions to include in the archive */
-	public $random_questions;
-
-    /** @var bool include questions */
-    public $include_questions;
-
-    /** @var bool include answers */
-    public $include_answers;
-
-    /** @var bool questions_with_best_solution */
-    public $questions_with_best_solution;
-
-    /** @var bool answers_with_best_solution */
-    public $answers_with_best_solution;
-
-    /** @var bool min_rendering_wait */
-    public $min_rendering_wait;
-
-    /** @var bool max_rendering_wait */
-    public $max_rendering_wait;
-
-    /** @var float */
-	public $zoom_factor;
-
-	/** @var string */
-	public $orientation;
-
-	/** @var  ilDBInterface $db */
-	protected $db;
-
-	/** @var ilTestArchiveCreatorPlugin $plugin */
-	protected $plugin;
-
-	/** @var  int id of the test object */
-	protected $obj_id;
+    public string $status = ilTestArchiveCreatorPlugin::STATUS_INACTIVE;
+	public ?ilDateTime $schedule = null;
+	public string $pass_selection;
+	public string $random_questions;
+    public bool $include_questions;
+    public bool $include_answers;
+    public bool $questions_with_best_solution;
+    public bool $answers_with_best_solution;
+    public bool $min_rendering_wait;
+    public bool $max_rendering_wait;
+	public float $zoom_factor;
+	public string $orientation;
 
 
 	/**
 	 * ilTestArchiveCreatorSettings constructor.
-	 * @param ilTestArchiveCreatorPlugin $plugin
-	 * @param int $obj_id test object id
 	 */
-	public function __construct($plugin, $obj_id)
+	public function __construct(ilTestArchiveCreatorPlugin $plugin, int $obj_id)
 	{
 		global $DIC;
 
@@ -94,7 +64,7 @@ class ilTestArchiveCreatorSettings
             $this->max_rendering_wait = (int) $row['max_rendering_wait'];
 		}
 		else {
-			// initialize walues with those if the global configuration
+			// initialize values with those if the global configuration
 			$config = $this->plugin->getConfig();
 			$this->include_questions = (bool) $config->include_questions;
 			$this->include_answers = (bool) $config->include_answers;
@@ -113,7 +83,7 @@ class ilTestArchiveCreatorSettings
 	 * Save the archive settings
 	 * @return  boolean     success
 	 */
-	public function save()
+	public function save() : bool
 	{
 		$rows = $this->db->replace('tarc_ui_settings',
 			array(
@@ -141,7 +111,7 @@ class ilTestArchiveCreatorSettings
 	 * Get the object ids of tests with scheduled archive creation that are due
 	 * @return int[]
 	 */
-	public static function getScheduledObjects()
+	public static function getScheduledObjects() : array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -163,9 +133,8 @@ class ilTestArchiveCreatorSettings
 
 	/**
 	 * Delete the archive settings of a test
-	 * @param integer object id
 	 */
-	public static function deleteForObject($obj_id)
+	public static function deleteForObject(int $obj_id) : void
 	{
 		global $DIC;
 		$db = $DIC->database();

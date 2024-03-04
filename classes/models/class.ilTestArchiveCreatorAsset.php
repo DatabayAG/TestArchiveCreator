@@ -6,8 +6,8 @@
  */
 class ilTestArchiveCreatorAsset extends ilTestArchiveCreatorElement
 {
-    public $asset_name;
-	public $original_url;
+    public string $asset_name = '';
+	public string $original_url = '';
 
 
 	/**

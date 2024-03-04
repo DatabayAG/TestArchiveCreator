@@ -6,17 +6,13 @@
  */
 class ilTestArchiveCreatorList
 {
-	/** @var ilTestArchiveCreator $creator */
-	public $creator;
-
-	/** @var  ilTestArchiveCreatorElement */
-	public $prototype;
+	public ilTestArchiveCreator $creator;
+	public ilTestArchiveCreatorElement $prototype;
 
 	/** @var ilTestArchiveCreatorElement[] */
-	public $elements = array();
+	public array $elements = [];
 
-	/** @var  string */
-	protected $title;
+	protected string $title = '';
 
 	/**
 	 * Constructor

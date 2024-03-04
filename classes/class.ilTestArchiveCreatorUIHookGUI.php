@@ -30,7 +30,7 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
         string $a_comp,
         string $a_part,
         array $a_par = array()
-    ): void
+    ) : void
 	{
 		switch ($a_part)
 		{
@@ -64,9 +64,9 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
 
 	/**
 	 * Save the tabs for reuse on the plugin pages
-	 * @param string context for which the tabs should be saved
+	 * @param string $a_context context for which the tabs should be saved
 	 */
-	protected function saveTabs($a_context)
+	protected function saveTabs(string $a_context) : void
 	{
 		$_SESSION['TestArchiveCreator'][$a_context]['TabTarget'] = $this->tabs->target;
 		$_SESSION['TestArchiveCreator'][$a_context]['TabSubTarget'] = $this->tabs->sub_target;
@@ -74,9 +74,9 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
 
 	/**
 	 * Restore the tabs for reuse on the plugin pages
-	 * @param string context for which the tabs should be saved
+	 * @param string $a_context context for which the tabs should be saved
 	 */
-	protected function restoreTabs($a_context)
+	protected function restoreTabs($a_context) : void
 	{
 		// reuse the tabs that were saved from the parent gui
 		if (isset($_SESSION['TestArchiveCreator'][$a_context]['TabTarget']))
@@ -105,9 +105,9 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
 	}
 
 	/**
-	 * Modify the toolbar of the meta data editor
+	 * Modify the toolbar of the metadata editor
 	 */
-	protected function modifyExportToolbar()
+	protected function modifyExportToolbar() : void
 	{
 		$gui = new ilTestArchiveCreatorSettingsGUI();
 		$gui->modifyExportToolbar();

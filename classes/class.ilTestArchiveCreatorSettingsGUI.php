@@ -12,35 +12,16 @@
  */
 class ilTestArchiveCreatorSettingsGUI
 {
-	/** @var  ilAccessHandler $access */
-	protected $access;
-
-	/** @var ilCtrl $ctrl */
-	protected $ctrl;
-
-	/** @var  ilLanguage $lng */
-	protected $lng;
-
-	/** @var ilTabsGUI */
-	protected $tabs;
-
-	/** @var  ilToolbarGUI $toolbar */
-	protected $toolbar;
-
-	/** @var ilGlobalTemplate $tpl */
-	protected $tpl;
-
-	/** @var ilTestArchiveCreatorPlugin $plugin */
-	protected $plugin;
-
-	/** @var  ilTestArchiveCreatorConfig $config */
-	protected $config;
-
-	/** @var  ilTestArchiveCreatorSettings  $settings*/
-	protected $settings;
-
-	/** @var ilObjTest $testObj */
-	protected $testObj;
+	protected ilAccessHandler $access;
+	protected ilCtrl $ctrl;
+	protected ilLanguage $lng;
+	protected ilTabsGUI $tabs;
+	protected ilToolbarGUI $toolbar;
+	protected ilGlobalTemplateInterface $tpl;
+	protected ilPlugin $plugin;
+	protected ilTestArchiveCreatorConfig $config;
+	protected ilTestArchiveCreatorSettings $settings;
+	protected ilObjTest $testObj;
 
 	/**
 	 * Constructor.

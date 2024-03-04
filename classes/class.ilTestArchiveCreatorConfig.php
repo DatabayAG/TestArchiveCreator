@@ -16,95 +16,104 @@ class ilTestArchiveCreatorConfig
 
 
 	/** @var string actions allowed for a standard user with write permissions on a test */
-	public $user_allow;
+	public string $user_allow;
 
-    /** @var string */
-    public $pdf_engine;
+    /** @var string engine to be used for pdf generation */
+    public string $pdf_engine;
 
 	/** @var  string path to the executable of PhantomJS */
-	public $phantomjs_path;
+	public string $phantomjs_path;
 
 	/** @var float zoom factor for pdf generation */
-	public $zoom_factor;
+	public float $zoom_factor;
 
 	/** @var string  paper orientation of the generated pdf */
-	public $orientation;
+	public string $orientation;
 
 	/** @var  string  selection of the test passes to include in the archive */
-	public $pass_selection;
+	public string $pass_selection;
 
 	/** @var  string  selection of the random questions to include in the archive */
-	public $random_questions;
+	public string $random_questions;
 
 	/** @var  bool include the user login in the pdf */
-	public $with_login;
+	public bool $with_login;
 
 	/** @var  bool include the user matriculation number in the archive */
-	public $with_matriculation;
+	public bool $with_matriculation;
 
-	/** @var  bool hide the standard test archive */
-	public $hide_standard_archive;
+	/** @var  bool hide the standard test archive in the export menu */
+	public bool $hide_standard_archive;
 
-	/** @var  bool keep the creation directory */
-	public $keep_creation_directory;
+	/** @var  bool keep the creation directory on the server after delivery */
+	public bool $keep_creation_directory;
 
-    /** @var  bool keep the jobfile */
-    public $keep_jobfile;
+    /** @var  bool keep the jobfile on the server after delivery */
+    public bool $keep_jobfile;
 
-    /** @var bool embed the asset files */
-    public $embed_assets;
+    /** @var bool embed the asset files in the archive */
+    public bool $embed_assets;
 
-	/** @var  bool use the system styles */
-	public $use_system_styles;
+	/** @var  bool use the system styles for generation with phantomjs (always used with other engines)
+     * todo: always use and remove this variable when phantomjs is removed */
+	public bool $use_system_styles;
 
-	/** @var bool allow any ssl protocol */
-	public $any_ssl_protocol;
+	/** @var bool allow any ssl protocol with the pdf engine
+     * todo: always allow and remove this variable */
+	public bool $any_ssl_protocol;
 
-	/** @var bool ignore ssl errors */
-	public $ignore_ssl_errors;
+	/** @var bool ignore ssl errors at pdf generation (phantomjs and browsershot)
+     * todo: always ignore and remove this variable */
+	public bool $ignore_ssl_errors;
 
-	/** @var bool minimum seconds to wait for rendering */
-	public $min_rendering_wait;
+	/** @var bool minimum seconds to wait for rendering
+     * todo: use this variable for puppeteer */
+	public bool $min_rendering_wait;
 
-	/** @var bool minimum seconds to wait for rendering */
-	public $max_rendering_wait;
+	/** @var bool maximum seconds to wait for rendering
+     * todo: use this variable for puppeteer */
+	public bool $max_rendering_wait;
 
-	/** @var bool render twice */
-	public $render_twice;
+	/** @var bool render twice
+     * todo: remove this variable whem phantomjs is removed */
+	public bool $render_twice;
 
-    /** @var string browsershot node module path */
-    public $bs_node_module_path;
+    /** @var string browsershotnode module path  */
+    public string $bs_node_module_path;
 
     /** @var string browsershot chrome binary path */
-    public $bs_chrome_path;
+    public string $bs_chrome_path;
 
     /** @var string browsershot node binary path */
-    public $bs_node_path;
+    public string $bs_node_path;
 
     /** @var string browsershot npm binary path */
-    public $bs_npm_path;
+    public string $bs_npm_path;
 
-
-    /** @var bool use file urls */
-	public $use_file_urls;
+    /** @var bool use file urls
+     * todo: remove this completely (not longer used) */
+	public bool $use_file_urls;
 
 	/** @var bool include questions */
-	public $include_questions;
+	public bool $include_questions;
 
     /** @var bool include answers */
-    public $include_answers;
+    public bool $include_answers;
 
     /** @var bool questions_with_best_solution */
-    public $questions_with_best_solution;
+    public bool $questions_with_best_solution;
 
     /** @var bool answers_with_best_solution */
-	public $answers_with_best_solution;
+	public bool $answers_with_best_solution;
+
+    /** @var  */
+    public bool $include_test_protocol;
 
 	/** @var ilTestArchiveCreatorPlugin $plugin */
-	protected $plugin;
+	protected ilTestArchiveCreatorPlugin $plugin;
 
 	/** @var ilSetting  */
-	protected $settings;
+	protected ilSetting $settings;
 
 	/**
 	 * Constructor

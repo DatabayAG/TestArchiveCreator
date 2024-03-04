@@ -188,10 +188,10 @@ class ilTestArchiveCreator
 		foreach ($marks as $value)
 		{
 			$mark = new ilTestArchiveCreatorMark($this);
-			$mark->short_form = $value->getShortName();
-			$mark->official_form = $value->getOfficialName();
-			$mark->minimum_level = $value->getMinimumLevel();
-			$mark->passed = $value->getPassed() ? $this->lng->txt('yes') : $this->lng->txt('no');
+			$mark->short_form = (string) $value->getShortName();
+			$mark->official_form = (string) $value->getOfficialName();
+			$mark->minimum_level = (string)  $value->getMinimumLevel();
+			$mark->passed = (string) ($value->getPassed() ? $this->lng->txt('yes') : $this->lng->txt('no'));
 			$scheme->add($mark);
 		}
 
@@ -276,11 +276,11 @@ class ilTestArchiveCreator
 
 			// add the list entry
 			$element = new ilTestArchiveCreatorQuestion($this);
-			$element->question_id = $question_id;
-			$element->exam_question_id = $this->plugin->buildExamQuestionId($this->testObj, $question_id);
-			$element->title = $question->getTitle();
-			$element->type = $type_translations[$question->getQuestionType()];
-			$element->max_points = $question->getMaximumPoints();
+			$element->question_id = (int) $question_id;
+			$element->exam_question_id = (string) $this->plugin->buildExamQuestionId($this->testObj, $question_id);
+			$element->title = (string) $question->getTitle();
+			$element->type = (string) $type_translations[$question->getQuestionType()];
+			$element->max_points = (float) $question->getMaximumPoints();
 			$this->questions->add($element);
 
 			// create presentation files
@@ -354,29 +354,21 @@ class ilTestArchiveCreator
 
 						// add the list entry
 						$element = new ilTestArchiveCreatorParticipant($this);
-						$element->active_id = $active_id;
-						$element->firstname = $user->getFirstname();
-						$element->lastname = $user->getLastname();
-						$element->login = $user->getLogin();
-						$element->matriculation = $user->getMatriculation();
-						$element->exam_id = $exam_id;
-						$element->pass_number = $passdata->getPass() + 1;
-						$element->pass_scored = $userdata->getScoredPass() == $passdata->getPass();
-						$element->pass_working_time = $passdata->getWorkingTime();
-						if (method_exists($this->testObj, 'lookupLastTestPassAccess')) {
-						    // ILIAS 5.4.6 and higher
-                            $element->pass_finish_date = $this->testObj->lookupLastTestPassAccess($active_id, $passdata->getPass());
-                        }
-						elseif (method_exists($this->testObj, 'getPassFinishDate')) {
-						    // up to ILIAS 5.4.5
-                            $element->pass_finish_date = $this->testObj->getPassFinishDate($active_id, $passdata->getPass());
-                        }
-						$element->pass_reached_points = $passdata->getReachedPoints();
+						$element->active_id = (int) $active_id;
+						$element->firstname = (string) $user->getFirstname();
+						$element->lastname = (string) $user->getLastname();
+						$element->login = (string) $user->getLogin();
+						$element->matriculation = (string) $user->getMatriculation();
+						$element->exam_id = (string) $exam_id;
+						$element->pass_number = (int) $passdata->getPass() + 1;
+						$element->pass_scored = (bool) ($userdata->getScoredPass() == $passdata->getPass());
+						$element->pass_working_time = (int) $passdata->getWorkingTime();
+                        $element->pass_finish_date = (int) $this->testObj->lookupLastTestPassAccess($active_id, $passdata->getPass());
+						$element->pass_reached_points = (float) $passdata->getReachedPoints();
 
 						$this->participants->add($element);
 
 						// create the list of answers
-						$result_array = $this->testObj->getTestResult($active_id, $pass);
 						$tpl = $this->plugin->getTemplate('tpl.participant.html');
 
 						// test data of the user

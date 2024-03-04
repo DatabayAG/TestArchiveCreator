@@ -4,6 +4,7 @@ Copyright (c) 2017-2023 Institut fuer Lern-Innovation, Friedrich-Alexander-Unive
 GPLv3, see LICENSE
 
 Author: Fred Neumann <fred.neumann@ili.fau.de>
+Versions: see [Changelog](CHANGELOG.md)
 
 This plugin for the LMS ILIAS open source allows the creation of zipped archives with PDF files for written tests.
 
@@ -13,14 +14,13 @@ supports two renderers:
 * PhantomJS (deprecated), see [Installation](./docs/install-phantomjs.md)
 * Puppeteer via Browsershot (beta), see [Installation](./docs/install-puppeteer.md)
 
-Issues
-------
+## Issues
+
 Please use the official ILIAS bug tracker "Mantis" for bug reporting: https://mantis.ilias.de
 * Select "ILIAS Plugins" as Project
 * Filter by Category "TestArchiveCreator"
 
-Plugin installation
--------------------
+## Plugin installation
 
 1. Put the content of the plugin directory in a subdirectory under your ILIAS main directory:
 `Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator`
@@ -32,8 +32,7 @@ Plugin installation
 7. Edit the plugin configuration and enter at least the server paths of the chosen renderer.
 
 
-Usage
------
+## Usage
 
 1. Mover to the tab "Export" in the test.
 3. Click "Settings" in the toolbar to change some properties of the archive creation.
@@ -42,8 +41,7 @@ Usage
 The archive containes separate PDF files for the questions in the test and the test runs of participants.
 Overviews are written as csv html files.
 
-Planned Creation
-----------------
+## Planned Creation
 
 Archive creation may take a long time for large tests. For this reason the plugin allows to configure
 a planned creation of the archive in each test. This requires two additional setups.
@@ -62,8 +60,7 @@ https://github.com/ilifau/TestArchiveCron
 Now you can set a time in the settings of the archive creation. When the cron job is called the time is due, it
 will create the archive.
 
-Using with Web Access Checker
------------------------------
+## Using with Web Access Checker
 
 Using the plugin with an activated ILIAS web access checker (WAC) may cause missing images in the PDF files.
 ILIAS does not sign all images for the WAC and the valid time of the signature may be too short for the rendering jobs
@@ -88,8 +85,7 @@ Add two condition before the rewrite rule for the WAC, so that it is only active
 	RewriteRule ^data/.*/.*/.*$ ./Services/WebAccessChecker/wac.php [L]
 
 
-Debugging of the PDF generation
--------------------------------
+## Debugging of the PDF generation
 If the PDF generation fails for some reason you may want to test it manually on the server to get additional debugging output.
 
 1. Activate the ILIAS log with INFO level for the 'Root' component
@@ -99,73 +95,3 @@ If the PDF generation fails for some reason you may want to test it manually on 
 5. Open a shell on your server and move to the root folder of your ILIAS installation
 6. Paste the command and run it
 7. Look at the debugging output
-
-VERSIONS
---------
-1.5.1 for ILIAS 8 (2023-05-11)
-- works with the cron job plugin 
-- initial support for browsershot
-
-1.5.0 for ILIAS 8 (2023-04-25)
-- first version for ILIAS 8
-- not yet extensively tested
-- Workaround for deleted ilUtil filesystem functions, needs refactoring
-
-1.4.2 for ILIAS 7 (2023-01-16)
-- corrected some typos anf gendered (thx to Mirco Hilbert)
-- removed adding of ta.css (causes error since ILIAS 7.8)
-
-1.4.1 for ILIAS 7 (2021-12-09)
-- compatibility with ILIAS 7
-- fixed redirection after manual cron job execution
-
-1.3.2 for ILIAS 5.4 (2020-08-05)
-- use proxy settings of ILIAS for PDF generation
-- added switch to replace http(s) url of images etc. by file urls for PDF generation
-
-1.3.1 for ILIAS 5.4 (2019-10-17)
-- compatibility with ILIAS 5.4.6
-
-1.3.0 for ILIAS 5.4 (2019-07-24)
-- compatibility with ILIAS 5.4.4 
-
-1.2.1 for ILIAS 5.2 and 5.3 (2019-07-18)
-- fixed display of MC/SC questions if styles are not included
-- configure archive creation permissions of normal users (having only write access to a test)
-
-1.2.0 for ILIAS 5.2 and 5.3 (2019-02-20)
-- provided session cookies for PhantomJS
-- included javascript related question styles
-- added config option 'Keep Jobfile'
-- added config option 'Any SSL Protocol'
-- added config option 'Ignore SSL Errors'
-- added config option 'Double Rendering'
-- added config option 'Minimum Waiting Time (ms)'
-- added config option 'Maximum Waiting Time (ms)'
-- added setting 'Include Question'
-- added setting 'Include Answers'
-- added setting 'Questions with Best Solution'
-- added setting 'Answers with Best Solution'
-
-1.1.1 for ILIAS 5.2 and 5.3 (2018-05-08)
--  allow to omit the systems styles for PDF generation
-   (the web font prevents the PDF generated with PhantomJS from being searchable)
-
-1.1.0 for ILIAS 5.2 and 5.3 (2018-05-07)
-- compatibility for ILIAS 5.3
-- fixed output of question ids on console when run by cron
-- added an index.html to the archive
-- included print and pdf styles of the test object
-
-1.0.3 for ILIAS 5.2 (2018-02-08)
-- new config setting to keep the creation directory after zipping
-- logging of the phantomjs command line with INFO level
-
-1.0.2 for ILIAS 5.2 (2018-01-31)
-- logging of phantomjs calls
-- jobfile content is logged with DEBUG level
-- phantomjs console message is logged with INFO level
-- not executable phantomjs or exceptions are logged with WARNING level
-
-1.0.1 for ILIAS 5.2 (2018-01-18)
- - cron job support

@@ -51,9 +51,8 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
 	/**
 	 * Get the global configuration
-	 * @return ilTestArchiveCreatorConfig
 	 */
-	public function getConfig()
+	public function getConfig() : ilTestArchiveCreatorConfig
 	{
 		if (!isset($this->config)) {
 			$this->config = new ilTestArchiveCreatorConfig($this);
@@ -64,10 +63,8 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
 	/**
 	 * Get the settings for a test object
-	 * @param int $obj_id test object id
-	 * @return ilTestArchiveCreatorSettings
 	 */
-	public function getSettings($obj_id)
+	public function getSettings(int $obj_id) : ilTestArchiveCreatorSettings
 	{
 		if (!isset($this->settings[$obj_id])) {
 			$this->settings[$obj_id] = new ilTestArchiveCreatorSettings($this, $obj_id);
@@ -94,10 +91,8 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
 	/**
 	 * Get the archive creator
-	 * @param $obj_id
-	 * @return ilTestArchiveCreator
 	 */
-	public function getArchiveCreator($obj_id)
+	public function getArchiveCreator(int $obj_id) : ilTestArchiveCreator
 	{
 		return new ilTestArchiveCreator($this, $obj_id);
 	}
@@ -105,9 +100,8 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
 	/**
      * Check if the player plugin is active
-     * @return bool
      */
-	public function checkCronPluginActive()
+	public function checkCronPluginActive() : bool
     {
     	global $DIC;
 
@@ -128,7 +122,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	 * @return	int		Number of created archives
 	 * @throws	Exception
 	 */
-    public function handleCronJob()
+    public function handleCronJob() : int
 	{
         global $DIC;
 
@@ -236,12 +230,8 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
     /**
 	 * Build the exam id and allow ids without active_id and pass
-	 * @param ilObjTest $testObj
-	 * @param null $active_id
-	 * @param null $pass
-	 * @return string
 	 */
-	public function buildExamId($testObj, $active_id = null, $pass = null)
+	public function buildExamId(ilObjTest $testObj, ?int $active_id = null, ?int $pass = null) : string
 	{
 		global $DIC;
 		/** @var ilSetting $ilPluginAdmin */
@@ -272,7 +262,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 	 * @param $question_id
 	 * @return string
 	 */
-	public function buildExamQuestionId($testObj, $question_id)
+	public function buildExamQuestionId($testObj, $question_id) : string
 	{
 		return $this->buildExamId($testObj). '_Q' . $question_id;
 	}
@@ -292,9 +282,8 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
 	/**
 	 * Check if the user has administrative access
-	 * @return bool
 	 */
-	public function hasAdminAccess()
+	public function hasAdminAccess() : bool
 	{
 		global $rbacsystem;
 		return $rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID);
@@ -303,7 +292,6 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
     /**
      * Get the examination protocol plugin object
-     * @return ilPlugin|null
      */
     public function getExaminationProtocolPlugin() : ?ilPlugin
     {

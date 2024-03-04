@@ -12,29 +12,16 @@
  */
 class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 {
-	/** @var  ilAccessHandler $access */
-	protected $access;
 
-	/** @var ilCtrl $ctrl */
-	protected $ctrl;
-
-	/** @var  ilLanguage $lng */
-	protected $lng;
-
-	/** @var ilTabsGUI */
-	protected $tabs;
-
-	/** @var  ilToolbarGUI $toolbar */
-	protected $toolbar;
-
-	/** @var ilGlobalTemplate $tpl */
-	protected $tpl;
-
-	/** @var ilTestArchiveCreatorPlugin $plugin */
-	protected $plugin;
-
-	/** @var  ilTestArchiveCreatorConfig $config */
-	protected $config;
+	protected ilAccessHandler $access;
+	protected ilCtrl $ctrl;
+	protected ilLanguage $lng;
+	protected ilTabsGUI $tabs;
+	protected ilToolbarGUI $toolbar;
+	protected ilGlobalTemplateInterface $tpl;
+    /** @var ilTestArchiveCreatorPlugin */
+	protected ilPlugin $plugin;
+	protected ilTestArchiveCreatorConfig $config;
 
 	/**
 	 * Constructor.
@@ -78,7 +65,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 	/**
 	 * Edit the configuration
 	 */
-	protected function editConfiguration()
+	protected function editConfiguration() :void
 	{
 		$form = $this->initConfigForm();
 		$this->tpl->setContent($form->getHTML());
@@ -87,7 +74,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 	/**
 	 * Save the edited configuration
 	 */
-	protected function saveConfiguration()
+	protected function saveConfiguration() : void
 	{
 		$form = $this->initConfigForm();
 		if (!$form->checkInput())
@@ -142,9 +129,8 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 
 	/**
 	 * Fill the configuration form
-	 * @return ilPropertyFormGUI
 	 */
-	protected function initConfigForm()
+	protected function initConfigForm() : ilPropertyFormGUI
 	{
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this, 'editConfiguration'));

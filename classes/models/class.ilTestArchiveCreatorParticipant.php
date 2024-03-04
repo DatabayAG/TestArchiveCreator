@@ -6,21 +6,21 @@
  */
 class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
 {
-	public $active_id;
-	public $firstname;
-	public $lastname;
-	public $login;
-	public $matriculation;
-	public $exam_id;
+	public int $active_id = 0;
+	public string $firstname = '';
+	public string $lastname = '';
+	public string $login = '';
+	public string $matriculation = '';
+	public string $exam_id = '';
 
-	public $pass_number;
-	public $pass_scored;
-	public $pass_working_time;
-	public $pass_finish_date;
-	public $pass_reached_points;
+	public int $pass_number = 0;
+	public bool $pass_scored = false;
+	public int $pass_working_time = 0;
+	public int $pass_finish_date = 0;
+	public float $pass_reached_points = 0;
 
-	public $answers_file;
-	public $answers_hash;
+	public string $answers_file = '';
+	public string $answers_hash = '';
 
 	/**
 	 * Get a unique prefix that can be used for file and directory names

@@ -6,10 +6,10 @@
  */
 class ilTestArchiveCreatorMark extends ilTestArchiveCreatorElement
 {
-	public $short_form;
-	public $official_form;
-	public $minimum_level;
-	public $passed;
+	public string $short_form= '';
+	public string $official_form = '';
+	public string $minimum_level = '';
+	public string $passed = '';
 
 
 	/**

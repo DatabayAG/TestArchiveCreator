@@ -28,7 +28,7 @@ class ilTestArchiveCreatorHTML
      * It is used by the question GUI to register css and js files
 	 * This should be done always before a question or participant file is rendered
 	 */
-	public function initMainTemplate()
+	public function initMainTemplate() : void
 	{
 		// we need to rewrite the main template
 		$this->tpl = new ilTestArchiveCreatorTemplate($this->plugin->getDirectory(). "/templates/tpl.content_page.html", true, true);
@@ -42,7 +42,7 @@ class ilTestArchiveCreatorHTML
      * Build an index page
      * This does not need the main template
      */
-    public function buildIndex(string $title = '', string $description = '', string $content = '')
+    public function buildIndex(string $title = '', string $description = '', string $content = '') : string
     {
         $tpl = $this->plugin->getTemplate('tpl.index_page.html');
         $tpl->setVariable('TITLE', $title);
