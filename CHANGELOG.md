@@ -3,6 +3,7 @@
 ## 1.5.2 for ILIAS 8 (2024-03-03)
 - new option to include local assets (Media, CSS and JS File) in the archive
 - use own delivery script for assets in pdf creation (bypassing WAC)
+- removed obsolete option to use file urls for PDF generation with phantomjs
 - make pdf creation optional
 - further refactored code for ILIAS 8 (types, template usage)
 

@@ -69,16 +69,6 @@ abstract class ilTestArchiveCreatorPDF
 			$this->jobsid = date('Y-m-d_H-i-s_') . rand(0, 9999);
 		}
 
-//		// replace http(s) urls with file urls (insecure)
-//		if ($this->config->pdf_engine == ilTestArchiveCreatorConfig::ENGINE_PHANTOM && $this->config->use_file_urls) {
-//		    $content = file_get_contents($this->workdir.'/'.$sourceFile);
-//            $content = str_replace(ILIAS_HTTP_PATH, 'file://'. ILIAS_ABSOLUTE_PATH, $content);
-//
-//            // temporary source file will be deleted in clearJobs()
-//		    $sourceFile .= '.temp.html';
-//            file_put_contents( $this->workdir.'/'.$sourceFile, $content);
-//		}
-
 		$job = [
 			'sourceFile' => CLIENT_DATA_DIR . '/'. $this->workdir .'/' . $sourceFile,      // file must exist
 			'targetFile' => CLIENT_DATA_DIR . '/'. $this->workdir .'/' . $targetFile,

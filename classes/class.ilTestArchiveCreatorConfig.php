@@ -78,21 +78,17 @@ class ilTestArchiveCreatorConfig
      * todo: remove this variable whem phantomjs is removed */
 	public bool $render_twice;
 
-    /** @var string browsershotnode module path  */
+    /** @var string path to node_modules for browsershot */
     public string $bs_node_module_path;
 
-    /** @var string browsershot chrome binary path */
+    /** @var string path to chrome binary for browsershot  */
     public string $bs_chrome_path;
 
-    /** @var string browsershot node binary path */
+    /** @var string path to node binary for browsershot */
     public string $bs_node_path;
 
-    /** @var string browsershot npm binary path */
+    /** @var string path to npm binary for browsershot */
     public string $bs_npm_path;
-
-    /** @var bool use file urls
-     * todo: remove this completely (not longer used) */
-	public bool $use_file_urls;
 
 	/** @var bool include questions */
 	public bool $include_questions;
@@ -138,7 +134,6 @@ class ilTestArchiveCreatorConfig
 		$this->any_ssl_protocol = (bool)  $this->settings->get('any_ssl_protocol', false);
 		$this->ignore_ssl_errors = (bool)  $this->settings->get('ignore_ssl_errors', false);
         $this->render_twice = (bool)  $this->settings->get('render_twice', false);
-        $this->use_file_urls = (bool)  $this->settings->get('use_file_urls', false);
 
         $this->bs_node_module_path = (string) $this->settings->get('bs_node_module_path', '/home/www-data/node_modules/');
         $this->bs_chrome_path = (string) $this->settings->get('bs_chrome_path', '/home/www-data/.cache/puppeteer/chrome/linux-1108766/chrome-linux/chrome');
@@ -180,7 +175,6 @@ class ilTestArchiveCreatorConfig
 		$this->settings->set('any_ssl_protocol', (bool) $this->any_ssl_protocol ? '1' : '0');
 		$this->settings->set('ignore_ssl_errors', (bool) $this->ignore_ssl_errors ? '1' : '0');
 		$this->settings->set('render_twice', (bool) $this->render_twice ? '1' : '0');
-        $this->settings->set('use_file_urls', (bool) $this->use_file_urls ? '1' : '0');
 
         $this->settings->set('bs_node_module_path', (string) $this->bs_node_module_path);
         $this->settings->set('bs_chrome_path', (string) $this->bs_chrome_path);

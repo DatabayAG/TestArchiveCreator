@@ -95,7 +95,6 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$this->config->any_ssl_protocol = $form->getInput('any_ssl_protocol');
 		$this->config->ignore_ssl_errors = $form->getInput('ignore_ssl_errors');
         $this->config->render_twice = $form->getInput('render_twice');
-        $this->config->use_file_urls = $form->getInput('use_file_urls');
 
         $this->config->bs_node_module_path = $form->getInput('bs_node_module_path');
         $this->config->bs_chrome_path = $form->getInput('bs_chrome_path');
@@ -186,11 +185,6 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $protocol->setInfo($this->plugin->txt('any_ssl_protocol_info'));
         $protocol->setChecked($this->config->any_ssl_protocol);
         $phantom->addSubItem($protocol);
-
-//        $file_urls = new ilCheckboxInputGUI($this->plugin->txt('use_file_urls'), 'use_file_urls');
-//        $file_urls->setInfo($this->plugin->txt('use_file_urls_info'));
-//        $file_urls->setChecked($this->config->use_file_urls);
-//        $phantom->addSubItem($file_urls);
 
         $twice = new ilCheckboxInputGUI($this->plugin->txt('render_twice'), 'render_twice');
         $twice->setInfo($this->plugin->txt('render_twice_info'));
