@@ -122,7 +122,7 @@ allow_none#:#Not Allowed
 allow_none_info#:#Only ILIAS administrators can create archives
 schedule_info#:#Earliest creation time. The actual time is determined by the system settings of the archiving cron job.
 generation_settings#:Settings for generation
-embed_assets#:#Integrate Local Media
+embed_assets#:#Integrate Local Media for HTML Export
 embed_assets_info#:#Required images, audio, videos, styles and JavaScript files from this ILIAS installation are copied to the archive and used from there in the HTML files of the archive. Media from other sources will continue to be used with their external URL.
 pdf_engine#:#PDF Generation
 pdf_engine_none#:#None

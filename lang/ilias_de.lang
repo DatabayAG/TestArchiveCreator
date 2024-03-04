@@ -122,7 +122,7 @@ allow_none#:#Nicht erlaubt
 allow_none_info#:#Archive können nur von Administratoren erzeugt werden.
 schedule_info#:#Frühester Zeitpunkt der Generierung. Der tatsächliche hängt von den Systemeinstellungen des Archivierungs-Cron-Jobs ab.
 generation_settings#:#Einstellungen zur Generierung
-embed_assets#:#Lokale Medien einbinden
+embed_assets#:#Lokale Medien für HTML-Export einbinden
 embed_assets_info#:#Benötigte Bilder, Audios, Videos, Styles und JavaScript-Dateien aus dieser ILIAS-Installation, werden ins Archiv kopiert und von dort in den HTML-Dateien des Archivs verwendet. Medien aus anderen Quellen werden weiterhin mit ihrer externen URL verwendet.
 pdf_engine#:#PDF Generierung
 pdf_engine_none#:#Keine
