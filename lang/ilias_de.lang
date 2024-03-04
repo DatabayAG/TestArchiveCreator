@@ -141,3 +141,16 @@ archive_created#:#Das Archiv wurde erzeugt.
 archive_errors#:#Bei der Erzeugung des Archivs traten Fehler auf:
 examination_protocol_html#:#Prüfungsereignis-Protokoll (HTML)
 assets#:#Assets
+include_test_log#:#Test-Protokoll
+include_test_log_info#:#Bindet die Protokolldaten des ILIAS-Tests ins Archiv ein, falls sie aufgezeichnet wurden.
+include_examination_protocol#:#Prüfungsereignis-Protokoll
+include_examination_protocol_info#:#Bindet das Prüfungsereignis-Prokoll ins Archiv ein, falls das entsprechende Plugin aktiv ist.
+test_log#:#Test-Protokoll
+test_log_html#:#Test-Protokoll (HTML)
+test_log_csv#:#Test-Protokoll (CSV)
+log_timestamp#:#Datum/Uhrzeit
+log_user_id#:#Benutzer-ID
+log_login#:#Login-Name
+log_question_id#:#Fragen-ID
+log_question#:#Frage
+log_logtext#:#Protokolleintrag

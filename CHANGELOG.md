@@ -5,6 +5,8 @@
 - use own delivery script for assets in pdf creation (bypassing WAC)
 - removed obsolete option to use file urls for PDF generation with phantomjs
 - make pdf creation optional
+- option to include the test log
+- option to include an examination protocol
 - further refactored code for ILIAS 8 (types, template usage)
 
 ## 1.5.1 for ILIAS 8 (2023-05-11)

@@ -85,15 +85,17 @@ class ilTestArchiveCreatorList
 		}
 
 		$writer = new ilCSVWriter();
+        $writer->setDoUTF8Decoding(true);
+        $writer->setDelimiter('"');
 		$writer->setSeparator(';');
 
 		foreach ($rows as $row)
 		{
-			$writer->addRow();
 			foreach ($row as $column)
 			{
 				$writer->addColumn($column);
 			}
+            $writer->addRow();
 		}
 
 		return $writer->getCSVString();

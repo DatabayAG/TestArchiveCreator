@@ -138,3 +138,17 @@ bs_node_path_info#:#Path to the executable of node from the puppeteer installati
 bs_npm_path#:#Npm
 bs_npm_path_info#:#Path to the executable of npm from the puppeteer installation
 examination_protocol_html#:#Exam Event Protocol (HTML)
+assets#:#Assets
+include_test_log#:#Test Log
+include_test_log_info#:#Add the log data of the ILIAS test object to the archive if test logging is active.
+include_examination_protocol#:#Exam Event Protocol
+include_examination_protocol_info#:#Add the exam event protocol to the archive, if the plugin for the protocol is active.
+test_log#:#Test Log
+test_log_html#:#Test Log (HTML)
+test_log_csv#:#Test Log (CSV)
+log_timestamp#:#Date/Time
+log_user_id#:#User ID
+log_login#:#Login Name
+log_question_id#:#Question ID
+log_question#:#Question
+log_logtext#:#Log Text

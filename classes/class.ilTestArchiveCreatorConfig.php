@@ -90,20 +90,23 @@ class ilTestArchiveCreatorConfig
     /** @var string path to npm binary for browsershot */
     public string $bs_npm_path;
 
-	/** @var bool include questions */
+    /** @var bool include the test log of ilias in the archive */
+    public bool $include_test_log;
+
+    /** @var bool include the examination protocol (plugin) in the archive */
+    public bool $include_examination_protocol;
+
+    /** @var bool include separate print views of the questions in the archive */
 	public bool $include_questions;
 
-    /** @var bool include answers */
+    /** @var bool include the participant's answers in the archive */
     public bool $include_answers;
 
-    /** @var bool questions_with_best_solution */
+    /** @var bool add the best solution to the print view of questions */
     public bool $questions_with_best_solution;
 
-    /** @var bool answers_with_best_solution */
+    /** @var bool add the best solution to the participant's answers */
 	public bool $answers_with_best_solution;
-
-    /** @var  */
-    public bool $include_test_protocol;
 
 	/** @var ilTestArchiveCreatorPlugin $plugin */
 	protected ilTestArchiveCreatorPlugin $plugin;
@@ -142,6 +145,8 @@ class ilTestArchiveCreatorConfig
 
 		$this->with_login = (bool) $this->settings->get('with_login', true);
 		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
+        $this->include_test_log = (bool) $this->settings->get('include_test_log', true);
+        $this->include_examination_protocol = (bool) $this->settings->get('include_examination_protocol', true);
 
         $this->include_questions = (bool) $this->settings->get('include_questions', true);
         $this->include_answers = (bool) $this->settings->get('include_answers', true);
@@ -183,6 +188,8 @@ class ilTestArchiveCreatorConfig
 
 		$this->settings->set('with_login', (bool) $this->with_login ? '1' : '0');
 		$this->settings->set('with_matriculation', (bool) $this->with_matriculation ? '1' : '0');
+        $this->settings->set('include_test_log', (bool) $this->include_test_log ? '1' : '0');
+        $this->settings->set('include_examination_protocol', (bool) $this->include_examination_protocol ? '1' : '0');
 
         $this->settings->set('include_questions', (bool) $this->include_questions ? '1' : '0');
         $this->settings->set('include_answers', (bool) $this->include_answers ? '1' : '0');

@@ -82,7 +82,7 @@ class ilTestArchiveCreatorSettingsGUI
 		$this->ctrl->saveParameter($this, 'ref_id');
 
 		$text = $this->plugin->txt('tb_archive_label'). ' ';
-		if ($this->plugin->checkCronPluginActive())
+		if ($this->plugin->isCronPluginActive())
 		{
 			switch ($this->settings->status) {
 				case ilTestArchiveCreatorPlugin::STATUS_PLANNED:
@@ -222,7 +222,7 @@ class ilTestArchiveCreatorSettingsGUI
 		$schedule->setRequired(true);
 		$st_planned->addSubItem($schedule);
 
-		if (!$this->plugin->checkCronPluginActive()) {
+		if (!$this->plugin->isCronPluginActive()) {
 			$status->setDisabled(true);
 			$status->setInfo($this->plugin->txt('message_cron_plugin_inactive'));
 			$schedule->setDisabled(true);

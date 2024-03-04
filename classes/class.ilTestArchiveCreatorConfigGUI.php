@@ -103,6 +103,12 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 
         $this->config->with_login = $form->getInput('with_login');
 		$this->config->with_matriculation = $form->getInput('with_matriculation');
+        if ($this->plugin->isTestLogActive()) {
+            $this->config->include_test_log = $form->getInput('include_test_log');
+        }
+        if ($this->plugin->isExaminationProtocolPluginActive()) {
+            $this->config->include_examination_protocol = $form->getInput('include_examination_protocol');
+        }
 
         $this->config->include_questions = $form->getInput('include_questions');
         $this->config->include_answers = $form->getInput('include_answers');
@@ -230,12 +236,10 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $path->setValue($this->config->bs_npm_path);
         $browsershot->addSubItem($path);
 
-
         $errors = new ilCheckboxInputGUI($this->plugin->txt('ignore_ssl_errors'), 'ignore_ssl_errors');
         $errors->setInfo($this->plugin->txt('ignore_ssl_errors_info'));
         $errors->setChecked($this->config->ignore_ssl_errors);
         $form->addItem($errors);
-
 
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->plugin->txt('object_defaults'));
@@ -307,7 +311,19 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 		$with_matriculation->setChecked($this->config->with_matriculation);
 		$form->addItem($with_matriculation);
 
-		$header = new ilFormSectionHeaderGUI();
+        $include_test_log = new ilCheckboxInputGUI($this->plugin->txt('include_test_log'), 'include_test_log');
+        $include_test_log->setInfo($this->plugin->txt('include_test_log_info'));
+        $include_test_log->setChecked($this->plugin->isTestLogActive() && $this->config->include_test_log);
+        $include_test_log->setDisabled(!$this->plugin->isTestLogActive());
+        $form->addItem($include_test_log);
+
+        $include_examination_protocol = new ilCheckboxInputGUI($this->plugin->txt('include_examination_protocol'), 'include_examination_protocol');
+        $include_examination_protocol->setInfo($this->plugin->txt('include_examination_protocol_info'));
+        $include_examination_protocol->setChecked($this->plugin->isExaminationProtocolPluginActive() && $this->config->include_examination_protocol);
+        $include_examination_protocol->setDisabled(!$this->plugin->isExaminationProtocolPluginActive());
+        $form->addItem($include_examination_protocol);
+
+        $header = new ilFormSectionHeaderGUI();
 		$header->setTitle($this->plugin->txt('permissions'));
 		$header->setInfo($this->plugin->txt('permissions_info'));
 		$form->addItem($header);

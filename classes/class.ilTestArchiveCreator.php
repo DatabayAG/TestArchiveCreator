@@ -23,6 +23,7 @@ class ilTestArchiveCreator
     protected ilTestArchiveCreatorList $questions;
     protected ilTestArchiveCreatorList $participants;
     protected ilTestArchiveCreatorList $assets;
+    protected ilTestArchiveCreatorList $testlog;
 
     public ilObjTest $testObj;
 
@@ -64,6 +65,9 @@ class ilTestArchiveCreator
         $this->assets = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorAsset($this));
         $this->assets->setTitle($this->plugin->txt('assets'));
 
+        $this->testlog = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorLogEntry($this));
+        $this->testlog->setTitle($this->plugin->txt('test_log'));
+
         $this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings);
         $this->assetsProcessor = new ilTestArchiveCreatorAssets($this->assets, $this->workdir, $this->plugin->getAssetsUrl($this->testObj->getId()));
 
@@ -97,7 +101,14 @@ class ilTestArchiveCreator
         }
 
 		$this->handleSettings();
-        $this->handleExaminationProtocol();
+
+        if ($this->config->include_test_log && $this->plugin->isTestLogActive()) {
+            $this->handleTestLog();
+        }
+
+        if ($this->config->include_examination_protocol && $this->plugin->isExaminationProtocolPluginActive()) {
+            $this->handleExaminationProtocol();
+        }
 
 		if ($this->settings->include_answers) {
             // handle before questions to prefill the used question ids
@@ -143,6 +154,12 @@ class ilTestArchiveCreator
 		$tpl = $this->plugin->getTemplate('tpl.main_index.html');
 		$tpl->setVariable('TXT_TEST_ARCHIVE', $this->plugin->txt('test_archive'));
 		$tpl->setVariable('TXT_SETTINGS_HTML', $this->plugin->txt('settings_html'));
+
+        if ($this->storage->has($this->workdir . '/testlog.html')) {
+            $tpl->setVariable('TXT_TEST_LOG_HTML', $this->plugin->txt('test_log_html'));
+            $tpl->setVariable('TXT_TEST_LOG_CSV', $this->plugin->txt('test_log_csv'));
+        }
+
         if ($this->storage->has($this->workdir . '/examination_protocol.html')) {
             $tpl->setVariable('TXT_EXAMINATION_PROTOCOL_HTML', $this->plugin->txt('examination_protocol_html'));
         }
@@ -211,21 +228,52 @@ class ilTestArchiveCreator
 	}
 
     /**
-     * @return void
+     * Add the test log to the archive
      */
-    public function handleExaminationProtocol()
+    public function handleTestLog() : void
+    {
+        $log_list = \ilObjAssessmentFolder::getLog(0, 9999999999, $this->testObj->getId());
+
+        $users = [];
+        $titles = [];
+        foreach ($log_list as $log) {
+            if (!isset($users[$log['user_fi']])) {
+                $users[$log['user_fi']] = ilObjUser::_lookupName((int) $log['user_fi']);
+            }
+            if (isset($log['question_fi']) && !isset($titles[$log['question_fi']])) {
+                $titles[$log['question_fi']] = assQuestion::_getQuestionTitle((int) $log['question_fi']);
+            }
+
+            $entry = new ilTestArchiveCreatorLogEntry($this);
+            $entry->timestamp = (int) $log['tstamp'];
+            $entry->log_id = (int) $log['ass_log_id'];
+            $entry->user_id = (int) $log['user_fi'];
+            $entry->question_id = isset($log['question_fi']) ? (int) $log['question_fi'] : null;
+            $entry->login = (string) ($users[$log['user_fi']]['login'] ?? $this->lng->txt('anonymous'));
+            $entry->question = (string) ($titles[$log['question_fi']] ?? '');
+            $entry->logtext = (string) ($log['logtext'] ?? '');
+            $this->testlog->add($entry);
+        }
+
+        $this->createFile('testlog.csv', $this->testlog->getCSV());
+        $this->createIndex('testlog.html', $this->testlog->getHTML());
+    }
+
+
+    /**
+     * Add the examination protocol to the archive
+     */
+    public function handleExaminationProtocol() : void
     {
         global $DIC;
 
         try {
             /** @var ilExaminationProtocolPlugin $plugin */
             $plugin = $this->plugin->getExaminationProtocolPlugin();
-            if (isset($plugin)) {
-                $identifier = $plugin->getProtocolExportByTestID($this->testObj->getTestId());
-                $irss = $DIC->resourceStorage();
-                $content = $irss->consume()->stream($identifier)->getStream()->getContents();
-                $this->createFile('examination_protocol.html', $content);
-            }
+            $identifier = $plugin->getProtocolExportByTestID($this->testObj->getTestId());
+            $irss = $DIC->resourceStorage();
+            $content = $irss->consume()->stream($identifier)->getStream()->getContents();
+            $this->createFile('examination_protocol.html', $content);
         }
         catch (Exception $e) {
             // do nothing

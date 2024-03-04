@@ -97,27 +97,65 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 		return new ilTestArchiveCreator($this, $obj_id);
 	}
 
+    /**
+     * Check if the test and assessment log is active
+     */
+    public function isTestLogActive() : bool
+    {
+        return ilObjAssessmentFolder::_enabledAssessmentLogging();
+    }
+
+    /**
+     * Check if the examination protocol plugin is active
+     */
+    public function isExaminationProtocolPluginActive(): bool
+    {
+        return !empty($this->getActivePluginBySlotAndName('uihk', 'ExaminationProtocol'));
+    }
 
 	/**
      * Check if the player plugin is active
      */
-	public function checkCronPluginActive() : bool
+	public function isCronPluginActive() : bool
     {
-    	global $DIC;
-
-        /** @var ilComponentFactory $factory */
-        $factory = $DIC["component.factory"];
-
-        /** @var ilPlugin $plugin */
-        Foreach ($factory->getActivePluginsInSlot('crnhk') as $plugin) {
-            if ($plugin->getPluginName() == 'TestArchiveCron') {
-                return $plugin->isActive();
-            }
-        }
-        return false;
+        return !empty($this->getActivePluginBySlotAndName('crnhk', 'TestArchiveCron'));
     }
 
-	/**
+    /**
+     * Get the examination protocol plugin object
+     */
+    public function getExaminationProtocolPlugin() : ?ilPlugin
+    {
+        return $this->getActivePluginBySlotAndName('uihk', 'ExaminationProtocol');
+    }
+
+    /**
+     * Get an active plugin by slot id and plugin name
+     */
+    public function getActivePluginBySlotAndName(string $slot_id, string $plugin_name) : ?ilPlugin
+    {
+        /** @var \ILIAS\DI\Container $DIC */
+        global $DIC;
+
+        try {
+            /** @var ilComponentFactory $factory */
+            $factory = $DIC["component.factory"];
+
+            /** @var ilPlugin $plugin */
+            Foreach ($factory->getActivePluginsInSlot($slot_id) as $plugin) {
+                if ($plugin->getPluginName() == $plugin_name) {
+                    return $plugin;
+                }
+            }
+        }
+        catch (Exception $e) {
+            return null;
+        }
+
+        return null;
+    }
+
+    /**
 	 * Handle a call by the cron job plugin
 	 * @return	int		Number of created archives
 	 * @throws	Exception
@@ -288,31 +326,4 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 		global $rbacsystem;
 		return $rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID);
 	}
-
-
-    /**
-     * Get the examination protocol plugin object
-     */
-    public function getExaminationProtocolPlugin() : ?ilPlugin
-    {
-        /** @var \ILIAS\DI\Container $DIC */
-        global $DIC;
-
-        try {
-            /** @var ilComponentFactory $factory */
-            $factory = $DIC["component.factory"];
-
-            /** @var ilPlugin $plugin */
-            Foreach ($factory->getActivePluginsInSlot('uihk') as $plugin) {
-                if ($plugin->getPluginName() == 'ExaminationProtocol') {
-                    return $plugin;
-                }
-            }
-        }
-        catch (Exception $e) {
-            return null;
-        }
-
-        return null;
-    }
 }
