@@ -20,7 +20,7 @@ class ilTestArchiveCreatorPhantomJS extends ilTestArchiveCreatorPDF
         $content = [
             'clientId' => CLIENT_ID,
             'sessionId' => session_id(),
-            'cookieDomain' => $_SERVER['HTTP_HOST'],
+            'cookieDomain' => $_SERVER['HTTP_HOST'] ?? '',
             'cookiePath' => IL_COOKIE_PATH,
             'cookieSecure' => IL_COOKIE_SECURE,
             'cookieHttpOnly' => IL_COOKIE_HTTPONLY,
