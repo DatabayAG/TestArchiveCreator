@@ -101,6 +101,8 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $this->config->bs_node_path = $form->getInput('bs_node_path');
         $this->config->bs_npm_path = $form->getInput('bs_npm_path');
 
+        $this->config->server_url = $form->getInput('server_url');
+
         $this->config->with_login = $form->getInput('with_login');
 		$this->config->with_matriculation = $form->getInput('with_matriculation');
         if ($this->plugin->isTestLogActive()) {
