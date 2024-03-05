@@ -67,13 +67,13 @@ class ilTestArchiveCreatorConfig
      * todo: always ignore and remove this variable */
 	public bool $ignore_ssl_errors;
 
-	/** @var bool minimum seconds to wait for rendering
+	/** @var int minimum seconds to wait for rendering
      * todo: use this variable for puppeteer */
-	public bool $min_rendering_wait;
+	public int $min_rendering_wait;
 
-	/** @var bool maximum seconds to wait for rendering
+	/** @var int maximum seconds to wait for rendering
      * todo: use this variable for puppeteer */
-	public bool $max_rendering_wait;
+	public int $max_rendering_wait;
 
 	/** @var bool render twice
      * todo: remove this variable whem phantomjs is removed */
