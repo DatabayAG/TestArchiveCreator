@@ -1,13 +1,14 @@
 # Change Log
 
-## 1.5.2 for ILIAS 8 (2024-03-03)
-- new option to include local assets (Media, CSS and JS File) in the archive
-- use own delivery script for assets in pdf creation (bypassing WAC)
-- removed obsolete option to use file urls for PDF generation with phantomjs
-- make pdf creation optional
-- option to include the test log
-- option to include an examination protocol
-- further refactored code for ILIAS 8 (types, template usage)
+## 1.6.0 for ILIAS 8 (2024-03-05)
+- added config option to include local assets (Media, CSS and JS File) in the archive
+- added delivery script for assets in pdf creation process (bypassing WAC)
+- removed config option to use file urls for PDF generation with phantomjs
+- made pdf creation optional
+- new pdf creation mode using an external server with puppeteer (experimental)
+- added config option to include the test log
+- added config option to include an examination protocol
+- refactored code for ILIAS 8 (file handling, function types, template usage)
 
 ## 1.5.1 for ILIAS 8 (2023-05-11)
 - works with the cron job plugin
