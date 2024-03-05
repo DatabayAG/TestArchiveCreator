@@ -15,9 +15,19 @@ class ilTestArchiveCreatorServer extends ilTestArchiveCreatorPDF
 
         try {
             foreach ($this->jobs as $job) {
-                $post = [];
-                $post[] = 'html=' . urlencode(file_get_contents($job['sourceFile']));
-                $post[] = 'format=' . urlencode('A4');
+                $header = $job['headLeft'] ?? '';
+                $footer = $job['footLeft'] ?? '';
+
+                $post = [
+                    'html' => file_get_contents($job['sourceFile']),
+                    'format' => 'A4',
+                    'landscape' => $this->settings->orientation == ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE,
+                    'headerTemplate' => '<p style="font-size:10px; padding-left:60px; margin-top:-5px;">'
+                                                        . $header .'</p>',
+                    'footerTemplate' => '<p style="font-size:10px; padding-left:60px;margin-top:5px;">'
+                                                        .'<span class="pageNumber"></span> / <span class="totalPages"></span> - '
+                                                        . $footer . '</p>'
+                ];
 
                 $curlConnection = new ilCurlConnection($this->config->server_url);
                 $curlConnection->init();
@@ -35,7 +45,7 @@ class ilTestArchiveCreatorServer extends ilTestArchiveCreatorPDF
                 $curlConnection->setOpt(CURLOPT_VERBOSE, false);
                 $curlConnection->setOpt(CURLOPT_TIMEOUT, 60);
                 $curlConnection->setOpt(CURLOPT_POST, 1);
-                $curlConnection->setOpt(CURLOPT_POSTFIELDS, implode('&', $post));
+                $curlConnection->setOpt(CURLOPT_POSTFIELDS, $this->urlencodeAssoc($post));
                 $curlConnection->setOpt(CURLOPT_HTTPHEADER, array(
                     "cache-control: no-cache",
                     "content-type: application/x-www-form-urlencoded"
@@ -48,8 +58,19 @@ class ilTestArchiveCreatorServer extends ilTestArchiveCreatorPDF
         }
         catch (Exception $e)
         {
-            throw $e;
             $this->logger->warning($e->getMessage());
         }
+    }
+
+    /**
+     * Url encode an array of parameters
+     */
+    protected function urlencodeAssoc(array $assoc) :string
+    {
+        $parts = [];
+        foreach ($assoc as $key => $value) {
+            $parts[] = urlencode($key) . '=' . urlencode($value);
+        }
+        return implode('&', $parts);
     }
 }
