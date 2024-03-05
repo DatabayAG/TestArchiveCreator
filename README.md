@@ -8,11 +8,11 @@ Versions: see [Changelog](CHANGELOG.md)
 
 This plugin for the LMS ILIAS open source allows the creation of zipped archives with PDF files for written tests.
 
-The actual PDF rendering is done by a headless browser which has to be installed in the web server. Corrently the plugin 
-supports two renderers:
+The actual PDF rendering is done by a headless browser which has to be installed in the web server. Corrently the plugin supports two renderers:
 
 * PhantomJS (deprecated), see [Installation](./docs/install-phantomjs.md)
-* Puppeteer via Browsershot (beta), see [Installation](./docs/install-puppeteer.md)
+* Puppeteer via Browsershot, see [Installation](./docs/install-puppeteer-browsershot.md)
+* Puppeteer on separate Server (experimental), see this [Server Script](https://github.com/fneumann/tarc-pdf)
 
 ## Issues
 
@@ -38,13 +38,11 @@ Please use the official ILIAS bug tracker "Mantis" for bug reporting: https://ma
 3. Click "Settings" in the toolbar to change some properties of the archive creation.
 2. Click the button "Create" in the toolbar to create a zipped archive.
 
-The archive containes separate PDF files for the questions in the test and the test runs of participants.
-Overviews are written as csv html files.
+The archive containes separate PDF files for the questions in the test and the test runs of participants. Overviews are written as csv html files.
 
 ## Planned Creation
 
-Archive creation may take a long time for large tests. For this reason the plugin allows to configure
-a planned creation of the archive in each test. This requires two additional setups.
+Archive creation may take a long time for large tests. For this reason the plugin allows to configure a planned creation of the archive in each test. This requires two additional setups.
 
 You need to set up a call of the ILIAS cron jobs on your web server, see the ILIAS installation guide:
 https://www.ilias.de/docu/goto_docu_pg_8240_367.html
@@ -60,25 +58,24 @@ https://github.com/ilifau/TestArchiveCron
 Now you can set a time in the settings of the archive creation. When the cron job is called the time is due, it
 will create the archive.
 
-## Using with Web Access Checker
+## Handling Assets
 
-Using the plugin with an activated ILIAS web access checker (WAC) may cause missing images in the PDF files.
-ILIAS does not sign all images for the WAC and the valid time of the signature may be too short for the rendering jobs
-of large archives. In this case the WAC tries to determine the access based on the user session. The plugin provides
-the session cookie, but the session based check of the WAC may take too long for the rendering timeout.
-A call from the TestArchiveCron plugin does not set the session cookie correctly.
+Required asset files (styles, fonts and media) can now optionally be included in the archive. This is set in the plugin configuration.
+* If assets are included, the HTML pages for questions and participants will use them locally. In this case you don't need to generate PDFs in the archive.
+* If assets are not included, the html pages for questions and participants will use their original locations which are normally protected by the Web Access Checker (WAC) of ILIAS and can't be accessed when the archive is viewed later. In this case you should generate PDFs which have the assets embedded. 
 
-To prevent these problems, the best solution is to deactivate the WAC for rendering calls. If the renderer is installed
-on the same server, requests coming from this server can bypass the WAC.
+*Since version 1.5.2 the assets are delivered by the plugin for the PDF generation, so the following advice is no longer neccessary:*
 
-Edit `/etc/hosts` and add the hostname of your ILIAS installation to the localhost addresses
-This will keep all requests from the renderer on the same host.
+ILIAS does not sign all images for the WAC and the valid time of the signature may be too short for the rendering jobs of large archives. In this case the WAC tries to determine the access based on the user session. The plugin provides the session cookie, but the session based check of the WAC may take too long for the rendering timeout. A call from the TestArchiveCron plugin does not set the session cookie correctly.
+
+To prevent these problems, the best solution is to deactivate the WAC for rendering calls. If the renderer is installed on the same server, requests coming from this server can bypass the WAC.
+
+Edit `/etc/hosts` and add the hostname of your ILIAS installation to the localhost addresses This will keep all requests from the renderer on the same host.
 
     127.0.0.1       localhost www.my-ilias-host.de
     ::1             localhost ip6-localhost ip6-loopback www.my-ilias-host.de
 
-Edit `.htaccess` in the ILIAS root directory (or the copied settings in your Apache configuration, if you don't allow overrides).
-Add two condition before the rewrite rule for the WAC, so that it is only active for foreign requests:
+Edit `.htaccess` in the ILIAS root directory (or the copied settings in your Apache configuration, if you don't allow overrides). Add two condition before the rewrite rule for the WAC, so that it is only active for foreign requests:
 
     RewriteCond %{REMOTE_ADDR} !=127.0.0.1
     RewriteCond %{REMOTE_ADDR} !=::1

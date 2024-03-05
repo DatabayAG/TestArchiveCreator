@@ -1,4 +1,4 @@
-# Install Puppeteer for the TestArchiveCreator
+# Install Puppeteer for use with Browserhot
 
 Look at the Puppeteer web site https://pptr.dev for general installation instructions. 
 
