@@ -61,7 +61,6 @@ class ilTestArchiveCreatorBrowsershot extends ilTestArchiveCreatorPDF
         }
         catch (Exception $e)
         {
-            throw $e;
             $this->logger->warning($e->getMessage());
         }
     }

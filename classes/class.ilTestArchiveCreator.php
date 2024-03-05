@@ -79,6 +79,10 @@ class ilTestArchiveCreator
             case ilTestArchiveCreatorConfig::ENGINE_BROWSERSHOT:
                 $this->pdfCreator = new ilTestArchiveCreatorBrowsershot($this->plugin, $this->settings, $this->workdir);
                 break;
+
+            case ilTestArchiveCreatorConfig::ENGINE_SERVER:
+                $this->pdfCreator = new ilTestArchiveCreatorServer($this->plugin, $this->settings, $this->workdir);
+                break;
         }
     }
 

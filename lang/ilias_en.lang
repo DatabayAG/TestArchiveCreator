@@ -152,3 +152,6 @@ log_login#:#Login Name
 log_question_id#:#Question ID
 log_question#:#Question
 log_logtext#:#Log Text
+pdf_engine_server#:#Generating Server (experimental)
+server_url#:#Url
+server_url_info#:#Url of a server for pDF generation. An example implementation id https://github.com/fneumann/tarc-pdf

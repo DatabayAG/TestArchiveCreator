@@ -174,6 +174,8 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $none->setInfo($this->plugin->txt('pdf_engine_none_info'));
         $engine->addOption($none);
 
+        // PhantomJS
+
         $phantom = new ilRadioOption($this->plugin->txt('pdf_engine_phantom'), ilTestArchiveCreatorConfig::ENGINE_PHANTOM);
         $engine->addOption($phantom);
 
@@ -213,6 +215,8 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $max_wait->setValue($this->config->max_rendering_wait);
         $phantom->addSubItem($max_wait);
 
+        // Browsershot
+
         $browsershot = new ilRadioOption($this->plugin->txt('pdf_engine_browsershot'), ilTestArchiveCreatorConfig::ENGINE_BROWSERSHOT);
         $engine->addOption($browsershot);
 
@@ -236,10 +240,23 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $path->setValue($this->config->bs_npm_path);
         $browsershot->addSubItem($path);
 
+        // Server
+
+        $server = new ilRadioOption($this->plugin->txt('pdf_engine_server'), ilTestArchiveCreatorConfig::ENGINE_SERVER);
+        $engine->addOption($server);
+
+        $url = new ilTextInputGUI($this->plugin->txt('server_url'), 'server_url');
+        $url->setInfo($this->plugin->txt('server_url_info'));
+        $url->setValue($this->config->server_url);
+        $server->addSubItem($url);
+
+
         $errors = new ilCheckboxInputGUI($this->plugin->txt('ignore_ssl_errors'), 'ignore_ssl_errors');
         $errors->setInfo($this->plugin->txt('ignore_ssl_errors_info'));
         $errors->setChecked($this->config->ignore_ssl_errors);
         $form->addItem($errors);
+
+        // Object Defaults
 
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->plugin->txt('object_defaults'));
@@ -296,6 +313,8 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $zoom_factor->allowDecimals(false);
         $zoom_factor->setValue($this->config->zoom_factor * 100);
         $form->addItem($zoom_factor);
+
+        // Privacy settings
 
         $header = new ilFormSectionHeaderGUI();
 		$header->setTitle($this->plugin->txt('privacy_settings'));

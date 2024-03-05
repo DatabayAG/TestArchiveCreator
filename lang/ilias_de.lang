@@ -154,3 +154,6 @@ log_login#:#Login-Name
 log_question_id#:#Fragen-ID
 log_question#:#Frage
 log_logtext#:#Protokolleintrag
+pdf_engine_server#:#Generierungs-Server (experimentell)
+server_url#:#Url
+server_url_info#:#Url eines Servers der zur PDF-Generierung aufgerufen wird. Eine Beispiel-Implementierung ist https://github.com/fneumann/tarc-pdf

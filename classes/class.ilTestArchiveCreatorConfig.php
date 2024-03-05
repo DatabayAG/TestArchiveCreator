@@ -13,6 +13,7 @@ class ilTestArchiveCreatorConfig
     const ENGINE_NONE = '';
     const ENGINE_PHANTOM = 'phantom';
     const ENGINE_BROWSERSHOT = 'browsershot';
+    const ENGINE_SERVER = 'server';
 
 
 	/** @var string actions allowed for a standard user with write permissions on a test */
@@ -108,6 +109,10 @@ class ilTestArchiveCreatorConfig
     /** @var bool add the best solution to the participant's answers */
 	public bool $answers_with_best_solution;
 
+    /** @var string url of a server for pdf generation */
+    public string $server_url;
+
+
 	/** @var ilTestArchiveCreatorPlugin $plugin */
 	protected ilTestArchiveCreatorPlugin $plugin;
 
@@ -142,6 +147,8 @@ class ilTestArchiveCreatorConfig
         $this->bs_chrome_path = (string) $this->settings->get('bs_chrome_path', '/home/www-data/.cache/puppeteer/chrome/linux-1108766/chrome-linux/chrome');
         $this->bs_node_path = (string) $this->settings->get('bs_node_path', '/usr/bin/node');
         $this->bs_npm_path = (string) $this->settings->get('bs_npm_path', '/usr/bin/npm');
+
+        $this->server_url = (string) $this->settings->get('server_url', 'http://localhost:3000');
 
 		$this->with_login = (bool) $this->settings->get('with_login', true);
 		$this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
@@ -185,6 +192,8 @@ class ilTestArchiveCreatorConfig
         $this->settings->set('bs_chrome_path', (string) $this->bs_chrome_path);
         $this->settings->set('bs_node_path', (string) $this->bs_node_path);
         $this->settings->set('bs_npm_path', (string) $this->bs_npm_path);
+
+        $this->settings->set('server_url', (string) $this->server_url);
 
 		$this->settings->set('with_login', (bool) $this->with_login ? '1' : '0');
 		$this->settings->set('with_matriculation', (bool) $this->with_matriculation ? '1' : '0');
