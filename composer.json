@@ -1,5 +1,5 @@
 {
     "require": {
-        "spatie/browsershot": "^3.57"
+        "spatie/browsershot": "~3.58"
     }
 }
