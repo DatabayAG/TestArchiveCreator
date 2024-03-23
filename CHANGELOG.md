@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.6.1 for ILIAS 8 (upcoming)
+## 1.6.1 for ILIAS 8 (2024-03-24)
 - fixed 0040794: Description regarding sample solutions is not precise
 - fixed 0040728: Text Subset Question with problematic display of best solution in html
 - Improved MathJax handling. MathJax settings for server-side rendering are respected separately: 
