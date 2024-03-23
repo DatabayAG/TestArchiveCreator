@@ -482,7 +482,17 @@ class ilTestArchiveCreator
 
 							// answer and solution output
 							$question_gui = $this->testObj->createQuestionGUI($row['type'], $row['qid']);
-							$html_answer = $question_gui->getSolutionOutput($active_id, $pass, TRUE, FALSE, TRUE, FALSE, FALSE);
+							$html_answer = $question_gui->getSolutionOutput(
+                                $active_id,
+                                $pass,
+                                TRUE,   // $graphicalOutput
+                                FALSE,  // $result_output
+                                TRUE,   // $show_question_only
+                                FALSE,  // $show_feedback
+                                FALSE,  // $show_correct_solution
+                                $question_gui instanceof assFileUploadGUI,   // $show_manual_scoring
+                                TRUE    // $show_question_text
+                            );
                             $html_answer = $this->addILIASPage((int) $row['qid'], $html_answer);
 
 							if ($this->settings->answers_with_best_solution)
