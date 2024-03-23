@@ -9,6 +9,9 @@ img.small {
     height: 20px!important; width: 20px!important;
 }
 
+.ilc_question_TextSubset .ilc_qinput_TextInput.solutionbox {
+    word-break: break-all;
+}
 
 @media screen {
     body {
