@@ -108,9 +108,9 @@ include_questions_info#:#Erzeugt einen Ordner im Archiv mit den Fragen des Tests
 include_answers#:#Antworten einbinden
 include_answers_info#:#Erzeugt einen Ordner im Archiv mit den Antworten der Teilnehmer*innen.
 questions_with_best_solution#:#Fragen mit Musterlösung
-questions_with_best_solution_info#:#Erzeugt zu jeder Frage auch eine PDF-Datei mit der Musterlösung.
+questions_with_best_solution_info#:#Erzeugt zu jeder Frage auch eine Datei mit der Musterlösung.
 answers_with_best_solution#:#Antworten mit Musterlösung
-answers_with_best_solution_info#:#Fügt in die PDF-Dateien der Antworten der Teilnehmer*innen unter jeder Frage die Musterlösung ein.
+answers_with_best_solution_info#:#Fügt in die Dateien der Antworten der Teilnehmer*innen unter jeder Frage die Musterlösung ein.
 permissions#:#Berechtigungen
 permissions_info#:#Berechtigung für Nutzer*innen mit Schreibrecht im Test
 allow#:#Archiv-Erzeugung

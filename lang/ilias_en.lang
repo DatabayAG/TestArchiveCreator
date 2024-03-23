@@ -108,7 +108,7 @@ include_questions_info#:#Creates a folder on the archive with the test questions
 include_answers#:#Include Answers
 include_answers_info#:#Creates a folder in the archive with the participants' answers.
 questions_with_best_solution#:#Questions with Best Solution
-questions_with_best_solution_info#:#Creates for each question a separate PDF file with the best solution.
+questions_with_best_solution_info#:#Creates for each question a separate file with the best solution.
 answers_with_best_solution#:#Answers with Best Solution
 answers_with_best_solution_info#:#Adds the best solution below each question in the answer files for participants.
 permissions#:#Permissions
