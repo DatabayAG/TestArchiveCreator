@@ -4,12 +4,16 @@ use ILIAS\Filesystem\Filesystem;
 use ILIAS\Filesystem\Exception\FileAlreadyExistsException;
 use ILIAS\Filesystem\Exception\FileNotFoundException;
 use ILIAS\Filesystem\Exception\IOException;
+use ILIAS\ResourceStorage\Services;
 
 class ilTestArchiveCreatorAssets
 {
     protected ilTestArchiveCreatorFileSystems $filesystems;
     protected ilTestArchiveCreatorList $assets;
     protected Filesystem $storage;
+
+    protected Services $resource_storage;
+
 
     /** @var string url for loading assets for PDF generation */
     protected string $assets_url;
@@ -33,12 +37,16 @@ class ilTestArchiveCreatorAssets
      */
     public function __construct(ilTestArchiveCreatorList $assets, string $workdir, string $assets_url)
     {
+        global $DIC;
+
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
         $this->storage = $this->filesystems->getPureStorage();
         $this->assets = $assets;
 
         $this->storage_path = $workdir. '/assets';
         $this->assets_url = $assets_url;
+
+        $this->resource_storage = $DIC->resourceStorage();
     }
 
     /**
@@ -93,7 +101,6 @@ class ilTestArchiveCreatorAssets
             return $processed;
         }
         catch (\Throwable $e) {
-            throw $e;
             return 'HTML PROCESSING ERROR:<br>' . $e->getMessage() . '<hr>' . $html;
         }
     }
@@ -143,21 +150,46 @@ class ilTestArchiveCreatorAssets
     protected function processUrl(string $url, bool $in_asset = false) : string
     {
         $parsed = parse_url(str_replace(ILIAS_HTTP_PATH, '.', $url));
+        $asset_name = null;
 
-        if (isset($parsed['path'])) {
+        if (!empty($resource_id = $this->getResourceId($parsed['query'] ?? ''))) {
+            // url an ILIAS call to deliver a file resource
+
+            $manager = $this->resource_storage->manage();
+
+            if (!empty($identification = $manager->find($resource_id))) {
+                $resource = $manager->getResource($identification);
+                $extension = $resource->getCurrentRevision()->getInformation()->getSuffix();
+
+                $asset_name = sha1($resource_id) . '.' . $extension;
+                $sec_name = sha1($resource_id) . '.' . $extension . '.sec';
+
+                if ($this->copy_assets
+                    && !$this->storage->has($this->storage_path . '/' . $asset_name)
+                    && !$this->storage->has($this->storage_path . '/' . $sec_name)
+                ) {
+                    $consumer = $this->resource_storage->consume()->stream($identification);
+                    $this->storage->writeStream($this->storage_path . '/' . $asset_name, $consumer->getStream());
+                }
+            }
+        }
+        elseif (isset($parsed['path'])) {
+            // url is a direct path to an asset
+
             $system = $this->filesystems->deriveFilesystemFrom($parsed['path']);
             $path = $this->filesystems->createRelativePath($parsed['path']);
 
             if (isset($system) && isset($path)) {
                 $info = pathinfo($path);
                 $extension = $info['extension'] ?? '';
-                $asset_name = sha1($parsed['path']) . '.' . $extension;
-                $sec_name = sha1($parsed['path']) . $extension . '.sec';
 
-                if ($this->checkExtension($info['extension'] ?? '') && $system->has($path) && !$system->hasDir($path)) {
-                    $content = null;
+                if ($this->checkExtension($extension) && $system->has($path) && !$system->hasDir($path)) {
+
+                    $asset_name = sha1($parsed['path']) . '.' . $extension;
+                    $sec_name = sha1($parsed['path']) . $extension . '.sec';
 
                     // process urls in the asset content
+                    $content = null;
                     if ($extension == 'css') {
                         $content = $this->processStyle($system->read($path), $parsed['path'], true);
                     }
@@ -171,29 +203,52 @@ class ilTestArchiveCreatorAssets
                             $this->storage->writeStream($this->storage_path . '/' . $asset_name, $system->readStream($path));
                         }
                     }
-
-                    $asset = new ilTestArchiveCreatorAsset($this->assets->creator);
-                    $asset->asset_name = $asset_name;
-                    $asset->original_url = $url;
-                    if (!$this->assets->has($asset)) {
-                        $this->assets->add($asset);
-                    }
-
-                    if (!$in_asset || $this->linking_path == $this->assets_url) {
-                        // offline link to asset directory or online url to delivery script
-                        return $this->linking_path . '/' . $asset_name;
-                    }
-                    else {
-                        // offline link from asset to asset (same directory)
-                        return $asset_name;
-                    }
                 }
             }
+        }
 
+        // asset is found or created
+        if (isset($asset_name)) {
+            $asset = new ilTestArchiveCreatorAsset($this->assets->creator);
+            $asset->asset_name = $asset_name;
+            $asset->original_url = $url;
+            if (!$this->assets->has($asset)) {
+                $this->assets->add($asset);
+            }
+
+            if (!$in_asset || $this->linking_path == $this->assets_url) {
+                // offline link to asset directory or online url to delivery script
+                return $this->linking_path . '/' . $asset_name;
+            }
+            else {
+                // offline link from asset to asset (same directory)
+                return $asset_name;
+            }
         }
 
         // leave original url if asset can't be processed
         return $url;
+    }
+
+
+    /**
+     * Get the resource ID of a file resource from the query string
+     */
+    public function getResourceId(string $query) : ?string
+    {
+        $params = [];
+        parse_str($query, $params);
+
+        if (($params['cmd'] ?? '') == 'downloadFile' && isset($params['file_id'])) {
+            $parts = explode("_", $params['file_id']);
+            $index = count($parts) - 1;
+
+            if ($index >= 0 && isset($parts[$index])) {
+                $file_obj = new ilObjFile((int) $parts[$index], false);
+                return $file_obj->getResourceId();
+            }
+        }
+        return null;
     }
 
     /**
