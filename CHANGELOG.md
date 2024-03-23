@@ -8,6 +8,7 @@
   - 'Use for PDF Generation' for the optional PDF files. 
   - 'Use for Browser' must be activated if TeX in STACK questions should be rendered server-side. 
   - If server-side rendering is not enabled, then the Script URL client-side rendering is added to the HTML files in the archive.
+- uploaded files are put as assets to the archive and linked on the participant page
 
 ## 1.6.0 for ILIAS 8 (2024-03-05)
 - added config option to include local assets (Media, CSS and JS File) in the archive
