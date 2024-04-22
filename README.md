@@ -1,10 +1,10 @@
 # TestArchiveCreator
 
-Copyright (c) 2017-2023 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
-GPLv3, see LICENSE
+Copyright (c) 2017-2023 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
-Author: Fred Neumann <fred.neumann@ili.fau.de>
-Versions: see [Changelog](CHANGELOG.md)
+**Further maintenance is provided by [Databay AG](https://www.databay.de).**
+
+Versions: see [Changelog](CHANGELOG.md). Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
 This plugin for the LMS ILIAS open source allows the creation of zipped archives with PDF files for written tests.
 
@@ -26,8 +26,8 @@ Please use the official ILIAS bug tracker "Mantis" for bug reporting: https://ma
 `Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator`
 2. Move to the plugin directory and call `composer install --no-dev`. You should do this after each update.
 3. Move to the base directory of your ILIAS and run `composer du` to reload the current plugin version
-4. Open ILIAS > Administration > Plugins
-5. Update/Activate the plugin
+4. Open Administration > Extending ILIAS > Plugins
+5. Install and activate the plugin
 6. Open the plugin configuration
 7. Edit the plugin configuration and enter at least the server paths of the chosen renderer.
 
@@ -48,7 +48,7 @@ You need to set up a call of the ILIAS cron jobs on your web server, see the ILI
 https://www.ilias.de/docu/goto_docu_pg_8240_367.html
 
 Additionally, you need to install the cron job plugin TestArchiveCron:
-https://github.com/ilifau/TestArchiveCron
+https://github.com/DatabayAG/TestArchiveCron
 
 1. Install and activate this plugin.
 2. Go to Administration > General Settings > Cron Jobs
