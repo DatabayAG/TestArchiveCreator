@@ -2,7 +2,7 @@
 
 Copyright (c) 2017-2023 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 
-**Further maintenance is provided by [Databay AG](https://www.databay.de).**
+**Further maintenance can be offered by [Databay AG](https://www.databay.de).**
 
 Versions: see [Changelog](CHANGELOG.md). Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
