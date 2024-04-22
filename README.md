@@ -3,7 +3,7 @@
 Copyright (c) 2017-2019 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
 GPLv3, see LICENSE
 
-**Further maintenance is provided by [Databay AG](https://www.databay.de).**
+**Further maintenance can be offered by [Databay AG](https://www.databay.de).**
 
 This plugin for the LMS ILIAS open source allows the creation of zipped archives with PDF files for written tests.
 It requires an installation of PhantomJS on the ILIAS server.
