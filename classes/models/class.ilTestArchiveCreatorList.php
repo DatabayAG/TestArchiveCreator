@@ -93,7 +93,7 @@ class ilTestArchiveCreatorList
 		{
 			foreach ($row as $column)
 			{
-				$writer->addColumn($column);
+				$writer->addColumn((string) $column);
 			}
             $writer->addRow();
 		}
