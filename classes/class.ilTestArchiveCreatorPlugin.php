@@ -253,7 +253,8 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
             $dic->http()->wrapper()->post(),
             $own_wrapper,
             $dic->refinery(),
-            $dic["component.factory"]
+            $dic["component.factory"],
+            new ilCtrlQueryRegexParser()
         );
 
         // add helper function to DI container that

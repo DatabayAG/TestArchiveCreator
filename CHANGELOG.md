@@ -2,6 +2,10 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 1.6.2 for ILIAS 8.11+ (2024-06-25)
+- fix cron job failure due to changed ilCtrl interface since ILIAS 8.11
+- update the link to the cron job plugin repository
+
 ## 1.6.1 for ILIAS 8 (2024-03-24)
 - fixed 0040794: Description regarding sample solutions is not precise
 - fixed 0040728: Text Subset Question with problematic display of best solution in html

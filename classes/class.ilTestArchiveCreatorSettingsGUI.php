@@ -329,7 +329,7 @@ class ilTestArchiveCreatorSettingsGUI
 			$form->setValuesByPost();
             $this->prepareOutput();
 			$this->tpl->setContent($form->getHTML());
-			$this->tpl->show();
+            $this->tpl->printToStdout();
 			return;
 		}
 		$this->settings->status = $form->getInput('status');

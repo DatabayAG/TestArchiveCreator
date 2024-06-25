@@ -80,7 +80,7 @@ random_questions_used#:#Nur verwendete Fragen aufnehmen
 reached_points_of#:#%s von %s
 given_answer#:#Abgegebene Antwort
 answers_hash#:#Hash (sha1)
-message_cron_plugin_inactive#:#Bitte installieren und aktivieren Sie das Plugin TestArchiveCron (https://github.com/ilifau/TestArchiveCron), um die zeitgesteuerte Archivierung zu nutzen.
+message_cron_plugin_inactive#:#Bitte installieren und aktivieren Sie das Plugin TestArchiveCron (https://github.com/DatabayAG/TestArchiveCron), um die zeitgesteuerte Archivierung zu nutzen.
 keep_creation_directory#:#Verzeichnis behalten
 keep_creation_directory_info#:#Das Verzeichnis der Archiv-Erzeugung soll nach dem Packen als ZIP-Datei nicht gelöscht werden. Es ist im geschützten ILIAS-Datenverzeichnis unter tst_data/archive_plugin/tst_123 zu finden, wobei 123 die Objekt-ID des Tests ist.
 questions_csv#:#Fragenliste (CSV)
