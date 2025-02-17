@@ -382,7 +382,10 @@ class ilTestArchiveCreator
 		{
 			if (is_object($userdata) && is_array($userdata->getPasses()))
 			{
-				$user = new ilObjUser($userdata->getUserID());
+				$user = new ilObjUser($userdata->getUserID() ?? 0);
+                if ($user->getId() == 0) {
+                    $user->setLastname($this->lng->txt("deleted_user"));
+                }
 
 				// pass selection
 				switch($this->settings->pass_selection)

@@ -2,6 +2,9 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 1.6.3 for ILIAS 8.11+ (2025-02-17)
+- fix archive creation for test with deleted user account of participant
+
 ## 1.6.2 for ILIAS 8.11+ (2024-06-25)
 - fix cron job failure due to changed ilCtrl interface since ILIAS 8.11
 - update the link to the cron job plugin repository
