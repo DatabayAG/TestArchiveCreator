@@ -210,7 +210,6 @@ class ilTestArchiveCreatorSettingsGUI
 
         $schedule = new ilDateTimeInputGUI($this->plugin->txt('schedule'), 'schedule');
         $schedule->setShowTime(true);
-        $schedule->setShowSeconds(false);
         $schedule->setMinuteStepSize(10);
         $schedule->setDate($this->settings->schedule);
         $schedule->setInfo($this->plugin->txt('schedule_info'));

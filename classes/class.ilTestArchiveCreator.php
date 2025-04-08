@@ -2,8 +2,9 @@
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 use ILIAS\Filesystem\Filesystem;
-use ILIAS\TestQuestionPool\QuestionInfoService;
+use ILIAS\TestQuestionPool\Questions\PublicInterface as QuestionService;
 use ILIAS\Filesystem\Util\Archive\LegacyArchives;
+use ILIAS\Test\Scoring\Settings\Settings as ScoringSettings;
 
 /**
  * Creation of test archives
@@ -13,7 +14,7 @@ class ilTestArchiveCreator
     protected ilDBInterface $db;
     protected ilLanguage $lng;
     protected Filesystem $storage;
-    protected QuestionInfoService $question_info;
+    protected QuestionService $question_info;
     protected LegacyArchives $legacy_archives;
     protected ilSetting $ilias_settings;
     protected ilIniFile $client_ini;
@@ -56,7 +57,7 @@ class ilTestArchiveCreator
         $this->db = $DIC->database();
         $this->lng = $DIC->language();
         $this->storage = $DIC->filesystem()->storage();
-        $this->question_info = $DIC->testQuestionPool()->questionInfo();
+        $this->question_info = $DIC->testQuestion();
         $this->legacy_archives = $DIC->legacyArchives();
         $this->ilias_settings = $DIC->settings();
         $this->client_ini = $DIC->clientIni();
@@ -253,8 +254,8 @@ class ilTestArchiveCreator
             (int) ($this->testObj->getProcessingTimeInSeconds() / 60) . ' ' . $this->lng->txt('minutes') : $this->lng->txt('unlimited');
         $info[$this->lng->txt("tst_shuffle_questions")] = $this->testObj->getShuffleQuestions() ?
             $this->lng->txt("tst_shuffle_questions_description") : $this->lng->txt('no');
-        $info[$this->lng->txt("tst_text_count_system")] = $this->lng->txt(($this->testObj->getCountSystem() == COUNT_PARTIAL_SOLUTIONS) ? "tst_count_partial_solutions" : "tst_count_correct_solutions");
-        $info[$this->lng->txt("tst_pass_scoring")] = $this->lng->txt(($this->testObj->getPassScoring() == SCORE_BEST_PASS) ? "tst_pass_best_pass" : "tst_pass_last_pass");
+        $info[$this->lng->txt("tst_text_count_system")] = $this->lng->txt(($this->testObj->getCountSystem() == ScoringSettings::COUNT_PARTIAL_SOLUTIONS) ? "tst_count_partial_solutions" : "tst_count_correct_solutions");
+        $info[$this->lng->txt("tst_pass_scoring")] = $this->lng->txt(($this->testObj->getPassScoring() == ilObjTest::SCORE_BEST_PASS) ? "tst_pass_best_pass" : "tst_pass_last_pass");
 
         // get the mark scheme
         $scheme = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorMark($this));
@@ -353,7 +354,7 @@ class ilTestArchiveCreator
                 $users[$log['user_fi']] = ilObjUser::_lookupName((int) $log['user_fi']);
             }
             if (isset($log['question_fi']) && !isset($titles[$log['question_fi']])) {
-                $titles[$log['question_fi']] = $this->question_info->getQuestionTitle((int) $log['question_fi']);
+                $titles[$log['question_fi']] = $this->question_info->getGeneralQuestionProperties((int) $log['question_fi'])?->getTitle() ?? '';
             }
 
             $entry = new ilTestArchiveCreatorLogEntry($this);

@@ -32,7 +32,8 @@ class ilTestArchiveCreatorHTML
     public function initMainTemplate(): void
     {
         // we need to rewrite the main template
-        $this->tpl = new ilTestArchiveCreatorTemplate($this->plugin->getDirectory() . "/templates/tpl.content_page.html", true, true);
+        $this->tpl = new ilTestArchiveCreatorTemplate("tpl.content_page.html", true, true,
+            $this->plugin->getModuleForTemplates());
         $GLOBALS['tpl'] = $this->tpl;
 
         // things that would normally be added by the standard global template or the test output GUI
@@ -77,7 +78,8 @@ class ilTestArchiveCreatorHTML
     public function buildContent(string $title = '', string $description = '', string $content = '', bool $for_pdf = false): string
     {
         // allow separate building for HTML and PDF based on the same main template after content is rendered with it
-        $tpl = new ilTestArchiveCreatorTemplate($this->plugin->getDirectory() . "/templates/tpl.content_page.html", true, true);
+        $tpl = new ilTestArchiveCreatorTemplate("tpl.content_page.html", true, true,
+            $this->plugin->getModuleForTemplates());
         $tpl->getDataFrom($this->tpl);
 
 

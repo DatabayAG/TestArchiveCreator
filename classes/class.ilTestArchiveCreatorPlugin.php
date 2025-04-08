@@ -12,6 +12,8 @@ use ILIAS\DI\Container;
  */
 class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 {
+    private const PATH_IN_PUBLIC = 'Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator';
+
     public const PASS_ALL = 'all';
     public const PASS_SCORED = 'scored';
 
@@ -80,9 +82,24 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
      */
     public function getAssetsUrl(int $obj_id): string
     {
-        return ILIAS_HTTP_PATH . '/' . $this->getDirectory() . '/assets.php/' . $obj_id;
+        return ILIAS_HTTP_PATH . '/' . self::PATH_IN_PUBLIC . '/assets.php/' . $obj_id;
     }
 
+    /**
+     * Get the module for loading templates
+     */
+    public function getModuleForTemplates(): string
+    {
+        return 'public/' . self::PATH_IN_PUBLIC;
+    }
+
+    /**
+     * Get a template of the plugin
+     */
+    public function getTemplate(string $a_template, bool $a_par1 = true, bool $a_par2 = true): ilTemplate
+    {
+        return new ilTemplate( $a_template, $a_par1, $a_par2, self::getModuleForTemplates());
+    }
 
     /**
      * Get the archive creator
@@ -97,7 +114,9 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
      */
     public function isTestLogActive(): bool
     {
-        return ilObjAssessmentFolder::_enabledAssessmentLogging();
+        /** @var \ILIAS\Test\Settings\GlobalSettings\Repository $repository */
+        $repository = \ILIAS\Test\TestDIC::dic()['settings.global.repository'];
+        return $repository->getLoggingSettings()->isLoggingEnabled();
     }
 
     /**
