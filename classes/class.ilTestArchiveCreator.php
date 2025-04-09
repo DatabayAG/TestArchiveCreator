@@ -5,12 +5,18 @@ use ILIAS\Filesystem\Filesystem;
 use ILIAS\TestQuestionPool\Questions\PublicInterface as QuestionService;
 use ILIAS\Filesystem\Util\Archive\LegacyArchives;
 use ILIAS\Test\Scoring\Settings\Settings as ScoringSettings;
+use ILIAS\Test\TestDIC;
+use ILIAS\Test\ExportImport\Factory as ExportImportFactory;
+use ILIAS\Test\ExportImport\Types as ExportImportTypes;
+use ILIAS\Test\ExportImport\ResultsExportExcel;
+use ILIAS\Test\Logging\TestLoggingRepository;
 
 /**
  * Creation of test archives
  */
 class ilTestArchiveCreator
 {
+
     protected ilDBInterface $db;
     protected ilLanguage $lng;
     protected Filesystem $storage;
@@ -19,6 +25,8 @@ class ilTestArchiveCreator
     protected ilSetting $ilias_settings;
     protected ilIniFile $client_ini;
     protected ilVersionControlInformation $git_info;
+    protected ExportImportFactory $test_export_factory;
+    private TestLoggingRepository $test_logging_repository;
 
     public ilTestArchiveCreatorPlugin $plugin;
     public ilTestArchiveCreatorConfig $config;
@@ -67,6 +75,10 @@ class ilTestArchiveCreator
         $this->config = $plugin->getConfig();
         $this->settings = $plugin->getSettings($obj_id);
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
+
+        $test_dic = TestDIC::dic();
+        $this->test_export_factory = $test_dic['exportimport.factory'];
+        $this->test_logging_repository = $test_dic['logging.repository'];
 
         $this->obj_id = $obj_id;
         $this->testObj = new ilTestArchiveCreatorTest($obj_id, false, 0);
@@ -191,9 +203,8 @@ class ilTestArchiveCreator
             $tpl->setVariable('TXT_EXAMINATION_PROTOCOL_HTML', $this->plugin->txt('examination_protocol_html'));
         }
 
-        if ($this->storage->has($this->workdir . '/results.csv')) {
+        if ($this->storage->has($this->workdir . '/results.xlsx')) {
             $tpl->setVariable('TXT_TEST_RESULTS_XLSX', $this->plugin->txt('test_results_xlsx'));
-            $tpl->setVariable('TXT_TEST_RESULTS_CSV', $this->plugin->txt('test_results_csv'));
         }
 
         if ($this->settings->include_questions) {
@@ -315,29 +326,18 @@ class ilTestArchiveCreator
         // we need to create new test objects
         // otherwise the first generation causes empty results in the second
         // ANONYMOUS_USED_ID needed to prevent error with deleted accounts
+        $test_obj = new ilTestArchiveCreatorTest($this->obj_id, false, ANONYMOUS_USER_ID);
 
-        $data = (new ilCSVTestExport(
-            (new ilTestArchiveCreatorTest($this->obj_id, false, ANONYMOUS_USER_ID)),
-            ilTestEvaluationData::FILTER_BY_NONE,
-            '',
-            false,
-            true
-        ))
-            ->withAllResults()
-            ->getContent();
-        $this->createFile('results.csv', $data);
+        $exporter = $this->test_export_factory->getExporter($this->testObj, match($this->settings->pass_selection) {
+            ilTestArchiveCreatorPlugin::PASS_SCORED => ExportImportTypes::SCORED_ATTEMPT,
+            default => ExportImportTypes::ALL_ATTEMPTS,
+        });
 
-        $worksheet = (new ilExcelTestExport(
-            (new ilTestArchiveCreatorTest($this->obj_id, false, ANONYMOUS_USER_ID)),
-            ilTestEvaluationData::FILTER_BY_NONE,
-            '',
-            false,
-            true
-        ))
-            ->withResultsPage()
-            ->withUserPages()
-            ->getContent();
-        $worksheet->writeToFile(CLIENT_DATA_DIR . '/' . $this->workdir . '/results.xlsx');
+        $absolute_path = $exporter->write();
+        $source_fs = $this->filesystems->deriveFilesystemFrom($absolute_path);
+        $relative_path = $this->filesystems->createRelativePath($absolute_path);
+
+        $this->storage->writeStream($this->workdir . '/results.xlsx' , $source_fs->readStream($relative_path));
     }
 
     /**
@@ -345,7 +345,7 @@ class ilTestArchiveCreator
      */
     public function handleTestLog(): void
     {
-        $log_list = \ilObjAssessmentFolder::getLog(0, 9999999999, $this->testObj->getId());
+        $log_list = $this->test_logging_repository->getLegacyLogsForObjId($this->testObj->getId());
 
         $users = [];
         $titles = [];
@@ -397,8 +397,6 @@ class ilTestArchiveCreator
      */
     protected function handleQuestions(): void
     {
-        $type_translations = ilObjQuestionPool::getQuestionTypeTranslations();
-
         // Title for header in PDFs
         $title = $this->testObj->getTitle() . ' [' . $this->plugin->buildExamId($this->testObj) . ']';
         $description = $this->testObj->getDescription();
@@ -426,27 +424,28 @@ class ilTestArchiveCreator
             $content = $question_gui->getPreview(true);
             $content = $this->addILIASPage((int) $question_id, $content);
 
-            $question = $question_gui->object;
+            $properties = $this->question_info->getGeneralQuestionProperties($question_id);
+
 
             // add the list entry
             $element = new ilTestArchiveCreatorQuestion($this);
             $element->question_id = (int) $question_id;
             $element->exam_question_id = (string) $this->plugin->buildExamQuestionId($this->testObj, $question_id);
-            $element->title = (string) $question->getTitle();
-            $element->type = (string) $type_translations[$question->getQuestionType()];
-            $element->max_points = (float) $question->getMaximumPoints();
+            $element->title = (string)  $properties->getTitle();
+            $element->type = (string) $properties->getTypeName($this->lng);
+            $element->max_points = (float) $properties->getAvailablePoints();
             $this->questions->add($element);
 
             // create presentation files
             $tpl = $this->plugin->getTemplate('tpl.question.html');
             $tpl->setVariable('QUESTION_ID', $question_id);
-            $tpl->setVariable('TITLE', $question->getTitle());
+            $tpl->setVariable('TITLE',  $properties->getTitle());
             $tpl->setVariable('CONTENT', $content);
 
             $question_dir = 'questions/' . $element->getFolderName();
             $file = $question_dir . '/' . $element->getFilePrefix() . '_presentation';
             $element->presentation = $file;
-            $this->createContent($file, $title, $description, $tpl->get(), $title, $question->getTitle());
+            $this->createContent($file, $title, $description, $tpl->get(), $title,  $properties->getTitle());
 
             if ($this->settings->questions_with_best_solution) {
                 // re-initialize the template and gui for a new generation
@@ -467,15 +466,15 @@ class ilTestArchiveCreator
                 // create best solution files
                 $tpl = $this->plugin->getTemplate('tpl.question.html');
                 $tpl->setVariable('QUESTION_ID', $question_id);
-                $tpl->setVariable('TITLE', $question->getTitle());
+                $tpl->setVariable('TITLE', $properties->getTitle());
                 $tpl->setVariable('CONTENT', $content);
 
                 $file = $question_dir . '/' . $element->getFilePrefix() . '_best_solution';
                 $element->best_solution = $file;
-                $this->createContent($file, $title, $description, $tpl->get(), $title, $question->getTitle());
+                $this->createContent($file, $title, $description, $tpl->get(), $title, $properties->getTitle());
             }
 
-            unset($question_gui, $question);
+            unset($question_gui);
         }
     }
 

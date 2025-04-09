@@ -38,9 +38,9 @@ use ILIAS\Filesystem\Provider\FlySystem\FlySystemFilesystemFactory;
  */
 class ilTestArchiveCreatorFileSystems
 {
-    protected Filesystem $modules;
-    protected Filesystem $services;
-    protected Filesystem $templates;
+    protected Filesystem $assets;
+    protected Filesystem $components;
+    protected Filesystem $customizing;
 
     public function __construct()
     {
@@ -49,9 +49,10 @@ class ilTestArchiveCreatorFileSystems
         /** @var DelegatingFilesystemFactory $factory */
         $factory = $DIC['filesystem.factory'];
 
-        $this->modules = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/Modules'), true);
-        $this->services = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/Services'), true);
-        $this->templates = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/templates'), true);
+
+        $this->assets = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/assets'), true);
+        $this->components = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/components'), true);
+        $this->customizing = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/Customizing'), true);
     }
 
     /**
@@ -72,12 +73,12 @@ class ilTestArchiveCreatorFileSystems
     private function systemsByPath(): array
     {
         return [
-            './Modules' => $this->modules,
-            './Services' => $this->services,
-            './templates' => $this->templates,
-            ILIAS_ABSOLUTE_PATH . '/Modules' => $this->modules,
-            ILIAS_ABSOLUTE_PATH . '/Services' => $this->services,
-            ILIAS_ABSOLUTE_PATH . '/templates' => $this->templates,
+            './assets' => $this->assets,
+            './components' => $this->components,
+            './Customizing' => $this->customizing,
+            ILIAS_ABSOLUTE_PATH . '/public/assets' => $this->assets,
+            ILIAS_ABSOLUTE_PATH . '/public/components' => $this->components,
+            ILIAS_ABSOLUTE_PATH . '/public/Customizing' => $this->customizing,
         ];
     }
 
