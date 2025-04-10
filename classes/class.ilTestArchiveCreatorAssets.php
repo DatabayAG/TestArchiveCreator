@@ -5,6 +5,7 @@ use ILIAS\Filesystem\Exception\FileAlreadyExistsException;
 use ILIAS\Filesystem\Exception\FileNotFoundException;
 use ILIAS\Filesystem\Exception\IOException;
 use ILIAS\ResourceStorage\Services;
+use ILIAS\Filesystem\Stream\Stream;
 
 class ilTestArchiveCreatorAssets
 {
@@ -172,7 +173,28 @@ class ilTestArchiveCreatorAssets
                         $this->storage->writeStream($this->storage_path . '/' . $asset_name, $consumer->getStream());
                     }
                 }
-            } elseif (isset($parsed['path'])) {
+            } elseif (empty($parsed['host']) &&
+                strpos($parsed['path'] ?? '', 'deliver.php') !== false
+            ) {
+                // url is a local file delivery
+                $info = pathinfo($parsed['path']);
+                $extension = $info['extension'] ?? '';
+
+                $asset_name = sha1($url) . '.' . $extension;
+                $sec_name = sha1($url) . '.' . $extension . '.sec';
+
+                if ($this->copy_assets
+                    && !$this->storage->has($this->storage_path . '/' . $asset_name)
+                    && !$this->storage->has($this->storage_path . '/' . $sec_name)
+                ) {
+                    $temp_file = $this->fetchFromLocalUrl($url);
+                    if ($temp_file !== null) {
+                        $fs = $this->filesystems->deriveFilesystemFrom($temp_file);
+                        $path = $this->filesystems->createRelativePath($temp_file);
+                        $this->storage->writeStream($this->storage_path . '/' . $asset_name, $fs->readStream($path));
+                    }
+                }
+            } elseif (!empty($parsed['path'])) {
                 // url is a direct path to an asset
 
                 $system = $this->filesystems->deriveFilesystemFrom($parsed['path']);
@@ -260,5 +282,30 @@ class ilTestArchiveCreatorAssets
     {
         $forbidden = ['php'];
         return !in_array(strtolower($extension), $forbidden);
+    }
+
+    /**
+     * Fetch an asset from a local url
+     * @return string absolute path of temporary file
+     */
+    protected function fetchFromLocalUrl(string $url): ?string
+    {
+        try {
+            $temp_file = ilFileUtils::ilTempnam();
+            $fp = fopen($temp_file, 'w');
+
+            $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_HEADER, false);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+            curl_setopt($curl, CURLOPT_FILE, $fp);
+            curl_exec($curl);
+            curl_close($curl);
+            fclose($fp);
+
+            return $temp_file;
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 }

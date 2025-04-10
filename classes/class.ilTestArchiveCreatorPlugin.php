@@ -57,6 +57,13 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
         return $this->config;
     }
 
+    /**
+     * Get the plugin path in the public directory
+     */
+    public function getPathInPublic(): string
+    {
+        return self::PATH_IN_PUBLIC;
+    }
 
     /**
      * Get the settings for a test object
@@ -98,7 +105,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
      */
     public function getTemplate(string $a_template, bool $a_par1 = true, bool $a_par2 = true): ilTemplate
     {
-        return new ilTemplate( $a_template, $a_par1, $a_par2, self::getModuleForTemplates());
+        return new ilTemplate($a_template, $a_par1, $a_par2, self::getModuleForTemplates());
     }
 
     /**

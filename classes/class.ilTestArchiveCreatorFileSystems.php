@@ -73,6 +73,9 @@ class ilTestArchiveCreatorFileSystems
     private function systemsByPath(): array
     {
         return [
+            'assets' => $this->assets,
+            'components' => $this->components,
+            'Customizing' => $this->customizing,
             './assets' => $this->assets,
             './components' => $this->components,
             './Customizing' => $this->customizing,
@@ -226,7 +229,7 @@ class ilTestArchiveCreatorFileSystems
 
         $segments = explode('/', trim($path, '/'));
         $ret = array();
-        foreach($segments as $segment) {
+        foreach ($segments as $segment) {
             if (($segment == '.') || strlen($segment) === 0) {
                 continue;
             }
