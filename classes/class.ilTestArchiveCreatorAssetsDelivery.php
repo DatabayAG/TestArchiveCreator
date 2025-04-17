@@ -30,7 +30,7 @@ class ilTestArchiveCreatorAssetsDelivery
 
         // Find and deliver asset
         try {
-            $ini = new ilIniFile("./ilias.ini.php");
+            $ini = new ilIniFile("../ilias.ini.php");
             $ini->read();
             $data_dir = $ini->readVariable("clients", "datadir");
             $client_id = $ini->readVariable("clients", "default");
@@ -75,17 +75,9 @@ class ilTestArchiveCreatorAssetsDelivery
      */
     protected function deliver(string $path, string $disposition = 'inline'): void
     {
-        // don't normalize because this would check if path is in web data directory
-        $wacPath = new ilWACPath($path, false);
-
-        $ilFileDelivery = new Delivery($path, $this->http);
-        $ilFileDelivery->setCache(true);
-        $ilFileDelivery->setDisposition($disposition);
-
-        if ($wacPath->isStreamable()) { // fixed 0016468
-            $ilFileDelivery->stream();
-        } else {
-            $ilFileDelivery->deliver();
-        }
+        $delivery = new Delivery($path, $this->http);
+        $delivery->setCache(true);
+        $delivery->setDisposition($disposition);
+        $delivery->deliver();
     }
 }

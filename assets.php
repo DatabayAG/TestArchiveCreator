@@ -6,8 +6,9 @@
  * @see wac.php
  */
 
-chdir('../../../../../../../');
-require_once('./libs/composer/vendor/autoload.php');
+chdir(__DIR__ . '/../../../../../../../');
+
+require_once('../vendor/composer/vendor/autoload.php');
 
 
 $container = new \ILIAS\DI\Container();
