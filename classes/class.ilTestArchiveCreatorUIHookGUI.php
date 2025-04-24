@@ -1,8 +1,7 @@
 <?php
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
-
-
+use ILIAS\Test\Presentation\TabsManager;
 
 /**
  * User interface hook class
@@ -33,8 +32,8 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
         array $a_par = array()
     ): void {
         switch ($a_part) {
-            //case 'tabs':
-            case 'sub_tabs':
+
+            case 'tabs':
 
                 // must be done here because ctrl and tabs are not initialized for all calls
                 global $DIC;
@@ -42,66 +41,25 @@ class ilTestArchiveCreatorUIHookGUI extends ilUIHookPluginGUI
                 $this->tabs = $DIC->tabs();
 
                 // Export tab is shown
-                if (strtolower($this->ctrl->getCmdClass()) == 'iltestexportgui') {
-                    $this->saveTabs('iltestexportgui');
-                    $this->modifyExportToolbar();
+                if ($this->ctrl->getCmdClass() == strtolower(ilTestExportGUI::class)) {
+                    ilSession::set('TestArchiveCreatorTabs', $this->tabs->target);
+                    $this->tabs->activateTab(TabsManager::TAB_ID_EXPORT);
+                    $gui = new ilTestArchiveCreatorSettingsGUI();
+                    $gui->modifyExportToolbar();
+
                 }
 
                 // Archive Creator settings are shown
-                if (strtolower($this->ctrl->getCmdClass()) == 'iltestarchivecreatorsettingsgui') {
-                    $this->restoreTabs('iltestexportgui');
+                if ($this->ctrl->getCmdClass() == strtolower(ilTestArchiveCreatorSettingsGUI::class)) {
+                    if (ilSession::has('TestArchiveCreatorTabs')) {
+                        $this->tabs->target = (array) ilSession::get('TestArchiveCreatorTabs');
+                        $this->tabs->activateTab(TabsManager::TAB_ID_EXPORT);
+                    }
                 }
-
                 break;
 
             default:
                 break;
         }
-    }
-
-    /**
-     * Save the tabs for reuse on the plugin pages
-     * @param string $a_context context for which the tabs should be saved
-     */
-    protected function saveTabs(string $a_context): void
-    {
-        $_SESSION['TestArchiveCreator'][$a_context]['TabTarget'] = $this->tabs->target;
-        $_SESSION['TestArchiveCreator'][$a_context]['TabSubTarget'] = $this->tabs->sub_target;
-    }
-
-    /**
-     * Restore the tabs for reuse on the plugin pages
-     * @param string $a_context context for which the tabs should be saved
-     */
-    protected function restoreTabs($a_context): void
-    {
-        // reuse the tabs that were saved from the parent gui
-        if (isset($_SESSION['TestArchiveCreator'][$a_context]['TabTarget'])) {
-            $this->tabs->target = $_SESSION['TestArchiveCreator'][$a_context]['TabTarget'];
-        }
-        if (isset($_SESSION['TestArchiveCreator'][$a_context]['TabSubTarget'])) {
-            $this->tabs->sub_target = $_SESSION['TestArchiveCreator'][$a_context]['TabSubTarget'];
-        }
-
-        if ($a_context == 'iltestexportgui') {
-            if (!empty($this->tabs->target)) {
-                foreach ($this->tabs->target as $td) {
-                    if (strpos(strtolower($td['link']), 'iltestexportgui') !== false) {
-                        // this works when done in handler for the sub_tabs
-                        // because the tabs are rendered after the sub tabs
-                        $this->tabs->activateTab($td['id']);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Modify the toolbar of the metadata editor
-     */
-    protected function modifyExportToolbar(): void
-    {
-        $gui = new ilTestArchiveCreatorSettingsGUI();
-        $gui->modifyExportToolbar();
     }
 }
