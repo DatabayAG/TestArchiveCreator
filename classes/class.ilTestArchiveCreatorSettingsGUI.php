@@ -43,7 +43,8 @@ class ilTestArchiveCreatorSettingsGUI
 
         $this->lng->loadLanguageModule('assessment');
 
-        $this->testObj = new ilObjTest($_GET['ref_id'], true);
+        $ref_id = $DIC->http()->wrapper()->query()->retrieve('ref_id', $DIC->refinery()->kindlyTo()->int());
+        $this->testObj = new ilObjTest($ref_id, true);
 
         /** @var ilComponentFactory $factory */
         $factory = $DIC["component.factory"];
