@@ -2,58 +2,60 @@
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 use ILIAS\Filesystem\Filesystem;
+use ILIAS\Filesystem\Util\Archive\Archives;
+use ILIAS\Filesystem\Util\Archive\ZipDirectoryHandling;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
 use ILIAS\TestQuestionPool\Questions\PublicInterface as QuestionService;
-use ILIAS\Filesystem\Util\Archive\LegacyArchives;
 use ILIAS\Test\Scoring\Settings\Settings as ScoringSettings;
 use ILIAS\Test\TestDIC;
 use ILIAS\Test\ExportImport\Factory as ExportImportFactory;
 use ILIAS\Test\ExportImport\Types as ExportImportTypes;
-use ILIAS\Test\ExportImport\ResultsExportExcel;
 use ILIAS\Test\Logging\TestLoggingRepository;
+use ILIAS\Test\ExportImport\DBRepository as TestExportImportRepository;
 
 /**
  * Creation of test archives
  */
 class ilTestArchiveCreator
 {
-
-    protected ilDBInterface $db;
-    protected ilLanguage $lng;
-    protected Filesystem $storage;
-    protected QuestionService $question_info;
-    protected LegacyArchives $legacy_archives;
-    protected ilSetting $ilias_settings;
-    protected ilIniFile $client_ini;
-    protected ilVersionControlInformation $git_info;
-    protected ExportImportFactory $test_export_factory;
-    private TestLoggingRepository $test_logging_repository;
-
+    // used by other classes
     public ilTestArchiveCreatorPlugin $plugin;
     public ilTestArchiveCreatorConfig $config;
     public ilTestArchiveCreatorSettings $settings;
     public ilTestArchiveCreatorFileSystems $filesystems;
 
-    protected ilTestArchiveCreatorAssets $assetsProcessor;
-    protected ilTestArchiveCreatorHTML $htmlCreator;
-    protected ?ilTestArchiveCreatorPDF $pdfCreator = null;
+    private ilLanguage $lng;
+    private Filesystem $storage;
+    private ResourceStorage $resource_storage;
+    private QuestionService $question_info;
+    private ilSetting $ilias_settings;
+    private ilIniFile $client_ini;
+    private ilVersionControlInformation $git_info;
+    private Archives $archives;
+    private ExportImportFactory $test_export_factory;
+    private TestLoggingRepository $test_logging_repository;
+    private TestExportImportRepository $test_export_import_repository;
 
-    protected ilTestArchiveCreatorList $questions;
-    protected ilTestArchiveCreatorList $participants;
-    protected ilTestArchiveCreatorList $assets;
-    protected ilTestArchiveCreatorList $testlog;
+    private ilTestArchiveCreatorAssets $assetsProcessor;
+    private ilTestArchiveCreatorHTML $htmlCreator;
+    private ?ilTestArchiveCreatorPDF $pdfCreator = null;
 
-    protected $obj_id;
-    public ilObjTest $testObj;
+    private ilTestArchiveCreatorList $questions;
+    private ilTestArchiveCreatorList $participants;
+    private ilTestArchiveCreatorList $assets;
+    private ilTestArchiveCreatorList $testlog;
+
+    private int $obj_id;
+    private ilObjTest $testObj;
 
     /** @var string relative path of the working directory in the storage */
-    protected string $workdir;
+    private string $workdir;
 
     /** @var string[] error messages collected during generation */
-    protected array $errors = [];
+    private array $errors = [];
 
     /** @var  bool[] $usedQuestionIds question_id  => true  */
-    protected array $usedQuestionIds = [];
-
+    private array $usedQuestionIds = [];
 
     /**
      * Constructor
@@ -62,23 +64,24 @@ class ilTestArchiveCreator
     {
         global $DIC;
 
-        $this->db = $DIC->database();
-        $this->lng = $DIC->language();
-        $this->storage = $DIC->filesystem()->storage();
-        $this->question_info = $DIC->testQuestion();
-        $this->legacy_archives = $DIC->legacyArchives();
-        $this->ilias_settings = $DIC->settings();
-        $this->client_ini = $DIC->clientIni();
-        $this->git_info = new ilGitInformation();
-
         $this->plugin = $plugin;
         $this->config = $plugin->getConfig();
         $this->settings = $plugin->getSettings($obj_id);
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
 
+        $this->lng = $DIC->language();
+        $this->storage = $DIC->filesystem()->storage();
+        $this->resource_storage = $DIC->resourceStorage();
+        $this->question_info = $DIC->testQuestion();
+        $this->ilias_settings = $DIC->settings();
+        $this->client_ini = $DIC->clientIni();
+        $this->git_info = new ilGitInformation();
+        $this->archives = new Archives();
+
         $test_dic = TestDIC::dic();
         $this->test_export_factory = $test_dic['exportimport.factory'];
         $this->test_logging_repository = $test_dic['logging.repository'];
+        $this->test_export_import_repository = $test_dic['exportimport.repository'];
 
         $this->obj_id = $obj_id;
         $this->testObj = new ilTestArchiveCreatorTest($obj_id, false, 0);
@@ -337,7 +340,7 @@ class ilTestArchiveCreator
         $source_fs = $this->filesystems->deriveFilesystemFrom($absolute_path);
         $relative_path = $this->filesystems->createRelativePath($absolute_path);
 
-        $this->storage->writeStream($this->workdir . '/results.xlsx' , $source_fs->readStream($relative_path));
+        $this->storage->writeStream($this->workdir . '/results.xlsx', $source_fs->readStream($relative_path));
     }
 
     /**
@@ -431,7 +434,7 @@ class ilTestArchiveCreator
             $element = new ilTestArchiveCreatorQuestion($this);
             $element->question_id = (int) $question_id;
             $element->exam_question_id = (string) $this->plugin->buildExamQuestionId($this->testObj, $question_id);
-            $element->title = (string)  $properties->getTitle();
+            $element->title = (string) $properties->getTitle();
             $element->type = (string) $properties->getTypeName($this->lng);
             $element->max_points = (float) $properties->getAvailablePoints();
             $this->questions->add($element);
@@ -439,13 +442,13 @@ class ilTestArchiveCreator
             // create presentation files
             $tpl = $this->plugin->getTemplate('tpl.question.html');
             $tpl->setVariable('QUESTION_ID', $question_id);
-            $tpl->setVariable('TITLE',  $properties->getTitle());
+            $tpl->setVariable('TITLE', $properties->getTitle());
             $tpl->setVariable('CONTENT', $content);
 
             $question_dir = 'questions/' . $element->getFolderName();
             $file = $question_dir . '/' . $element->getFilePrefix() . '_presentation';
             $element->presentation = $file;
-            $this->createContent($file, $title, $description, $tpl->get(), $title,  $properties->getTitle());
+            $this->createContent($file, $title, $description, $tpl->get(), $title, $properties->getTitle());
 
             if ($this->settings->questions_with_best_solution) {
                 // re-initialize the template and gui for a new generation
@@ -912,21 +915,34 @@ class ilTestArchiveCreator
     protected function createZipFile(): bool
     {
         $export_dir = 'tst_data/archive_exports/tst_' . $this->testObj->getId();
-        $zip_file = 'test_archive_obj_' . $this->testObj->getId() . '_' . time() . '_plugin';
+        $title = 'test_archive_obj_' . $this->testObj->getId() . '_' . time() . '_plugin.zip';
 
         try {
             if (!$this->storage->hasDir($export_dir)) {
                 $this->storage->createDir($export_dir);
             }
 
-            $this->legacy_archives->zip(
-                CLIENT_DATA_DIR . '/' . $this->workdir,
-                CLIENT_DATA_DIR . '/' . $export_dir . '/' . $zip_file,
-                true
+            $zip = $this->archives->zip(
+                [],
+                $this->archives->zipOptions()
+                    ->withZipOutputPath(CLIENT_DATA_DIR . '/' . $export_dir)
+                    ->withZipOutputName($title)
+                    ->withDirectoryHandling(ZipDirectoryHandling::ENSURE_SINGLE_TOP_DIR)
             );
 
+            $zip->addDirectory(CLIENT_DATA_DIR . '/' . $this->workdir);
+
+            $id = $this->resource_storage->manage()->stream(
+                $zip->get(),
+                new ilTestArchiveCreatorStakeholder(),
+                $title
+            );
+
+            $this->test_export_import_repository->store($this->testObj->getId(), ExportImportTypes::PLUGIN, $id);
+            $this->storage->delete($export_dir . '/' . $title);
+
         } catch (Exception $exception) {
-            $this->errors[] = "ERROR writing $zip_file :" . $exception->getMessage();
+            $this->errors[] = "ERROR writing zip file" . $exception->getMessage();
             return false;
         }
 

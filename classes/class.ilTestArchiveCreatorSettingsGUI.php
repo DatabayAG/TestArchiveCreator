@@ -1,6 +1,7 @@
 <?php
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
+use ILIAS\DI\UIServices as UIServices;
 
 /**
  * GUI for Limited Media Control
@@ -19,6 +20,7 @@ class ilTestArchiveCreatorSettingsGUI
     protected ilTabsGUI $tabs;
     protected ilToolbarGUI $toolbar;
     protected ilGlobalTemplateInterface $tpl;
+    protected UIServices $ui_services;
     protected ilPlugin $plugin;
     protected ilTestArchiveCreatorConfig $config;
     protected ilTestArchiveCreatorSettings $settings;
@@ -37,6 +39,7 @@ class ilTestArchiveCreatorSettingsGUI
         $this->tabs = $DIC->tabs();
         $this->toolbar = $DIC->toolbar();
         $this->tpl = $DIC['tpl'];
+        $this->ui_services = $DIC->ui();
 
         $this->lng->loadLanguageModule('assessment');
 
@@ -60,23 +63,31 @@ class ilTestArchiveCreatorSettingsGUI
             // e.g delete confirmation is shown
             return;
         }
-        $this->toolbar->addSeparator();
-
 
         // hide the standard archive (not nice)
         if ($this->config->hide_standard_archive) {
-            foreach ($this->toolbar->getItems() as $item) {
-                /** @var ilSelectInputGUI $select */
-                if (isset($item['input']) && $item['input'] instanceof ilSelectInputGUI) {
-                    $select = $item['input'];
-                    if ($select->getPostVar() == 'format') {
-                        $options = $select->getOptions();
-                        unset($options['arc']);
-                        $select->setOptions($options);
+            $new_items = [];
+            foreach ($this->toolbar->getItems() as $tb_item) {
+                $type = $tb_item['type'] ?? null;
+                $component = $tb_item['component'] ?? null;
+
+                if ($type == 'component' && $component instanceof ILIAS\UI\Component\Dropdown\Standard) {
+                    $links = [];
+                    foreach ($component->getItems() as $link) {
+                        if (!str_contains($link->getAction(), 'test_exp_option_arc')) {
+                            $links[] = $link;
+                        }
                     }
-                }
+                    $tb_item['component'] = $this->ui_services->factory()->dropdown()->standard($links)
+                    ->withLabel($this->lng->txt("exp_export_dropdown"));
+                };
+                $new_items[] = $tb_item;
             }
+            $this->toolbar->setItems($new_items);
         }
+
+        $this->toolbar->addSeparator();
+
 
         // set the return target
         $this->ctrl->saveParameter($this, 'ref_id');
