@@ -544,21 +544,21 @@ class ilTestArchiveCreator
                         $info[$this->lng->txt('email')] = $user->getEmail();
 
                         $info[$this->plugin->txt('first_visit')] = ilDatePresentation::formatDate(
-                            new ilDateTime($userdata->getFirstVisit(), IL_CAL_UNIX)
+                            new ilDateTime($userdata->getFirstVisit()->getTimestamp(), IL_CAL_UNIX)
                         )
-                                . ' (' . $userdata->getFirstVisit() . ')';
+                                . ' (' . $userdata->getFirstVisit()->getTimestamp() . ')';
 
                         $info[$this->plugin->txt('last_visit')] = ilDatePresentation::formatDate(
-                            new ilDateTime($userdata->getLastVisit(), IL_CAL_UNIX)
+                            new ilDateTime($userdata->getLastVisit()->getTimestamp(), IL_CAL_UNIX)
                         )
-                                . ' (' . $userdata->getLastVisit() . ')';
+                                . ' (' . $userdata->getLastVisit()->getTimestamp() . ')';
 
                         $info[$this->plugin->txt('number_passes')] = $userdata->getPassCount();
                         $info[$this->plugin->txt('scored_pass')] = $userdata->getScoredPass() + 1;
                         $info[$this->plugin->txt('reached_points')] = $userdata->getReached();
-                        $info[$this->plugin->txt('mark_official')] = $userdata->getMarkOfficial();
-                        $info[$this->plugin->txt('mark_short')] = $userdata->getMark();
-                        $info[$this->plugin->txt('final_result')] = $userdata->getPassed() ?
+                        $info[$this->plugin->txt('mark_official')] = $userdata->getMark()->getOfficialName();
+                        $info[$this->plugin->txt('mark_short')] = $userdata->getMark()->getShortName();
+                        $info[$this->plugin->txt('final_result')] = $userdata->getMark()->getPassed() ?
                             $this->plugin->txt('passed') : $this->plugin->txt('not_passed');
 
                         foreach ($info as $label => $content) {
