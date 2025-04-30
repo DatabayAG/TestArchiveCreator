@@ -6,6 +6,7 @@ use ILIAS\Filesystem\Exception\FileNotFoundException;
 use ILIAS\Filesystem\Exception\IOException;
 use ILIAS\ResourceStorage\Services;
 use ILIAS\Filesystem\Stream\Stream;
+use ILIAS\Data\DataSize;
 
 class ilTestArchiveCreatorAssets
 {
@@ -211,7 +212,7 @@ class ilTestArchiveCreatorAssets
 
                         // process urls in the asset content
                         $content = null;
-                        if ($extension == 'css') {
+                        if ($extension == 'css' && $system->getSize($path, DataSize::Byte)->getSize() > 0) {
                             $content = $this->processStyle($system->read($path), $parsed['path'], true);
                         }
 

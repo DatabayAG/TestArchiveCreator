@@ -42,5 +42,9 @@
         </xsl:attribute>
     </xsl:template>
 
+    <xsl:template match="script/@type[string(.) = 'module']">
+        <!-- remove module attribute from script - this would produce in CORS error -->
+    </xsl:template>
+
 
 </xsl:stylesheet>
