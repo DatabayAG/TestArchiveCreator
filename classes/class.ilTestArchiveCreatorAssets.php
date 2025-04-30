@@ -151,7 +151,21 @@ class ilTestArchiveCreatorAssets
     protected function processUrl(string $url, bool $in_asset = false): string
     {
         try {
-            $parsed = parse_url(str_replace(ILIAS_HTTP_PATH, '.', $url));
+            // be prepared for different URL from web or cron job
+            $ilias_host = parse_url(ILIAS_HTTP_PATH, PHP_URL_HOST);
+            $with_public = str_ends_with(ILIAS_HTTP_PATH, 'public') ? ILIAS_HTTP_PATH : ILIAS_HTTP_PATH . '/public';
+            $without_public = !str_ends_with(ILIAS_HTTP_PATH, 'public') ? ILIAS_HTTP_PATH : substr(ILIAS_HTTP_PATH, -6);
+
+            // make URLs for own platform relative
+            if (str_starts_with($url, $with_public)) {
+                $to_parse = './' . ltrim(substr($url, strlen($with_public)), '/');
+            } elseif (str_starts_with($url, $without_public)) {
+                $to_parse = './' . ltrim(substr($url, strlen($without_public)), '/');
+            } else {
+                $to_parse = $url;
+            }
+            $parsed = parse_url($to_parse);
+
             $asset_name = null;
 
             if (!empty($resource_id = $this->getResourceId($parsed['query'] ?? ''))) {
@@ -174,8 +188,9 @@ class ilTestArchiveCreatorAssets
                         $this->storage->writeStream($this->storage_path . '/' . $asset_name, $consumer->getStream());
                     }
                 }
-            } elseif (empty($parsed['host']) &&
-                strpos($parsed['path'] ?? '', 'deliver.php') !== false
+            } elseif (
+                (empty($parsed['host']) || $parsed['host'] == $ilias_host)
+                && str_contains($parsed['path'] ?? '', 'deliver.php')
             ) {
                 // url is a local file delivery
                 $info = pathinfo($parsed['path']);
@@ -188,7 +203,9 @@ class ilTestArchiveCreatorAssets
                     && !$this->storage->has($this->storage_path . '/' . $asset_name)
                     && !$this->storage->has($this->storage_path . '/' . $sec_name)
                 ) {
-                    $temp_file = $this->fetchFromLocalUrl($url);
+                    $fetch_url = ILIAS_HTTP_PATH . '/deliver.php'
+                        . substr($parsed['path'], strpos($parsed['path'], 'deliver.php') + strlen('deliver.php'));
+                    $temp_file = $this->fetchFromUrl($fetch_url);
                     if ($temp_file !== null) {
                         $fs = $this->filesystems->deriveFilesystemFrom($temp_file);
                         $path = $this->filesystems->createRelativePath($temp_file);
@@ -286,10 +303,10 @@ class ilTestArchiveCreatorAssets
     }
 
     /**
-     * Fetch an asset from a local url
+     * Fetch an asset from an url
      * @return string absolute path of temporary file
      */
-    protected function fetchFromLocalUrl(string $url): ?string
+    protected function fetchFromUrl(string $url): ?string
     {
         try {
             $temp_file = ilFileUtils::ilTempnam();

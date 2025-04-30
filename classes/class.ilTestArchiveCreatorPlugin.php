@@ -236,9 +236,9 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
         try {
             $ctrl_structure = new ilCtrlStructure(
-                require $ilias_path . ilCtrlStructureArtifactObjective::ARTIFACT_PATH,
-                require $ilias_path . ilCtrlBaseClassArtifactObjective::ARTIFACT_PATH,
-                require $ilias_path . ilCtrlSecurityArtifactObjective::ARTIFACT_PATH
+                require  ilCtrlStructureArtifactObjective::PATH(),
+                require  ilCtrlBaseClassArtifactObjective::PATH(),
+                require  ilCtrlSecurityArtifactObjective::PATH()
             );
         } catch (Throwable $t) {
             throw new ilCtrlException(self::class . " could not require artifacts, try `composer du` first.");

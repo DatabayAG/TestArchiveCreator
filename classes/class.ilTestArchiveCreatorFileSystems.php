@@ -41,6 +41,7 @@ class ilTestArchiveCreatorFileSystems
     protected Filesystem $assets;
     protected Filesystem $components;
     protected Filesystem $customizing;
+    protected Filesystem $templates;
 
     public function __construct()
     {
@@ -53,6 +54,7 @@ class ilTestArchiveCreatorFileSystems
         $this->assets = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/assets'), true);
         $this->components = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/components'), true);
         $this->customizing = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/Customizing'), true);
+        $this->templates = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/templates'), true);
     }
 
     /**
@@ -76,12 +78,15 @@ class ilTestArchiveCreatorFileSystems
             'assets' => $this->assets,
             'components' => $this->components,
             'Customizing' => $this->customizing,
+            'templates' => $this->templates,
             './assets' => $this->assets,
             './components' => $this->components,
             './Customizing' => $this->customizing,
+            './templates' => $this->templates,
             ILIAS_ABSOLUTE_PATH . '/public/assets' => $this->assets,
             ILIAS_ABSOLUTE_PATH . '/public/components' => $this->components,
             ILIAS_ABSOLUTE_PATH . '/public/Customizing' => $this->customizing,
+            ILIAS_ABSOLUTE_PATH . '/templates' => $this->templates,
         ];
     }
 
