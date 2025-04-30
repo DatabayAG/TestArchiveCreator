@@ -89,7 +89,13 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
      */
     public function getAssetsUrl(int $obj_id): string
     {
-        return ILIAS_HTTP_PATH . '/' . self::PATH_IN_PUBLIC . '/assets.php/' . $obj_id;
+        // fix for call by cron job
+        $public = ILIAS_HTTP_PATH;
+        if (!str_ends_with($public, 'public')) {
+            $public .= '/public';
+        }
+
+        return $public . '/' . self::PATH_IN_PUBLIC . '/assets.php/' . $obj_id;
     }
 
     /**
@@ -232,13 +238,11 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
      */
     public function initCtrl(Container $dic, string $base_class, string $cmd_class): void
     {
-        $ilias_path = dirname(__FILE__, 9) . '/';
-
         try {
             $ctrl_structure = new ilCtrlStructure(
-                require $ilias_path . ilCtrlStructureArtifactObjective::ARTIFACT_PATH,
-                require $ilias_path . ilCtrlBaseClassArtifactObjective::ARTIFACT_PATH,
-                require $ilias_path . ilCtrlSecurityArtifactObjective::ARTIFACT_PATH
+                require  ilCtrlStructureArtifactObjective::PATH(),
+                require  ilCtrlBaseClassArtifactObjective::PATH(),
+                require  ilCtrlSecurityArtifactObjective::PATH()
             );
         } catch (Throwable $t) {
             throw new ilCtrlException(self::class . " could not require artifacts, try `composer du` first.");
