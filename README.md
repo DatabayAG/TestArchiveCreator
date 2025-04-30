@@ -45,6 +45,14 @@ Archive creation may take a long time for large tests. For this reason the plugi
 You need to set up a call of the ILIAS cron jobs on your web server, see the ILIAS installation guide:
 https://www.ilias.de/docu/goto_docu_pg_8240_367.html
 
+You also need to set a HTTP path in the file `ilias.ini.php`.This path is needed to load images for the archive and it can't
+be automatically determined in the context of a cron job. It must point to the public directory of ilias without a slash at the end.
+
+````
+[server]
+http_path = "https://ilias.your.domain/public"
+````
+
 Additionally, you need to install the cron job plugin TestArchiveCron:
 https://github.com/DatabayAG/TestArchiveCron
 
@@ -53,31 +61,10 @@ https://github.com/DatabayAG/TestArchiveCron
 3. Activate the 'Test Archive Creation' job
 4. Set a reasonable schedule for the job, e.h. hourly.
 
-Now you can set a time in the settings of the archive creation. When the cron job is called the time is due, it
+Now you can set a time in the settings of the archive creation. When the cron job is called and the time is due, it
 will create the archive.
 
-## Handling Assets
 
-Required asset files (styles, fonts and media) can now optionally be included in the archive. This is set in the plugin configuration.
-* If assets are included, the HTML pages for questions and participants will use them locally. In this case you don't need to generate PDFs in the archive.
-* If assets are not included, the html pages for questions and participants will use their original locations which are normally protected by the Web Access Checker (WAC) of ILIAS and can't be accessed when the archive is viewed later. In this case you should generate PDFs which have the assets embedded. 
-
-*Since version 1.5.2 the assets are delivered by the plugin for the PDF generation, so the following advice is no longer neccessary:*
-
-ILIAS does not sign all images for the WAC and the valid time of the signature may be too short for the rendering jobs of large archives. In this case the WAC tries to determine the access based on the user session. The plugin provides the session cookie, but the session based check of the WAC may take too long for the rendering timeout. A call from the TestArchiveCron plugin does not set the session cookie correctly.
-
-To prevent these problems, the best solution is to deactivate the WAC for rendering calls. If the renderer is installed on the same server, requests coming from this server can bypass the WAC.
-
-Edit `/etc/hosts` and add the hostname of your ILIAS installation to the localhost addresses This will keep all requests from the renderer on the same host.
-
-    127.0.0.1       localhost www.my-ilias-host.de
-    ::1             localhost ip6-localhost ip6-loopback www.my-ilias-host.de
-
-Edit `.htaccess` in the ILIAS root directory (or the copied settings in your Apache configuration, if you don't allow overrides). Add two condition before the rewrite rule for the WAC, so that it is only active for foreign requests:
-
-    RewriteCond %{REMOTE_ADDR} !=127.0.0.1
-    RewriteCond %{REMOTE_ADDR} !=::1
-	RewriteRule ^data/.*/.*/.*$ ./Services/WebAccessChecker/wac.php [L]
 
 
 ## Debugging of the PDF generation
