@@ -1,7 +1,7 @@
 <?php
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
-
+use ILIAS\DI\RBACServices as RBACServices;
 
 /**
  * Test archive creator configuration user interface class
@@ -19,6 +19,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
     protected ilTabsGUI $tabs;
     protected ilToolbarGUI $toolbar;
     protected ilGlobalTemplateInterface $tpl;
+    private RBACServices $rbac;
     /** @var ilTestArchiveCreatorPlugin */
     protected ilPlugin $plugin;
     protected ilTestArchiveCreatorConfig $config;
@@ -36,6 +37,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $this->tabs = $DIC->tabs();
         $this->toolbar = $DIC->toolbar();
         $this->tpl = $DIC->ui()->mainTemplate();
+        $this->rbac = $DIC->rbac();
 
         $this->lng->loadLanguageModule('assessment');
     }
@@ -118,6 +120,10 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $this->config->orientation = $form->getInput('orientation');
 
         $this->config->user_allow = $form->getInput('user_allow');
+
+        $this->config->require_global_role = $form->getInput('require_role');
+        $form->setValuesByPost();
+        $this->config->global_role_ids = array_map('intval', $form->getItemByPostVar('role_select')->getMultiValues());
 
         $this->config->save();
 
@@ -298,8 +304,23 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
 
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->plugin->txt('permissions'));
-        $header->setInfo($this->plugin->txt('permissions_info'));
         $form->addItem($header);
+
+        $role = new ilRadioGroupInputGUI($this->plugin->txt('permissions_require_role'), 'require_role');
+        $role->setValue($this->config->require_global_role ? '1' : '0');
+        $option = new ilRadioOption($this->plugin->txt('permissions_require_role_no'), '0');
+        $role->addOption($option);
+        $option = new ilRadioOption($this->plugin->txt('permissions_require_role_yes'), '1');
+        $role->addOption($option);
+        $role_select = new ilSelectInputGUI($this->plugin->txt('permissions_require_role_select'), 'role_select');
+        $role_select->setMulti(true);
+        $role_select->setOptions($this->globalRoleOptions());
+        if (!empty($this->config->global_role_ids)) {
+            $role_select->setValue($this->config->global_role_ids[0]);
+        }
+        $role_select->setMultiValues($this->config->global_role_ids);
+        $option->addSubItem($role_select);
+        $form->addItem($role);
 
         $access = new ilRadioGroupInputGUI($this->plugin->txt('allow'), 'user_allow');
         $option = new ilRadioOption($this->plugin->txt('allow_any'), ilTestArchiveCreatorConfig::ALLOW_ANY);
@@ -317,5 +338,18 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $form->addCommandButton('saveConfiguration', $this->lng->txt('save'));
 
         return $form;
+    }
+
+    private function globalRoleOptions(): array
+    {
+        $options = [
+            '0' => $this->lng->txt('please_select')
+        ];
+
+        foreach ($this->rbac->review()->getGlobalRoles() as $role_id) {
+            $options[$role_id] = ilObject::_lookupTitle($role_id);
+        }
+
+        return $options;
     }
 }

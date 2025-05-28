@@ -91,6 +91,11 @@ class ilTestArchiveCreatorConfig
     /** @var string url of a server for pdf generation */
     public string $server_url;
 
+    /** @var bool a specific global role is needed to create archives or schedule their creation */
+    public bool $require_global_role;
+
+    /** @var int[] list of global role_ids for which the archive creation should be allowed */
+    public array $global_role_ids;
 
     /** @var ilTestArchiveCreatorPlugin $plugin */
     protected ilTestArchiveCreatorPlugin $plugin;
@@ -142,6 +147,12 @@ class ilTestArchiveCreatorConfig
 
         $this->zoom_factor = (float) $this->settings->get('zoom_factor', '1.0');
         $this->orientation = (string) $this->settings->get('orientation', ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT);
+
+        $this->require_global_role = (bool) $this->settings->get('require_global_role', false);
+        $this->global_role_ids = array_map(
+            'intval',
+            explode(',', (string) $this->settings->get('global_role_ids', ''))
+        );
     }
 
 
@@ -181,6 +192,9 @@ class ilTestArchiveCreatorConfig
 
         $this->settings->set('zoom_factor', (string) $this->zoom_factor);
         $this->settings->set('orientation', (string) $this->orientation);
+
+        $this->settings->set('require_global_role', (bool) $this->require_global_role);
+        $this->settings->set('global_role_ids', implode(',', $this->global_role_ids));
     }
 
 
@@ -192,6 +206,10 @@ class ilTestArchiveCreatorConfig
     {
         if ($this->plugin->hasAdminAccess()) {
             return true;
+        }
+
+        if (!$this->checkRoleForCreation()) {
+            return false;
         }
 
         return ($this->user_allow == self::ALLOW_ANY || $this->user_allow == self::ALLOW_PLANNED);
@@ -207,7 +225,28 @@ class ilTestArchiveCreatorConfig
             return true;
         }
 
+        if (!$this->checkRoleForCreation()) {
+            return false;
+        }
+
         return ($this->user_allow == self::ALLOW_ANY);
     }
 
+    /**
+     * Check if the user has a role to create archives when one is needed
+     * @return bool
+     */
+    private function checkRoleForCreation()
+    {
+        if (!$this->require_global_role) {
+            return true;
+        }
+
+        foreach ($this->global_role_ids as $role_id) {
+            if ($this->plugin->hasGlobalRole($role_id)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

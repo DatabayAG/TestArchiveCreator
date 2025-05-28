@@ -105,7 +105,10 @@ questions_with_best_solution_info#:#Erzeugt zu jeder Frage auch eine Datei mit d
 answers_with_best_solution#:#Antworten mit Musterlösung
 answers_with_best_solution_info#:#Fügt in die Dateien der Antworten der Teilnehmer*innen unter jeder Frage die Musterlösung ein.
 permissions#:#Berechtigungen
-permissions_info#:#Berechtigung für Nutzer*innen mit Schreibrecht im Test
+permissions_require_role#:#Benutzer*innen
+permissions_require_role_no#:#alle mit Schreibrecht im Test
+permissions_require_role_yes#:#alle mit Schreibrecht im Test UND einer ausgewählten globalen Rolle
+permissions_require_role_select#:#Ausgewählte Rollen
 allow#:#Archiv-Erzeugung
 allow_any#:#Beliebig
 allow_any_info#:#Archive sofort oder geplant erzeugen.

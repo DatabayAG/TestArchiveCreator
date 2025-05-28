@@ -105,7 +105,10 @@ questions_with_best_solution_info#:#Creates for each question a separate file wi
 answers_with_best_solution#:#Answers with Best Solution
 answers_with_best_solution_info#:#Adds the best solution below each question in the answer files for participants.
 permissions#:#Permissions
-permissions_info#:#Permissions for users with write access to a test
+permissions_require_role#:#User
+permissions_require_role_no#:#all with write permission on test
+permissions_require_role_yes#:#all with write permission on test and a selected global role
+permissions_require_role_select#:#Selected Roles
 allow#:#Archive Creation
 allow_any#:#Any
 allow_any_info#:#Create archives immediately and planned

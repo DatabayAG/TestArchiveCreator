@@ -336,11 +336,21 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
 
     /**
-     * Check if the user has administrative access
+     * Check if the current user has administrative access
      */
     public function hasAdminAccess(): bool
     {
-        global $rbacsystem;
-        return $rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID);
+        global $DIC;
+        return $DIC->rbac()->system()->checkAccess("visible", SYSTEM_FOLDER_ID);
     }
+
+    /**
+     * Check if the current user has a global role
+     */
+    public function hasGlobalRole(int $role_id): bool
+    {
+        global $DIC;
+        return $DIC->rbac()->review()->isAssigned($DIC->user()->getId(), $role_id);
+    }
+
 }
