@@ -92,6 +92,9 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $this->config->keep_jobfile = $form->getInput('keep_jobfile');
         $this->config->ignore_ssl_errors = $form->getInput('ignore_ssl_errors');
 
+        $this->config->support_file_prefix = $form->getInput('support_file_prefix');
+        $this->config->support_notifications = $form->getInput('support_notifications');
+
         $this->config->bs_node_module_path = $form->getInput('bs_node_module_path');
         $this->config->bs_chrome_path = $form->getInput('bs_chrome_path');
         $this->config->bs_node_path = $form->getInput('bs_node_path');
@@ -155,6 +158,16 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $job->setInfo($this->plugin->txt('keep_jobfile_info'));
         $job->setChecked($this->config->keep_jobfile);
         $keep->addSubItem($job);
+
+        $prefix = new ilCheckboxInputGUI($this->plugin->txt('support_file_prefix'), 'support_file_prefix');
+        $prefix->setInfo($this->plugin->txt('support_file_prefix_info'));
+        $prefix->setChecked($this->config->support_file_prefix);
+        $form->addItem($prefix);
+
+        $notifications = new ilCheckboxInputGUI($this->plugin->txt('support_notifications'), 'support_notifications');
+        $notifications->setInfo($this->plugin->txt('support_notifications_info'));
+        $notifications->setChecked($this->config->support_notifications);
+        $form->addItem($notifications);
 
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->plugin->txt('generation_settings'));

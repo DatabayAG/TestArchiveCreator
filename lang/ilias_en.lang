@@ -156,3 +156,7 @@ archive_errors#:#Errors occurred at archive creation:
 archive_created#:#The archive was successfully created.
 git_info#:#Git Information
 deleted_account#:#Deleted Account
+support_file_prefix#:#Support Filename Prefix
+support_file_prefix_info#:#Users can define a string that is prefixed to the generated filename.
+support_notifications#:#Support Notifications
+support_notifications_info#:#Users can list accounts that should get notified about the created archive.

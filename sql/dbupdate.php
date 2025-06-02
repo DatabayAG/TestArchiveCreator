@@ -144,3 +144,23 @@ if ($ilDB->tableColumnExists('tarc_ui_settings', 'max_rendering_wait')) {
     $ilDB->dropTableColumn('tarc_ui_settings', 'max_rendering_wait');
 }
 ?>
+<#14>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'file_prefix')) {
+    $ilDB->addTableColumn('tarc_ui_settings', 'file_prefix', array(
+        'type' => 'text',
+        'length' => 8,
+        'notnull' => false
+    ));
+}
+?>
+<#15>
+<?php
+if (!$ilDB->tableColumnExists('tarc_ui_settings', 'notification_ids')) {
+    $ilDB->addTableColumn('tarc_ui_settings', 'notification_ids', array(
+        'type' => 'text',
+        'length' => 250,
+        'notnull' => false
+    ));
+}
+?>

@@ -158,3 +158,11 @@ archive_errors#:#Beim Erstellen des Archivs sind Fehler aufgetreten:
 archive_created#:#Das Archiv wurde erstellt.
 git_info#:#Git-Informationen
 deleted_account#:#Gelöschtes Konto
+support_file_prefix#:#Zusatz in Dateinamen ermöglichen
+support_file_prefix_info#:#Erzeugt eine Eingabefeld für Nutzer*innen, in dem ein Wortteil dem Dateinamen vorangestellt (Prefix) wird.
+support_notifications#:#Benachrichtigungen aktivieren
+support_notifications_info#:#Nutzer*inenn können Nutzernamen angeben, an die nach Erstellung eine Nachricht gesendet wird.
+notifications#:#Benachrichtigungen
+notifications_info#:#Benachrichtigung an die angegebenen Nutzer*innen versenden (bitte Nutzerkennung angeben)
+file_prefix#:#Datei-Bezeichnung
+file_prefix_info#:#Die Dateibezeichnung wird dem Dateinamen des Exports vorangestellt. Es sind max. 8 Zeichen zulässig.

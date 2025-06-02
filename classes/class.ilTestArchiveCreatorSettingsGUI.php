@@ -2,6 +2,9 @@
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 use ILIAS\DI\UIServices as UIServices;
+use ILIAS\HTTP\Services as HttpServices;
+use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\Filesystem\Stream\Streams;
 
 /**
  * GUI for Limited Media Control
@@ -14,6 +17,8 @@ use ILIAS\DI\UIServices as UIServices;
  */
 class ilTestArchiveCreatorSettingsGUI
 {
+    private HttpServices $http;
+    private Refinery $refinery;
     protected ilAccessHandler $access;
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
@@ -40,6 +45,8 @@ class ilTestArchiveCreatorSettingsGUI
         $this->toolbar = $DIC->toolbar();
         $this->tpl = $DIC['tpl'];
         $this->ui_services = $DIC->ui();
+        $this->http = $DIC->http();
+        $this->refinery = $DIC->refinery();
 
         $this->lng->loadLanguageModule('assessment');
 
@@ -149,6 +156,10 @@ class ilTestArchiveCreatorSettingsGUI
         $cmd = $this->ctrl->getCmd('editSettings');
 
         switch ($cmd) {
+            case "doAutoComplete":
+                $this->$cmd();
+                break;
+
             case "editSettings":
                 $this->prepareOutput();
                 $this->$cmd();
@@ -207,7 +218,6 @@ class ilTestArchiveCreatorSettingsGUI
         $form->setFormAction($this->ctrl->getFormAction($this, 'editSettings'));
         $form->setTitle($this->plugin->txt('edit_archive_settings'));
 
-
         $st_inactive = new ilRadioOption($this->plugin->txt('status_inactive'), ilTestArchiveCreatorPlugin::STATUS_INACTIVE);
         $st_planned = new ilRadioOption($this->plugin->txt('status_planned'), ilTestArchiveCreatorPlugin::STATUS_PLANNED);
         $st_finished = new ilRadioOption($this->plugin->txt('status_finished'), ilTestArchiveCreatorPlugin::STATUS_FINISHED);
@@ -227,6 +237,27 @@ class ilTestArchiveCreatorSettingsGUI
         $schedule->setInfo($this->plugin->txt('schedule_info'));
         $schedule->setRequired(true);
         $st_planned->addSubItem($schedule);
+
+        if ($this->config->support_notifications) {
+            $notifications = new ilTextInputGUI($this->plugin->txt('notifications'), 'notifications');
+            $notifications->setInfo($this->plugin->txt('notifications_info'));
+            $notifications->setMulti(true);
+            $notifications->setDataSource($this->ctrl->getLinkTarget($this, "doAutoComplete", "", true));
+            $logins = $this->settings->getNotificationLogins();
+            if (!empty($logins)) {
+                $notifications->setValue($logins[0]);
+                $notifications->setMultiValues($logins);
+            }
+            $st_planned->addSubItem($notifications);
+        }
+
+        if ($this->config->support_file_prefix) {
+            $prefix = new ilTextInputGUI($this->plugin->txt('file_prefix'), 'file_prefix');
+            $prefix->setInfo($this->plugin->txt('file_prefix_info'));
+            $prefix->setMaxLength(8);
+            $prefix->setValue($this->settings->file_prefix);
+            $st_planned->addSubItem($prefix);
+        }
 
         if (!$this->plugin->isCronPluginActive()) {
             $status->setDisabled(true);
@@ -337,12 +368,40 @@ class ilTestArchiveCreatorSettingsGUI
         $this->settings->orientation = $form->getInput('orientation');
         $this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
 
+        if ($this->config->support_file_prefix) {
+            $this->settings->file_prefix = $form->getInput('file_prefix');
+        }
+        if ($this->config->support_notifications) {
+            $form->setValuesByPost();
+            $this->settings->setNotificationLogins($form->getItemByPostVar('notifications')->getMultiValues());
+        }
+
         $this->settings->save();
 
         $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
         $this->returnToExport();
     }
 
+
+    public function doAutoComplete(): void
+    {
+        $fields = array('login','firstname','lastname');
+
+        $auto = new ilUserAutoComplete();
+        $auto->setSearchFields($fields);
+        $auto->setResultField('login');
+        $auto->enableFieldSearchableCheck(true);
+        $auto->setMoreLinkAvailable(true);
+        $auto->setPrivacyMode(ilUserAutoComplete::PRIVACY_MODE_RESPECT_USER_SETTING);
+        $auto->setLimit(ilUserAutoComplete::MAX_ENTRIES);
+
+        $this->http->saveResponse($this->http->response()->withBody(
+            Streams::ofString(
+                $auto->getList($this->http->wrapper()->query()->retrieve('term',
+                    $this->refinery->kindlyTo()->string()))
+            )));
+        $this->http->sendResponse();
+    }
 
     /**
      * Cancel the archive settings

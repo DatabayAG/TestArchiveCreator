@@ -21,6 +21,9 @@ class ilTestArchiveCreatorSettings
     public bool $answers_with_best_solution;
     public float $zoom_factor;
     public string $orientation;
+    public string $file_prefix;
+    /** @var int[] */
+    public array $notification_ids;
 
 
     /**
@@ -58,6 +61,11 @@ class ilTestArchiveCreatorSettings
             $this->random_questions = (string) $row['random_questions'];
             $this->zoom_factor = (float) $row['zoom_factor'];
             $this->orientation = (string) $row['orientation'];
+            $this->file_prefix = (string) $row['file_prefix'];
+            $this->notification_ids = array_map(
+                'intval',
+                explode(',', (string)  $row['notification_ids'])
+            );
         } else {
             // initialize values with those if the global configuration
             $config = $this->plugin->getConfig();
@@ -69,6 +77,8 @@ class ilTestArchiveCreatorSettings
             $this->random_questions = (string) $config->random_questions;
             $this->zoom_factor = (float) $config->zoom_factor;
             $this->orientation = (string) $config->orientation;
+            $this->file_prefix = '';
+            $this->notification_ids = [];
         }
     }
 
@@ -93,7 +103,9 @@ class ilTestArchiveCreatorSettings
                 'pass_selection' => array('text', $this->pass_selection),
                 'random_questions' => array('text', $this->random_questions),
                 'zoom_factor' => array('float', $this->zoom_factor),
-                'orientation' => array('string', $this->orientation)
+                'orientation' => array('string', $this->orientation),
+                'file_prefix' => array('text', $this->file_prefix),
+                'notification_ids' => array('text', implode(',', $this->notification_ids)),
             )
         );
         return $rows > 0;
@@ -137,4 +149,26 @@ class ilTestArchiveCreatorSettings
         $db->manipulate($query);
     }
 
+
+    public function getNotificationLogins()
+    {
+        $logins = [];
+        foreach ($this->notification_ids as $id) {
+            if ($login = ilObjUser::_lookupLogin($id)) {
+                $logins[] = $login;
+            }
+        }
+        return $logins;
+    }
+
+    public function setNotificationLogins(array $logins)
+    {
+        $ids = [];
+        foreach ($logins as $login) {
+            if ($id = ilObjUser::_lookupId($login)) {
+                $ids[] = $id;
+            }
+        }
+        $this->notification_ids = $ids;
+    }
 }

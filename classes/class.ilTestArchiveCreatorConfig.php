@@ -52,11 +52,17 @@ class ilTestArchiveCreatorConfig
     /** @var  bool keep the jobfile on the server after delivery */
     public bool $keep_jobfile;
 
-    /** @var bool embed the asset files in the archive */
-    public bool $embed_assets;
+    /** @var  bool support a prefix or the name of the created archive file */
+    public bool $support_file_prefix;
 
     /** @var bool ignore ssl errors at pdf generation (phantomjs and browsershot) */
     public bool $ignore_ssl_errors;
+
+    /** @var  bool support mail notifications when archives are created */
+    public bool $support_notifications;
+
+    /** @var bool embed the asset files in the archive */
+    public bool $embed_assets;
 
     /** @var string path to node_modules for browsershot */
     public string $bs_node_module_path;
@@ -124,6 +130,9 @@ class ilTestArchiveCreatorConfig
         $this->keep_jobfile = (bool) $this->settings->get('keep_jobfile', false);
         $this->ignore_ssl_errors = (bool) $this->settings->get('ignore_ssl_errors', false);
 
+        $this->support_file_prefix = (bool) $this->settings->get('support_file_prefix', false);
+        $this->support_notifications = (bool) $this->settings->get('support_notifications', false);
+
         $this->bs_node_module_path = (string) $this->settings->get('bs_node_module_path', '/home/www-data/node_modules/');
         $this->bs_chrome_path = (string) $this->settings->get('bs_chrome_path', '/home/www-data/.cache/puppeteer/chrome/linux-1108766/chrome-linux/chrome');
         $this->bs_node_path = (string) $this->settings->get('bs_node_path', '/usr/bin/node');
@@ -168,6 +177,9 @@ class ilTestArchiveCreatorConfig
         $this->settings->set('keep_creation_directory', (bool) $this->keep_creation_directory ? '1' : '0');
         $this->settings->set('keep_jobfile', (bool) $this->keep_jobfile ? '1' : '0');
         $this->settings->set('ignore_ssl_errors', (bool) $this->ignore_ssl_errors ? '1' : '0');
+
+        $this->settings->set('support_file_prefix', (bool) $this->support_file_prefix ? '1' : '0');
+        $this->settings->set('support_notifications', (bool) $this->support_notifications ? '1' : '0');
 
         $this->settings->set('bs_node_module_path', (string) $this->bs_node_module_path);
         $this->settings->set('bs_chrome_path', (string) $this->bs_chrome_path);
