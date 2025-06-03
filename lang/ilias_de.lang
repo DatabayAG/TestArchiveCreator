@@ -166,3 +166,7 @@ notifications#:#Benachrichtigungen
 notifications_info#:#Benachrichtigung an die angegebenen Nutzer*innen versenden (bitte Nutzerkennung angeben)
 file_prefix#:#Datei-Bezeichnung
 file_prefix_info#:#Die Dateibezeichnung wird dem Dateinamen des Exports vorangestellt. Es sind max. 8 Zeichen zulässig.
+wrong_notification_logins#:#Die folgenden Logins sind nicht gültig: %s
+wrong_file_prefix#:#Das Präfix enthält ungültige Zeichen
+form_validation_errors#:#Das Formular hat fehlerhafte Eingaben, siehe Bemerkungen bei den Eingabefeldern.
+last_cron_run#:#Letzter Durchlauf

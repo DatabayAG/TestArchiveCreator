@@ -135,7 +135,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
     }
 
     /**
-     * Check if the player plugin is active
+     * Check if the cron plugin is active
      */
     public function isCronPluginActive(): bool
     {
@@ -148,6 +148,15 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
     public function getExaminationProtocolPlugin(): ?ilPlugin
     {
         return $this->getActivePluginBySlotAndName('uihk', 'ExaminationProtocol');
+    }
+
+    /**
+     * Get the cron plugin object
+     * @return ilTestArchiveCronPlugin
+     */
+    public function getCronPlugin(): ?ilPlugin
+    {
+        return $this->getActivePluginBySlotAndName('crnhk', 'TestArchiveCron');
     }
 
     /**

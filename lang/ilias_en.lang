@@ -160,3 +160,10 @@ support_file_prefix#:#Support Filename Prefix
 support_file_prefix_info#:#Users can define a string that is prefixed to the generated filename.
 support_notifications#:#Support Notifications
 support_notifications_info#:#Users can list accounts that should get notified about the created archive.
+notifications#:#Notifications
+notifications_info#:#Sent notifications to users (enter login)
+file_prefix#:#File Prefix
+file_prefix_info#:#The prefix will be added to the file name of the generated archive. 8 characters are allowed.
+wrong_notification_logins#:#the following login names are not valid: %s
+wrong_file_prefix#:#The prefix has invalid characters
+form_validation_errors#:#The form has wrong inputs. See alerts at the input fields.

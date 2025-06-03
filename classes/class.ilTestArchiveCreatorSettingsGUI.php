@@ -5,6 +5,7 @@ use ILIAS\DI\UIServices as UIServices;
 use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 /**
  * GUI for Limited Media Control
@@ -26,6 +27,7 @@ class ilTestArchiveCreatorSettingsGUI
     protected ilToolbarGUI $toolbar;
     protected ilGlobalTemplateInterface $tpl;
     protected UIServices $ui_services;
+    /** @var ilTestArchiveCreatorPlugin */
     protected ilPlugin $plugin;
     protected ilTestArchiveCreatorConfig $config;
     protected ilTestArchiveCreatorSettings $settings;
@@ -49,6 +51,7 @@ class ilTestArchiveCreatorSettingsGUI
         $this->refinery = $DIC->refinery();
 
         $this->lng->loadLanguageModule('assessment');
+        $this->lng->loadLanguageModule('cron');
 
         $ref_id = $DIC->http()->wrapper()->query()->retrieve('ref_id', $DIC->refinery()->kindlyTo()->int());
         $this->testObj = new ilObjTest($ref_id, true);
@@ -259,7 +262,9 @@ class ilTestArchiveCreatorSettingsGUI
             $st_planned->addSubItem($prefix);
         }
 
-        if (!$this->plugin->isCronPluginActive()) {
+        if ($this->plugin->isCronPluginActive()) {
+            $schedule->setInfo($schedule->getInfo() . '<br>' .$this->getCronInfo());
+        } else {
             $status->setDisabled(true);
             $status->setInfo($this->plugin->txt('message_cron_plugin_inactive'));
             $schedule->setDisabled(true);
@@ -345,44 +350,58 @@ class ilTestArchiveCreatorSettingsGUI
     protected function saveSettings()
     {
         $form = $this->initSettingsForm();
-        if (!$form->checkInput()) {
-            $form->setValuesByPost();
+        $ok = $form->checkInput();
+        $form->setValuesByPost();
+
+        if ($ok) {
+            $this->settings->status = $form->getInput('status');
+            $this->settings->schedule = $form->getItemByPostVar('schedule')->getDate();
+
+            $this->settings->include_questions = $form->getInput('include_questions');
+            $this->settings->include_answers = $form->getInput('include_answers');
+            $this->settings->questions_with_best_solution = $form->getInput('questions_with_best_solution');
+            $this->settings->answers_with_best_solution = $form->getInput('answers_with_best_solution');
+
+            $this->settings->pass_selection = $form->getInput('pass_selection');
+            if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
+                $this->settings->random_questions = $form->getInput('random_questions');
+            }
+
+            $this->settings->orientation = $form->getInput('orientation');
+            $this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
+
+            if ($this->settings->status == ilTestArchiveCreatorPlugin::STATUS_PLANNED) {
+                if ($this->config->support_file_prefix) {
+                    if (!$this->settings->setFilePrefix($form->getInput('file_prefix'))) {
+                        $form->getItemByPostVar('file_prefix')->setAlert($this->settings->getFilePrefixError());
+                        $ok = false;
+                    }
+                }
+
+                if ($this->config->support_notifications) {
+                    if (!$this->settings->setNotificationLogins($form->getItemByPostVar('notifications')->getMultiValues())) {
+                        $form->getItemByPostVar('notifications')->setAlert($this->settings->getNotificationLoginsError());
+                        $ok = false;
+                    }
+                }
+            }
+        }
+
+        if ($ok) {
+            $this->settings->save();
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
+            $this->returnToExport();
+        } else {
             $this->prepareOutput();
+            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("form_validation_errors"), false);
             $this->tpl->setContent($form->getHTML());
             $this->tpl->printToStdout();
-            return;
         }
-        $this->settings->status = $form->getInput('status');
-        $this->settings->schedule = $form->getItemByPostVar('schedule')->getDate();
-
-        $this->settings->include_questions = $form->getInput('include_questions');
-        $this->settings->include_answers = $form->getInput('include_answers');
-        $this->settings->questions_with_best_solution = $form->getInput('questions_with_best_solution');
-        $this->settings->answers_with_best_solution = $form->getInput('answers_with_best_solution');
-
-        $this->settings->pass_selection = $form->getInput('pass_selection');
-        if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
-            $this->settings->random_questions = $form->getInput('random_questions');
-        }
-
-        $this->settings->orientation = $form->getInput('orientation');
-        $this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
-
-        if ($this->config->support_file_prefix) {
-            $this->settings->file_prefix = $form->getInput('file_prefix');
-        }
-        if ($this->config->support_notifications) {
-            $form->setValuesByPost();
-            $this->settings->setNotificationLogins($form->getItemByPostVar('notifications')->getMultiValues());
-        }
-
-        $this->settings->save();
-
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
-        $this->returnToExport();
     }
 
-
+    /**
+     * Called async to complete entered login names
+     */
     public function doAutoComplete(): void
     {
         $fields = array('login','firstname','lastname');
@@ -401,6 +420,44 @@ class ilTestArchiveCreatorSettingsGUI
                     $this->refinery->kindlyTo()->string()))
             )));
         $this->http->sendResponse();
+    }
+
+    /**
+     * Get info about the cron job
+     */
+    public function getCronInfo(): string
+    {
+        $infos = [];
+
+        /** @var ilTestArchiveCronJob $job */
+        $job = $this->plugin->getCronPlugin()->getCronJobInstance('test_archive_cron');
+        $run = $job->getLastRun();
+
+        $infos[] = $this->lng->txt('cron_last_run') . ': ' . ($run ? ilDatePresentation::formatDate($run) : '-');
+
+        $schedule = match ($job->getScheduleType() ?? $job->getDefaultScheduleType()) {
+            CronJobScheduleType::SCHEDULE_TYPE_DAILY => $this->lng->txt('cron_schedule_daily'),
+            CronJobScheduleType::SCHEDULE_TYPE_WEEKLY => $this->lng->txt('cron_schedule_weekly'),
+            CronJobScheduleType::SCHEDULE_TYPE_MONTHLY => $this->lng->txt('cron_schedule_monthly'),
+            CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY => $this->lng->txt('cron_schedule_quarterly'),
+            CronJobScheduleType::SCHEDULE_TYPE_YEARLY => $this->lng->txt('cron_schedule_yearly'),
+            CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES => sprintf(
+                $this->lng->txt('cron_schedule_in_minutes'),
+                $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
+            ),
+            CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS => sprintf(
+                $this->lng->txt('cron_schedule_in_hours'),
+                $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
+            ),
+            CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS => sprintf(
+                $this->lng->txt('cron_schedule_in_days'),
+                $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
+            )
+        };
+
+        $infos[] = $this->lng->txt('cron_schedule') . ': ' . $schedule;
+
+        return implode('<br>', $infos);
     }
 
     /**

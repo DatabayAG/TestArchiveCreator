@@ -25,6 +25,8 @@ class ilTestArchiveCreatorSettings
     /** @var int[] */
     public array $notification_ids;
 
+    private $failed_logins = [];
+    private $failed_prefix = false;
 
     /**
      * ilTestArchiveCreatorSettings constructor.
@@ -149,8 +151,7 @@ class ilTestArchiveCreatorSettings
         $db->manipulate($query);
     }
 
-
-    public function getNotificationLogins()
+    public function getNotificationLogins(): array
     {
         $logins = [];
         foreach ($this->notification_ids as $id) {
@@ -161,14 +162,48 @@ class ilTestArchiveCreatorSettings
         return $logins;
     }
 
-    public function setNotificationLogins(array $logins)
+    public function setNotificationLogins(array $logins): bool
     {
         $ids = [];
+        $this->failed_logins = [];
         foreach ($logins as $login) {
             if ($id = ilObjUser::_lookupId($login)) {
                 $ids[] = $id;
+            } else {
+                $this->failed_logins[] = $login;
             }
         }
-        $this->notification_ids = $ids;
+        if (empty($this->failed_logins)) {
+            $this->notification_ids = $ids;
+            return true;
+        }
+        return false;
+    }
+
+    public function getNotificationLoginsError(): string
+    {
+        if (!empty($this->failed_logins)) {
+            return sprintf($this->plugin->txt('wrong_notification_logins'), implode (', ', $this->failed_logins));
+        }
+        return '';
+    }
+
+    public function setFilePrefix(string $prefix): bool
+    {
+        $this->failed_prefix = false;
+        if (!preg_match('/[^A-Za-z0-9.-]/', $prefix)) {
+            $this->file_prefix = $prefix;
+            return true;
+        }
+        $this->failed_prefix = true;
+        return false;
+    }
+
+    public function getFilePrefixError(): string
+    {
+        if ($this->failed_prefix) {
+            return $this->plugin->txt('wrong_file_prefix');
+        }
+        return '';
     }
 }
