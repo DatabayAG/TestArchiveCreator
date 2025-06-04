@@ -167,3 +167,5 @@ file_prefix_info#:#The prefix will be added to the file name of the generated ar
 wrong_notification_logins#:#the following login names are not valid: %s
 wrong_file_prefix#:#The prefix has invalid characters
 form_validation_errors#:#The form has wrong inputs. See alerts at the input fields.
+notification_subject#:#ILIAS Test Archive Files created
+notification_message#:#The archive files have been created. You can download them here:

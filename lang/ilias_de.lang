@@ -170,3 +170,5 @@ wrong_notification_logins#:#Die folgenden Logins sind nicht gültig: %s
 wrong_file_prefix#:#Das Präfix enthält ungültige Zeichen
 form_validation_errors#:#Das Formular hat fehlerhafte Eingaben, siehe Bemerkungen bei den Eingabefeldern.
 last_cron_run#:#Letzter Durchlauf
+notification_subject#:#ILIAS Test Archiv Dateien erstellt
+notification_message#:#Die Archivdatein wurden erstellt. Sie können sie hier herunterladen:

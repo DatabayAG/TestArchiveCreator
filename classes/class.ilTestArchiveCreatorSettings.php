@@ -66,7 +66,7 @@ class ilTestArchiveCreatorSettings
             $this->file_prefix = (string) $row['file_prefix'];
             $this->notification_ids = array_map(
                 'intval',
-                explode(',', (string)  $row['notification_ids'])
+                explode(',', (string) $row['notification_ids'])
             );
         } else {
             // initialize values with those if the global configuration
@@ -183,7 +183,7 @@ class ilTestArchiveCreatorSettings
     public function getNotificationLoginsError(): string
     {
         if (!empty($this->failed_logins)) {
-            return sprintf($this->plugin->txt('wrong_notification_logins'), implode (', ', $this->failed_logins));
+            return sprintf($this->plugin->txt('wrong_notification_logins'), implode(', ', $this->failed_logins));
         }
         return '';
     }
@@ -195,7 +195,7 @@ class ilTestArchiveCreatorSettings
         // '/[\000-\031\/<>:"\\\\|?* ]/'
 
         // restrict to latin characters and numbers
-        if (preg_match('/[A-Za-z0-9.\-]/', $prefix)) {
+        if ($prefix === '' || preg_match('/[A-Za-z0-9.\-]/', $prefix)) {
             $this->file_prefix = $prefix;
             return true;
         }

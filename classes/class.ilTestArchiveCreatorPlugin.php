@@ -13,6 +13,7 @@ use ILIAS\DI\Container;
 class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 {
     private const PATH_IN_PUBLIC = 'Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator';
+    private const LANG_MODULE = 'ui_uihk_tarc_ui';
 
     public const PASS_ALL = 'all';
     public const PASS_SCORED = 'scored';
@@ -193,6 +194,11 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
     {
         global $DIC;
 
+        /** @var ILIAS\StaticURL\Services $static_url */
+        $static_url = $DIC['static_url'];
+        $access = $DIC->access();
+        $notifier = new ilTestArchiveCreatorNotification($this, new ilMail(ANONYMOUS_USER_ID));
+
         // manual cron job execution in the admin gui
         if (ilContext::usesHTTP()) {
             // save the current controller parameters to be restored afterwards
@@ -209,12 +215,29 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
         foreach (ilTestArchiveCreatorSettings::getScheduledObjects() as $obj_id) {
             $creator = new ilTestArchiveCreator($this, $obj_id);
             if ($creator->createArchive()) {
+                if ($this->config->support_notifications) {
+                    $ref_ids = ilObject::_getAllReferences($obj_id);
+                    $title = ilObject::_lookupTitle($obj_id);
+
+                    foreach ($creator->settings->notification_ids as $user_id) {
+                        $link = '';
+                        foreach ($ref_ids as $ref_id) {
+                            if ($access->checkAccessOfUser($user_id, 'read', '', $ref_id)) {
+                                $link = $static_url->builder()->build('tst', new \ILIAS\Data\ReferenceId($ref_id));
+                                break;
+                            }
+                        }
+                        $notifier->addNotification($user_id, $link . ' ' . $title);
+                    }
+                }
+
                 $creator->settings->status = self::STATUS_FINISHED;
                 $creator->settings->save();
                 $created++;
             }
             unset($creator);
         }
+        $notifier->sendNotifications();
 
         // manual cron job execution in the admin gui
         if (ilContext::usesHTTP()) {
@@ -362,4 +385,22 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
         return $DIC->rbac()->review()->isAssigned($DIC->user()->getId(), $role_id);
     }
 
+    /**
+     * Get a plugin text and use the variable, if not translated, take the current language
+     * @param string $a_var
+     * @param ?string $a_lang_code
+     * @return string
+     */
+    public function txt(string $a_var, ?string $a_lang_code = null): string
+    {
+        global $DIC;
+
+        if ($a_lang_code !== null) {
+            $txt = $DIC->language()->txtlng(self::LANG_MODULE, self::LANG_MODULE . "_" . $a_var, $a_lang_code);
+            if (substr($txt, 1, strlen(self::LANG_MODULE)) !== self::LANG_MODULE) {
+                return $txt;
+            }
+        }
+        return parent::txt($a_var);
+    }
 }
