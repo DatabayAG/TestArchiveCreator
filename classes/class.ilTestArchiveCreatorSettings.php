@@ -191,7 +191,11 @@ class ilTestArchiveCreatorSettings
     public function setFilePrefix(string $prefix): bool
     {
         $this->failed_prefix = false;
-        if (!preg_match('/[^A-Za-z0-9.-]/', $prefix)) {
+        // non-printing and special characters
+        // '/[\000-\031\/<>:"\\\\|?* ]/'
+
+        // restrict to latin characters and numbers
+        if (preg_match('/[A-Za-z0-9.\-]/', $prefix)) {
             $this->file_prefix = $prefix;
             return true;
         }

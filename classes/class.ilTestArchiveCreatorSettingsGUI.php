@@ -254,20 +254,20 @@ class ilTestArchiveCreatorSettingsGUI
             $st_planned->addSubItem($notifications);
         }
 
-        if ($this->config->support_file_prefix) {
-            $prefix = new ilTextInputGUI($this->plugin->txt('file_prefix'), 'file_prefix');
-            $prefix->setInfo($this->plugin->txt('file_prefix_info'));
-            $prefix->setMaxLength(8);
-            $prefix->setValue($this->settings->file_prefix);
-            $st_planned->addSubItem($prefix);
-        }
-
         if ($this->plugin->isCronPluginActive()) {
             $schedule->setInfo($schedule->getInfo() . '<br>' .$this->getCronInfo());
         } else {
             $status->setDisabled(true);
             $status->setInfo($this->plugin->txt('message_cron_plugin_inactive'));
             $schedule->setDisabled(true);
+        }
+
+        if ($this->config->support_file_prefix) {
+            $prefix = new ilTextInputGUI($this->plugin->txt('file_prefix'), 'file_prefix');
+            $prefix->setInfo($this->plugin->txt('file_prefix_info'));
+            $prefix->setMaxLength(8);
+            $prefix->setValue($this->settings->file_prefix);
+            $form->addItem($prefix);
         }
 
         $questions = new ilCheckboxInputGUI($this->plugin->txt('include_questions'), 'include_questions');
@@ -370,14 +370,14 @@ class ilTestArchiveCreatorSettingsGUI
             $this->settings->orientation = $form->getInput('orientation');
             $this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
 
-            if ($this->settings->status == ilTestArchiveCreatorPlugin::STATUS_PLANNED) {
-                if ($this->config->support_file_prefix) {
-                    if (!$this->settings->setFilePrefix($form->getInput('file_prefix'))) {
-                        $form->getItemByPostVar('file_prefix')->setAlert($this->settings->getFilePrefixError());
-                        $ok = false;
-                    }
+            if ($this->config->support_file_prefix) {
+                if (!$this->settings->setFilePrefix($form->getInput('file_prefix'))) {
+                    $form->getItemByPostVar('file_prefix')->setAlert($this->settings->getFilePrefixError());
+                    $ok = false;
                 }
+            }
 
+            if ($this->settings->status == ilTestArchiveCreatorPlugin::STATUS_PLANNED) {
                 if ($this->config->support_notifications) {
                     if (!$this->settings->setNotificationLogins($form->getItemByPostVar('notifications')->getMultiValues())) {
                         $form->getItemByPostVar('notifications')->setAlert($this->settings->getNotificationLoginsError());

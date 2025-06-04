@@ -915,7 +915,7 @@ class ilTestArchiveCreator
     protected function createZipFile(): bool
     {
         $export_dir = 'tst_data/archive_exports/tst_' . $this->testObj->getId();
-        $title = 'test_archive_obj_' . $this->testObj->getId() . '_' . time() . '_plugin.zip';
+        $title = $this->settings->file_prefix .  'test_archive_obj_' . $this->testObj->getId() . '_' . time() . '_plugin.zip';
 
         try {
             if (!$this->storage->hasDir($export_dir)) {
