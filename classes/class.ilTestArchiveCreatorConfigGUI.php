@@ -104,6 +104,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $this->config->with_login = $form->getInput('with_login');
         $this->config->with_matriculation = $form->getInput('with_matriculation');
         $this->config->with_results = $form->getInput('with_results');
+        $this->config->include_ip_ranges = $form->getInput('include_ip_ranges');
         if ($this->plugin->isTestLogActive()) {
             $this->config->include_test_log = $form->getInput('include_test_log');
         }
@@ -302,6 +303,11 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $with_results->setInfo($this->plugin->txt('with_results_info'));
         $with_results->setChecked($this->config->with_results);
         $form->addItem($with_results);
+
+        $include_ip_ranges = new ilCheckboxInputGUI($this->plugin->txt('include_ip_ranges'), 'include_ip_ranges');
+        $include_ip_ranges->setInfo($this->plugin->txt('include_ip_ranges_info'));
+        $include_ip_ranges->setChecked($this->config->include_ip_ranges);
+        $form->addItem($include_ip_ranges);
 
         $include_test_log = new ilCheckboxInputGUI($this->plugin->txt('include_test_log'), 'include_test_log');
         $include_test_log->setInfo($this->plugin->txt('include_test_log_info'));

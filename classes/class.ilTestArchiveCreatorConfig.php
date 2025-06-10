@@ -76,6 +76,9 @@ class ilTestArchiveCreatorConfig
     /** @var string path to npm binary for browsershot */
     public string $bs_npm_path;
 
+    /** @var bool include the configured participant ip ranges in the archive */
+    public bool $include_ip_ranges;
+
     /** @var bool include the test log of ilias in the archive */
     public bool $include_test_log;
 
@@ -143,6 +146,7 @@ class ilTestArchiveCreatorConfig
         $this->with_login = (bool) $this->settings->get('with_login', true);
         $this->with_matriculation = (bool) $this->settings->get('with_matriculation', true);
         $this->with_results = (bool) $this->settings->get('with_results', true);
+        $this->include_ip_ranges = (bool) $this->settings->get('include_ip_ranges', true);
         $this->include_test_log = (bool) $this->settings->get('include_test_log', true);
         $this->include_examination_protocol = (bool) $this->settings->get('include_examination_protocol', true);
 
@@ -191,6 +195,7 @@ class ilTestArchiveCreatorConfig
         $this->settings->set('with_login', (bool) $this->with_login ? '1' : '0');
         $this->settings->set('with_matriculation', (bool) $this->with_matriculation ? '1' : '0');
         $this->settings->set('with_results', (bool) $this->with_results ? '1' : '0');
+        $this->settings->set('include_ip_ranges', (bool) $this->include_ip_ranges ? '1' : '0');
         $this->settings->set('include_test_log', (bool) $this->include_test_log ? '1' : '0');
         $this->settings->set('include_examination_protocol', (bool) $this->include_examination_protocol ? '1' : '0');
 
