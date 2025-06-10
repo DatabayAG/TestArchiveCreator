@@ -88,7 +88,7 @@ class ilTestArchiveCreatorList
 
         foreach ($rows as $row) {
             foreach ($row as $column) {
-                $writer->addColumn((string) mb_convert_encoding($column, 'ISO-8859-1', 'UTF-8'));
+                $writer->addColumn((string) mb_convert_encoding((string) $column, 'ISO-8859-1', 'UTF-8'));
             }
             $writer->addRow();
         }
@@ -116,7 +116,7 @@ class ilTestArchiveCreatorList
             $data = $element->getRowData('html');
             $labels = $element->getLinkedLabels();
             foreach ($columns as $key => $label) {
-                if (isset($labels[$key])) {
+                if (isset($labels[$key]) && !empty($data[$key])) {
                     $content = '<a href="' . $data[$key] . '">' . $labels[$key] . '</a>';
                 } else {
                     $content = $data[$key];

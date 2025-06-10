@@ -12,6 +12,8 @@ use ILIAS\Test\ExportImport\Factory as ExportImportFactory;
 use ILIAS\Test\ExportImport\Types as ExportImportTypes;
 use ILIAS\Test\Logging\TestLoggingRepository;
 use ILIAS\Test\ExportImport\DBRepository as TestExportImportRepository;
+use ILIAS\Test\Participants\ParticipantRepository;
+use ILIAS\Test\Participants\Participant as Participant;
 
 /**
  * Creation of test archives
@@ -35,6 +37,7 @@ class ilTestArchiveCreator
     private ExportImportFactory $test_export_factory;
     private TestLoggingRepository $test_logging_repository;
     private TestExportImportRepository $test_export_import_repository;
+    private ParticipantRepository $participant_repository;
 
     private ilTestArchiveCreatorAssets $assetsProcessor;
     private ilTestArchiveCreatorHTML $htmlCreator;
@@ -82,6 +85,7 @@ class ilTestArchiveCreator
         $this->test_export_factory = $test_dic['exportimport.factory'];
         $this->test_logging_repository = $test_dic['logging.repository'];
         $this->test_export_import_repository = $test_dic['exportimport.repository'];
+        $this->participant_repository = $test_dic['participant.repository'];
 
         $this->obj_id = $obj_id;
         $this->testObj = new ilTestArchiveCreatorTest($obj_id, false, 0);
@@ -147,10 +151,9 @@ class ilTestArchiveCreator
             $this->handleExaminationProtocol();
         }
 
-        if ($this->settings->include_answers) {
-            // handle before questions to prefill the used question ids
-            $this->handleParticipants();
-        }
+        // handle before questions to prefill the used question ids
+        $this->handleParticipants();
+
         if ($this->settings->include_questions) {
             $this->handleQuestions();
         }
@@ -482,20 +485,37 @@ class ilTestArchiveCreator
     }
 
     /**
-     * Add the participant to the archive
+     * Add the participants to the archive
      */
     protected function handleParticipants(): void
     {
-        /** @var  ilTestEvaluationUserData $userdata */
-        $participants = $this->testObj->getUnfilteredEvaluationData()->getParticipants();
-        foreach ($participants as $active_id => $userdata) {
-            if (is_object($userdata) && is_array($userdata->getPasses())) {
-                $user = new ilObjUser($userdata->getUserID() ?? 0);
-                if ($user->getId() === 0) {
-                    $user->setLastname($this->plugin->txt('deleted_account'));
-                }
+        $all_participants = $this->participant_repository->getParticipants($this->testObj->getTestId());
+        $active_participants = $this->testObj->getUnfilteredEvaluationData()->getParticipants();
 
-                // pass selection
+        /** @var Participant $participant */
+        foreach ($all_participants as $participant) {
+            $user = new ilObjUser($participant->getUserId() ?? 0);
+            if ($user->getId() === 0) {
+                $user->setLastname($this->plugin->txt('deleted_account'));
+            }
+
+            $element = new ilTestArchiveCreatorParticipant($this);
+            $element->active_id = $participant->getActiveId() ?? 0;
+            $element->firstname = $user->getFirstname();
+            $element->lastname = $user->getLastname();
+            $element->fullname = $user->getFullname();
+            $element->login = $user->getLogin();
+            $element->matriculation = $user->getMatriculation();
+            $element->email = $user->getEmail();
+            $element->ip_range_from = $participant->getClientIpFrom() ?? '';
+            $element->ip_range_to = $participant->getClientIpTo() ?? '';
+
+            $userdata = $active_participants[$element->active_id] ?? null;
+            if ($userdata === null) {
+                $element->exam_id = $this->plugin->buildExamId($this->testObj);
+                $this->participants->add($element);
+            } else {
+
                 switch ($this->settings->pass_selection) {
                     case ilTestArchiveCreatorPlugin::PASS_ALL:
                         $passes = $userdata->getPasses();
@@ -503,164 +523,169 @@ class ilTestArchiveCreator
                     case ilTestArchiveCreatorPlugin::PASS_SCORED:
                     default:
                         $passes = array($userdata->getScoredPassObject());
+                        break;
                 }
 
                 foreach ($passes as $passdata) {
                     if ($passdata instanceof ilTestEvaluationPassData) {
-                        $this->htmlCreator->initMainTemplate();
-
                         $pass = $passdata->getPass();
-                        $exam_id = $this->plugin->buildExamId($this->testObj, $active_id, $pass);
+                        $exam_id = $this->plugin->buildExamId($this->testObj, $element->active_id, $pass);
 
-                        // add the list entry
-                        $element = new ilTestArchiveCreatorParticipant($this);
-                        $element->active_id = (int) $active_id;
-                        $element->firstname = (string) $user->getFirstname();
-                        $element->lastname = (string) $user->getLastname();
-                        $element->login = (string) $user->getLogin();
-                        $element->matriculation = (string) $user->getMatriculation();
-                        $element->exam_id = (string) $exam_id;
-                        $element->pass_number = (int) $passdata->getPass() + 1;
-                        $element->pass_scored = (bool) ($userdata->getScoredPass() == $passdata->getPass());
-                        $element->pass_working_time = (int) $passdata->getWorkingTime();
-                        $element->pass_finish_date = (int) $this->testObj->lookupLastTestPassAccess($active_id, $passdata->getPass());
-                        $element->pass_reached_points = (float) $passdata->getReachedPoints();
+                        $element = clone($element);
+                        $element->exam_id = $exam_id;
+                        $element->pass_number = $passdata->getPass() + 1;
+                        $element->pass_scored = ($userdata->getScoredPass() == $passdata->getPass());
+                        $element->pass_working_time = $passdata->getWorkingTime();
+                        $element->pass_finish_date = (int) $this->testObj->lookupLastTestPassAccess($element->active_id, $passdata->getPass());
+                        $element->pass_reached_points = $passdata->getReachedPoints();
 
                         $this->participants->add($element);
 
-                        // create the list of answers
-                        $tpl = $this->plugin->getTemplate('tpl.participant.html');
-
-                        // test data of the user
-                        $info = array();
-                        $info[$this->lng->txt('firstname')] = $user->getFirstname();
-                        $info[$this->lng->txt('lastname')] = $user->getLastname();
-                        if ($this->config->with_login) {
-                            $info[$this->lng->txt('login')] = $user->getLogin();
+                        if ($this->settings->include_answers) {
+                            $this->createAnswersFile($element, $userdata, $passdata);
                         }
-                        if ($this->config->with_matriculation) {
-                            $info[$this->lng->txt('matriculation')] = $user->getMatriculation();
-                        }
-                        $info[$this->lng->txt('email')] = $user->getEmail();
-
-                        $info[$this->plugin->txt('first_visit')] = ilDatePresentation::formatDate(
-                            new ilDateTime($userdata->getFirstVisit()->getTimestamp(), IL_CAL_UNIX)
-                        )
-                                . ' (' . $userdata->getFirstVisit()->getTimestamp() . ')';
-
-                        $info[$this->plugin->txt('last_visit')] = ilDatePresentation::formatDate(
-                            new ilDateTime($userdata->getLastVisit()->getTimestamp(), IL_CAL_UNIX)
-                        )
-                                . ' (' . $userdata->getLastVisit()->getTimestamp() . ')';
-
-                        $info[$this->plugin->txt('number_passes')] = $userdata->getPassCount();
-                        $info[$this->plugin->txt('scored_pass')] = $userdata->getScoredPass() + 1;
-                        $info[$this->plugin->txt('reached_points')] = $userdata->getReached();
-                        $info[$this->plugin->txt('mark_official')] = $userdata->getMark()->getOfficialName();
-                        $info[$this->plugin->txt('mark_short')] = $userdata->getMark()->getShortName();
-                        $info[$this->plugin->txt('final_result')] = $userdata->getMark()->getPassed() ?
-                            $this->plugin->txt('passed') : $this->plugin->txt('not_passed');
-
-                        foreach ($info as $label => $content) {
-                            $tpl->setCurrentBlock('data_row');
-                            $tpl->setVariable('LABEL', $label);
-                            $tpl->setVariable('CONTENT', $content);
-                            $tpl->parseCurrentBlock();
-                        }
-
-                        // this works for all question set types
-                        $questions = $this->getPassQuestionData($active_id, $pass);
-
-                        foreach ($questions as $row) {
-                            // needed for question selection in random tests
-                            $this->usedQuestionIds[$row['qid']] = true;
-
-                            // pass overview of questions
-                            $tpl->setCurrentBlock('question_row');
-                            $tpl->setVariable('SEQUENCE', $row['nr']);
-                            $tpl->setVariable('QUESTION_ID', $row['qid']);
-                            $tpl->setVariable('QUESTION_TITLE', $row['title']);
-                            $tpl->setVariable('ANSWERED', $row['workedthrough'] ? $this->lng->txt('yes') : $this->lng->txt('no'));
-                            $tpl->setVariable('MAX_POINTS', $row['max']);
-                            $tpl->setVariable('REACHED_POINTS', $row['reached']);
-                            $tpl->setVariable('REACHED_PERCENT', $row['percent']);
-                            $tpl->setVariable('MANUAL', $row['manual'] ? $this->lng->txt('yes') : $this->lng->txt('no'));
-                            $tpl->parseCurrentBlock();
-
-
-                            // answer and solution output
-                            $question_gui = $this->testObj->createQuestionGUI($row['type'], $row['qid']);
-                            $html_answer = $question_gui->getSolutionOutput(
-                                $active_id,
-                                $pass,
-                                true,   // $graphicalOutput
-                                false,  // $result_output
-                                true,   // $show_question_only
-                                false,  // $show_feedback
-                                false,  // $show_correct_solution
-                                $question_gui instanceof assFileUploadGUI,   // $show_manual_scoring
-                                true    // $show_question_text
-                            );
-                            $html_answer = $this->addILIASPage((int) $row['qid'], $html_answer);
-
-                            if ($this->settings->answers_with_best_solution) {
-                                $html_solution = $question_gui->getSolutionOutput($active_id, $pass, false, false, true, false, true);
-                                $html_solution = $this->addILIASPage((int) $row['qid'], $html_solution);
-                            }
-
-                            //manual feedback
-                            if (!empty($row['manualFeedback'])) {
-                                $tpl->setCurrentBlock('manual_feedback');
-                                $tpl->setVariable('TXT_MANUAL_FEEDBACK', $this->plugin->txt('manual_feedback'));
-                                $tpl->setVariable('HTML_MANUAL_FEEDBACK', $feedback = ilRTE::_replaceMediaObjectImageSrc($row['manualFeedback'], 1));
-                                $tpl->parseCurrentBlock();
-                            }
-                            $tpl->setCurrentBlock('question_detail');
-                            $tpl->setVariable('SEQUENCE', $row['nr']);
-                            $tpl->setVariable('QUESTION_TITLE', $row['title']);
-                            $tpl->setVariable('QUESTION_ID', $row['qid']);
-                            $tpl->setVariable('TXT_REACHED_POINTS', $this->lng->txt('tst_reached_points'));
-                            $tpl->setVariable('REACHED_POINTS_OF', sprintf($this->plugin->txt('reached_points_of'), $row['reached'], $row['max']));
-                            $tpl->setVariable('TXT_GIVEN_ANSWER', $this->plugin->txt('given_answer'));
-                            $tpl->setVariable('HTML_ANSWER', $html_answer);
-
-                            if ($this->settings->answers_with_best_solution) {
-                                $tpl->setVariable('TXT_BEST_SOLUTION', $this->plugin->txt('question_best_solution'));
-                                $tpl->setVariable('HTML_SOLUTION', $html_solution);
-                            }
-
-                            $tpl->parseCurrentBlock();
-
-                            unset($question_gui);
-                        }
-
-                        $tpl->setVariable('TXT_SEQUENCE', $this->lng->txt('tst_question_no'));
-                        $tpl->setVariable('TXT_QUESTION_ID', $this->lng->txt('question_id'));
-                        $tpl->setVariable('TXT_QUESTION_TITLE', $this->lng->txt('tst_question_title'));
-                        $tpl->setVariable('TXT_ANSWERED', $this->plugin->txt('answered'));
-                        $tpl->setVariable('TXT_MAX_POINTS', $this->lng->txt('tst_maximum_points'));
-                        $tpl->setVariable('TXT_REACHED_POINTS', $this->lng->txt('tst_reached_points'));
-                        $tpl->setVariable('TXT_REACHED_PERCENT', $this->lng->txt('tst_percent_solved'));
-                        $tpl->setVariable('TXT_MANUAL', $this->plugin->txt('manual'));
-
-                        $tpl->setVariable('TXT_PARTICIPANT', $this->plugin->txt('participant'));
-                        $tpl->setVariable('TXT_PASS_OVERVIEW', sprintf($this->plugin->txt('pass_overview'), $passdata->getPass() + 1));
-                        $tpl->setVariable('TXT_PASS_FINISH_DATE', $this->plugin->txt('finish_date'));
-                        $tpl->setVariable('PASS_FINISH_DATE', ilDatePresentation::formatDate(new ilDateTime($element->pass_finish_date, IL_CAL_UNIX)));
-
-                        $title = $this->testObj->getTitle() . ' [' . $exam_id . ']';
-                        $description = $this->testObj->getDescription();
-                        $head_left = $title;
-                        $head_right = $user->getFullname();
-
-                        $participant_dir = 'participants/' . $element->getFolderName();
-                        $file = $participant_dir . '/' . $element->getFilePrefix() . '_answers';
-                        $element->answers_file = $file;
-                        $this->createContent($file, $title, $description, $tpl->get(), $head_left, $head_right);
                     }
                 }
             }
         }
+    }
+
+    public function createAnswersFile(
+        ilTestArchiveCreatorParticipant $element,
+        ilTestEvaluationUserData $userdata,
+        ilTestEvaluationPassData $passdata,
+        )
+    {
+        $this->htmlCreator->initMainTemplate();
+        $tpl = $this->plugin->getTemplate('tpl.participant.html');
+
+        // test data of the user
+        $info = array();
+        $info[$this->lng->txt('firstname')] = $element->firstname;
+        $info[$this->lng->txt('lastname')] = $element->lastname;
+        if ($this->config->with_login) {
+            $info[$this->lng->txt('login')] = $element->login;
+        }
+        if ($this->config->with_matriculation) {
+            $info[$this->lng->txt('matriculation')] = $element->matriculation;
+        }
+        $info[$this->lng->txt('email')] = $element->email;
+
+        $info[$this->plugin->txt('first_visit')] = ilDatePresentation::formatDate(
+                new ilDateTime($userdata->getFirstVisit()->getTimestamp(), IL_CAL_UNIX)
+            )
+            . ' (' . $userdata->getFirstVisit()->getTimestamp() . ')';
+
+        $info[$this->plugin->txt('last_visit')] = ilDatePresentation::formatDate(
+                new ilDateTime($userdata->getLastVisit()->getTimestamp(), IL_CAL_UNIX)
+            )
+            . ' (' . $userdata->getLastVisit()->getTimestamp() . ')';
+
+        $info[$this->plugin->txt('number_passes')] = $userdata->getPassCount();
+        $info[$this->plugin->txt('scored_pass')] = $userdata->getScoredPass() + 1;
+        $info[$this->plugin->txt('reached_points')] = $userdata->getReached();
+        $info[$this->plugin->txt('mark_official')] = $userdata->getMark()->getOfficialName();
+        $info[$this->plugin->txt('mark_short')] = $userdata->getMark()->getShortName();
+        $info[$this->plugin->txt('final_result')] = $userdata->getMark()->getPassed() ?
+            $this->plugin->txt('passed') : $this->plugin->txt('not_passed');
+
+        foreach ($info as $label => $content) {
+            $tpl->setCurrentBlock('data_row');
+            $tpl->setVariable('LABEL', $label);
+            $tpl->setVariable('CONTENT', $content);
+            $tpl->parseCurrentBlock();
+        }
+
+        // this works for all question set types
+        $questions = $this->getPassQuestionData($element->active_id, $passdata->getPass());
+
+        foreach ($questions as $row) {
+            // needed for question selection in random tests
+            $this->usedQuestionIds[$row['qid']] = true;
+
+            // pass overview of questions
+            $tpl->setCurrentBlock('question_row');
+            $tpl->setVariable('SEQUENCE', $row['nr']);
+            $tpl->setVariable('QUESTION_ID', $row['qid']);
+            $tpl->setVariable('QUESTION_TITLE', $row['title']);
+            $tpl->setVariable('ANSWERED', $row['workedthrough'] ? $this->lng->txt('yes') : $this->lng->txt('no'));
+            $tpl->setVariable('MAX_POINTS', $row['max']);
+            $tpl->setVariable('REACHED_POINTS', $row['reached']);
+            $tpl->setVariable('REACHED_PERCENT', $row['percent']);
+            $tpl->setVariable('MANUAL', $row['manual'] ? $this->lng->txt('yes') : $this->lng->txt('no'));
+            $tpl->parseCurrentBlock();
+
+
+            // answer and solution output
+            $question_gui = $this->testObj->createQuestionGUI($row['type'], $row['qid']);
+            $html_answer = $question_gui->getSolutionOutput(
+                $element->active_id,
+                $passdata->getPass(),
+                true,   // $graphicalOutput
+                false,  // $result_output
+                true,   // $show_question_only
+                false,  // $show_feedback
+                false,  // $show_correct_solution
+                $question_gui instanceof assFileUploadGUI,   // $show_manual_scoring
+                true    // $show_question_text
+            );
+            $html_answer = $this->addILIASPage((int) $row['qid'], $html_answer);
+
+            if ($this->settings->answers_with_best_solution) {
+                $html_solution = $question_gui->getSolutionOutput($element->active_id, $passdata->getPass(), false, false, true, false, true);
+                $html_solution = $this->addILIASPage((int) $row['qid'], $html_solution);
+            }
+
+            //manual feedback
+            if (!empty($row['manualFeedback'])) {
+                $tpl->setCurrentBlock('manual_feedback');
+                $tpl->setVariable('TXT_MANUAL_FEEDBACK', $this->plugin->txt('manual_feedback'));
+                $tpl->setVariable('HTML_MANUAL_FEEDBACK', $feedback = ilRTE::_replaceMediaObjectImageSrc($row['manualFeedback'], 1));
+                $tpl->parseCurrentBlock();
+            }
+            $tpl->setCurrentBlock('question_detail');
+            $tpl->setVariable('SEQUENCE', $row['nr']);
+            $tpl->setVariable('QUESTION_TITLE', $row['title']);
+            $tpl->setVariable('QUESTION_ID', $row['qid']);
+            $tpl->setVariable('TXT_REACHED_POINTS', $this->lng->txt('tst_reached_points'));
+            $tpl->setVariable('REACHED_POINTS_OF', sprintf($this->plugin->txt('reached_points_of'), $row['reached'], $row['max']));
+            $tpl->setVariable('TXT_GIVEN_ANSWER', $this->plugin->txt('given_answer'));
+            $tpl->setVariable('HTML_ANSWER', $html_answer);
+
+            if ($this->settings->answers_with_best_solution) {
+                $tpl->setVariable('TXT_BEST_SOLUTION', $this->plugin->txt('question_best_solution'));
+                $tpl->setVariable('HTML_SOLUTION', $html_solution);
+            }
+
+            $tpl->parseCurrentBlock();
+
+            unset($question_gui);
+        }
+
+        $tpl->setVariable('TXT_SEQUENCE', $this->lng->txt('tst_question_no'));
+        $tpl->setVariable('TXT_QUESTION_ID', $this->lng->txt('question_id'));
+        $tpl->setVariable('TXT_QUESTION_TITLE', $this->lng->txt('tst_question_title'));
+        $tpl->setVariable('TXT_ANSWERED', $this->plugin->txt('answered'));
+        $tpl->setVariable('TXT_MAX_POINTS', $this->lng->txt('tst_maximum_points'));
+        $tpl->setVariable('TXT_REACHED_POINTS', $this->lng->txt('tst_reached_points'));
+        $tpl->setVariable('TXT_REACHED_PERCENT', $this->lng->txt('tst_percent_solved'));
+        $tpl->setVariable('TXT_MANUAL', $this->plugin->txt('manual'));
+
+        $tpl->setVariable('TXT_PARTICIPANT', $this->plugin->txt('participant'));
+        $tpl->setVariable('TXT_PASS_OVERVIEW', sprintf($this->plugin->txt('pass_overview'), $passdata->getPass() + 1));
+        $tpl->setVariable('TXT_PASS_FINISH_DATE', $this->plugin->txt('finish_date'));
+        $tpl->setVariable('PASS_FINISH_DATE', ilDatePresentation::formatDate(
+            new ilDateTime($element->pass_finish_date, IL_CAL_UNIX)));
+
+        $title = $this->testObj->getTitle() . ' [' . $element->exam_id . ']';
+        $description = $this->testObj->getDescription();
+        $head_left = $title;
+        $head_right = $element->fullname;
+
+        $participant_dir = 'participants/' . $element->getFolderName();
+        $file = $participant_dir . '/' . $element->getFilePrefix() . '_answers';
+        $element->answers_file = $file;
+        $this->createContent($file, $title, $description, $tpl->get(), $head_left, $head_right);
     }
 
     /**
@@ -670,15 +695,18 @@ class ilTestArchiveCreator
     {
         /** @var ilTestArchiveCreatorParticipant $participant */
         foreach ($this->participants->elements as $participant) {
+            $file = null;
             if ($this->storage->has($this->workdir . '/' . $participant->answers_file . '.pdf')) {
                 $file = $participant->answers_file . '.pdf';
                 $participant->setHasPdf(true);
-            } else {
+            } elseif ($this->storage->has($this->workdir . '/' . $participant->answers_file . '.html')) {
                 $file = $participant->answers_file . '.html';
                 $participant->setHasPdf(false);
             }
-            $content = $this->storage->read($this->workdir . '/' . $file);
-            $participant->answers_hash = sha1($content);
+            if ($file !== null) {
+                $content = $this->storage->read($this->workdir . '/' . $file);
+                $participant->answers_hash = sha1($content);
+            }
         }
 
         /** @var ilTestArchiveCreatorQuestion $question */
@@ -693,10 +721,8 @@ class ilTestArchiveCreator
         }
 
         // participants
-        if ($this->settings->include_answers) {
-            $this->createFile('participants.csv', $this->participants->getCSV());
-            $this->createIndex('participants.html', $this->participants->getHTML());
-        }
+        $this->createFile('participants.csv', $this->participants->getCSV());
+        $this->createIndex('participants.html', $this->participants->getHTML());
 
         // assets
         if ($this->config->embed_assets) {

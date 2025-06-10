@@ -171,3 +171,5 @@ notification_subject#:#ILIAS Test Archive Files created
 notification_message#:#The archive files have been created. You can download them here:
 include_ip_ranges#:#Include IPs
 include_ip_ranges_info#:#Include client IP ranges in export of participant data.
+ip_range_from#:#IP Range From
+ip_range_to#:#IP Range To

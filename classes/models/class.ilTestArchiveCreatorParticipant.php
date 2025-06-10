@@ -10,9 +10,13 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
     public int $active_id = 0;
     public string $firstname = '';
     public string $lastname = '';
+    public string $fullname = '';
     public string $login = '';
     public string $matriculation = '';
+    public string $email = '';
     public string $exam_id = '';
+    public string $ip_range_from = '';
+    public string $ip_range_to = '';
 
     public int $pass_number = 0;
     public bool $pass_scored = false;
@@ -20,7 +24,7 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
     public int $pass_finish_date = 0;
     public float $pass_reached_points = 0;
 
-    public string $answers_file = '';
+    public ?string $answers_file = null;
     public string $answers_hash = '';
 
     /**
@@ -60,6 +64,8 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
             'login' => $this->lng->txt('login'),
             'matriculation' => $this->lng->txt('matriculation'),
             'exam_id' => $this->plugin->txt('exam_id'),
+            'ip_range_from' => $this->plugin->txt('ip_range_from'),
+            'ip_range_to' => $this->plugin->txt('ip_range_to'),
             'pass_number' => $this->plugin->txt('pass_number'),
             'pass_scored' => $this->plugin->txt('is_scored'),
             'pass_working_time' => $this->plugin->txt('working_time'),
@@ -74,6 +80,10 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
         }
         if (!$this->creator->config->with_matriculation) {
             unset($columns['matriculation']);
+        }
+        if (!$this->creator->config->include_ip_ranges) {
+            unset($columns['ip_range_from']);
+            unset($columns['ip_range_to']);
         }
         return $columns;
     }
@@ -98,19 +108,43 @@ class ilTestArchiveCreatorParticipant extends ilTestArchiveCreatorElement
     public function getRowData(string $format = 'csv'): array
     {
         $pass_finish_date = new ilDateTime($this->pass_finish_date, IL_CAL_UNIX);
-        return array(
-            'firstname' => $this->firstname,
-            'lastname' => $this->lastname,
-            'login' => $this->login,
-            'matriculation' => $this->matriculation,
-            'exam_id' => $this->exam_id,
-            'pass_number' => $this->pass_number,
-            'pass_scored' => $format == 'csv' ? $this->pass_scored : ($this->pass_scored ? $this->lng->txt('yes') : $this->lng->txt('no')),
-            'pass_finish_date' => $format == 'csv' ? $pass_finish_date->get(IL_CAL_DATETIME) : ilDatePresentation::formatDate($pass_finish_date),
-            'pass_working_time' => $format == 'csv' ? $this->pass_working_time : ilDatePresentation::secondsToString($this->pass_working_time),
-            'pass_reached_points' => $this->pass_reached_points,
-            'answers_file' => $this->answers_file . ($this->has_pdf ? '.pdf' : '.html'),
-            'answers_hash' => $this->answers_hash,
-        );
+        if ($this->active_id) {
+
+            return [
+                'firstname' => $this->firstname,
+                'lastname' => $this->lastname,
+                'login' => $this->login,
+                'matriculation' => $this->matriculation,
+                'exam_id' => $this->exam_id,
+                'ip_range_from' => $this->ip_range_from,
+                'ip_range_to' => $this->ip_range_to,
+                'pass_number' => $this->pass_number,
+                'pass_scored' => $format == 'csv' ? $this->pass_scored : ($this->pass_scored ? $this->lng->txt('yes') : $this->lng->txt('no')),
+                'pass_finish_date' => $format == 'csv' ? $pass_finish_date->get(IL_CAL_DATETIME) : ilDatePresentation::formatDate($pass_finish_date),
+                'pass_working_time' => $format == 'csv' ? $this->pass_working_time : ilDatePresentation::secondsToString($this->pass_working_time),
+                'pass_reached_points' => $this->pass_reached_points,
+                'answers_file' => $this->answers_file ? ($this->answers_file . ($this->has_pdf ? '.pdf' : '.html')) : '',
+                'answers_hash' => $this->answers_hash,
+            ];
+        } else {
+
+            return [
+                'firstname' => $this->firstname,
+                'lastname' => $this->lastname,
+                'login' => $this->login,
+                'matriculation' => $this->matriculation,
+                'exam_id' => $this->exam_id,
+                'ip_range_from' => $this->ip_range_from,
+                'ip_range_to' => $this->ip_range_to,
+                'pass_number' => '',
+                'pass_scored' => '',
+                'pass_finish_date' => '',
+                'pass_working_time' => '',
+                'pass_reached_points' => '',
+                'answers_file' => '',
+                'answers_hash' => '',
+            ];
+        }
+
     }
 }
