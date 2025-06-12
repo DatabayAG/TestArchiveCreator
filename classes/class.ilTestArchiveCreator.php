@@ -11,6 +11,9 @@ use ILIAS\Test\TestDIC;
 use ILIAS\Test\ExportImport\Factory as ExportImportFactory;
 use ILIAS\Test\ExportImport\Types as ExportImportTypes;
 use ILIAS\Test\Logging\TestLoggingRepository;
+use ILIAS\Test\Logging\TestLogger;
+use ILIAS\Test\Logging\TestLogViewer;
+use ILIAS\Test\Utilities\TitleColumnsBuilder;
 use ILIAS\Test\ExportImport\DBRepository as TestExportImportRepository;
 use ILIAS\Test\Participants\ParticipantRepository;
 use ILIAS\Test\Participants\Participant as Participant;
@@ -26,6 +29,7 @@ class ilTestArchiveCreator
     public ilTestArchiveCreatorSettings $settings;
     public ilTestArchiveCreatorFileSystems $filesystems;
 
+    private ilObjUser $user;
     private ilLanguage $lng;
     private Filesystem $storage;
     private ResourceStorage $resource_storage;
@@ -36,6 +40,9 @@ class ilTestArchiveCreator
     private Archives $archives;
     private ExportImportFactory $test_export_factory;
     private TestLoggingRepository $test_logging_repository;
+    private TestLogger $test_logger;
+    private TestLogViewer $test_log_viewer;
+    private TitleColumnsBuilder $title_columns_builder;
     private TestExportImportRepository $test_export_import_repository;
     private ParticipantRepository $participant_repository;
 
@@ -72,6 +79,7 @@ class ilTestArchiveCreator
         $this->settings = $plugin->getSettings($obj_id);
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
 
+        $this->user = $DIC->user();
         $this->lng = $DIC->language();
         $this->storage = $DIC->filesystem()->storage();
         $this->resource_storage = $DIC->resourceStorage();
@@ -84,8 +92,11 @@ class ilTestArchiveCreator
         $test_dic = TestDIC::dic();
         $this->test_export_factory = $test_dic['exportimport.factory'];
         $this->test_logging_repository = $test_dic['logging.repository'];
+        $this->test_logger = $test_dic['logging.logger'];
+        $this->test_log_viewer = $test_dic['logging.viewer'];
         $this->test_export_import_repository = $test_dic['exportimport.repository'];
         $this->participant_repository = $test_dic['participant.repository'];
+        $this->title_columns_builder = $test_dic['title_columns_builder'];
 
         $this->obj_id = $obj_id;
         $this->testObj = new ilTestArchiveCreatorTest($obj_id, false, 0);
@@ -203,6 +214,7 @@ class ilTestArchiveCreator
         if ($this->storage->has($this->workdir . '/testlog.html')) {
             $tpl->setVariable('TXT_TEST_LOG_HTML', $this->plugin->txt('test_log_html'));
             $tpl->setVariable('TXT_TEST_LOG_CSV', $this->plugin->txt('test_log_csv'));
+            $tpl->setVariable('TXT_TEST_LOG_XLSX', $this->plugin->txt('test_log_xlsx'));
         }
 
         if ($this->storage->has($this->workdir . '/examination_protocol.html')) {
@@ -351,28 +363,38 @@ class ilTestArchiveCreator
      */
     public function handleTestLog(): void
     {
-        $log_list = $this->test_logging_repository->getLegacyLogsForObjId($this->testObj->getId());
+        $ref_ids = ilObject::_getAllReferences($this->testObj->getId());
 
-        $users = [];
-        $titles = [];
-        foreach ($log_list as $log) {
-            if (!isset($users[$log['user_fi']])) {
-                $users[$log['user_fi']] = ilObjUser::_lookupName((int) $log['user_fi']);
-            }
-            if (isset($log['question_fi']) && !isset($titles[$log['question_fi']])) {
-                $titles[$log['question_fi']] = $this->question_info->getGeneralQuestionProperties((int) $log['question_fi'])?->getTitle() ?? '';
-            }
+        foreach ($this->test_logging_repository->getLogs($this->test_logger->getInteractionTypes(), $ref_ids) as $log) {
+
+            $row = $log->getLogEntryAsExportRow(
+                $this->lng,
+                $this->title_columns_builder,
+                $this->test_logger->getAdditionalInformationGenerator(),
+                [
+                    'timezone' => new \DateTimeZone($this->user->getTimeZone()),
+                    'date_format' => $this->test_log_viewer->buildUserDateTimeFormat()->toString()
+                ]
+            );
 
             $entry = new ilTestArchiveCreatorLogEntry($this);
-            $entry->timestamp = (int) $log['tstamp'];
-            $entry->log_id = (int) $log['ass_log_id'];
-            $entry->user_id = (int) $log['user_fi'];
-            $entry->question_id = isset($log['question_fi']) ? (int) $log['question_fi'] : null;
-            $entry->login = (string) ($users[$log['user_fi']]['login'] ?? $this->lng->txt('anonymous'));
-            $entry->question = (string) ($titles[$log['question_fi']] ?? '');
-            $entry->logtext = (string) ($log['logtext'] ?? '');
+            $entry->date_time = (string) ($row[0] ?? '');
+            $entry->test = (string) ($row[1] ?? '');
+            $entry->author = (string) ($row[2] ?? '');
+            $entry->tst_participant = (string) ($row[3] ?? '');
+            $entry->client_ip = (string) ($row[4] ?? '');
+            $entry->question = (string) ($row[5] ?? '');
+            $entry->log_entry_type = (string) ($row[6] ?? '');
+            $entry->interaction_type = (string) ($row[7] ?? '');
+            $entry->additional_info = (string) ($row[8] ?? '');
+
             $this->testlog->add($entry);
         }
+
+        $workbook = $this->test_log_viewer->buildExcelWorkbookForLogs(
+            $this->test_logging_repository->getLogs($this->test_logger->getInteractionTypes(), $ref_ids)
+        );
+        $workbook->writeToFile(CLIENT_DATA_DIR . '/' . $this->workdir . '/testlog.xlsx');
 
         $this->createFile('testlog.csv', $this->testlog->getCSV());
         $this->createIndex('testlog.html', $this->testlog->getHTML());
@@ -554,8 +576,7 @@ class ilTestArchiveCreator
         ilTestArchiveCreatorParticipant $element,
         ilTestEvaluationUserData $userdata,
         ilTestEvaluationPassData $passdata,
-        )
-    {
+    ) {
         $this->htmlCreator->initMainTemplate();
         $tpl = $this->plugin->getTemplate('tpl.participant.html');
 
@@ -572,13 +593,13 @@ class ilTestArchiveCreator
         $info[$this->lng->txt('email')] = $element->email;
 
         $info[$this->plugin->txt('first_visit')] = ilDatePresentation::formatDate(
-                new ilDateTime($userdata->getFirstVisit()->getTimestamp(), IL_CAL_UNIX)
-            )
+            new ilDateTime($userdata->getFirstVisit()->getTimestamp(), IL_CAL_UNIX)
+        )
             . ' (' . $userdata->getFirstVisit()->getTimestamp() . ')';
 
         $info[$this->plugin->txt('last_visit')] = ilDatePresentation::formatDate(
-                new ilDateTime($userdata->getLastVisit()->getTimestamp(), IL_CAL_UNIX)
-            )
+            new ilDateTime($userdata->getLastVisit()->getTimestamp(), IL_CAL_UNIX)
+        )
             . ' (' . $userdata->getLastVisit()->getTimestamp() . ')';
 
         $info[$this->plugin->txt('number_passes')] = $userdata->getPassCount();
@@ -675,7 +696,8 @@ class ilTestArchiveCreator
         $tpl->setVariable('TXT_PASS_OVERVIEW', sprintf($this->plugin->txt('pass_overview'), $passdata->getPass() + 1));
         $tpl->setVariable('TXT_PASS_FINISH_DATE', $this->plugin->txt('finish_date'));
         $tpl->setVariable('PASS_FINISH_DATE', ilDatePresentation::formatDate(
-            new ilDateTime($element->pass_finish_date, IL_CAL_UNIX)));
+            new ilDateTime($element->pass_finish_date, IL_CAL_UNIX)
+        ));
 
         $title = $this->testObj->getTitle() . ' [' . $element->exam_id . ']';
         $description = $this->testObj->getDescription();
@@ -941,7 +963,7 @@ class ilTestArchiveCreator
     protected function createZipFile(): bool
     {
         $export_dir = 'tst_data/archive_exports/tst_' . $this->testObj->getId();
-        $title = $this->settings->file_prefix .  'test_archive_obj_' . $this->testObj->getId() . '_' . time() . '_plugin.zip';
+        $title = $this->settings->file_prefix . 'test_archive_obj_' . $this->testObj->getId() . '_' . time() . '_plugin.zip';
 
         try {
             if (!$this->storage->hasDir($export_dir)) {

@@ -143,6 +143,7 @@ include_examination_protocol_info#:#Bindet das Prüfungsereignis-Prokoll ins Arc
 test_log#:#Test-Protokoll
 test_log_html#:#Test-Protokoll (HTML)
 test_log_csv#:#Test-Protokoll (CSV)
+test_log_xlsx#:#Test-Protokoll (XLSX)
 log_timestamp#:#Datum/Uhrzeit
 log_user_id#:#Benutzer-ID
 log_login#:#Login-Name

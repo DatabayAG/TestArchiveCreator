@@ -7,13 +7,15 @@
  */
 class ilTestArchiveCreatorLogEntry extends ilTestArchiveCreatorElement
 {
-    public int $log_id = 0;
-    public int $timestamp = 0;
-    public int $user_id = 0;
-    public ?int $question_id = null;
-    public string $login = '';
-    public string $question = '';
-    public string $logtext = '';
+    public string $date_time;
+    public string $test;
+    public string $author;
+    public string $tst_participant;
+    public string $client_ip;
+    public string $question;
+    public string $log_entry_type;
+    public string $interaction_type;
+    public string $additional_info;
 
 
     /**
@@ -38,7 +40,7 @@ class ilTestArchiveCreatorLogEntry extends ilTestArchiveCreatorElement
      */
     public function getSortIndex(): string
     {
-        return $this->log_id;
+        return $this->date_time . ' ' . md5(serialize($this->getRowData()));
     }
 
     /**
@@ -48,14 +50,17 @@ class ilTestArchiveCreatorLogEntry extends ilTestArchiveCreatorElement
      */
     public function getColumns(): array
     {
-        return array(
-            'timestamp' => $this->plugin->txt('log_timestamp'),
-            'user_id' => $this->plugin->txt('log_user_id'),
-            'login' => $this->plugin->txt('log_login'),
-            'question_id' => $this->plugin->txt('log_question_id'),
-            'question' => $this->plugin->txt('log_question'),
-            'logtext' => $this->plugin->txt('log_logtext')
-        );
+        return  [
+            'date_time' => $this->lng->txt('date_time'),
+            'test' => $this->lng->txt('test'),
+            'author' => $this->lng->txt('author'),
+            'tst_participant' => $this->lng->txt('tst_participant'),
+            'client_ip' => $this->lng->txt('client_ip'),
+            'question' => $this->lng->txt('question'),
+            'log_entry_type' => $this->lng->txt('log_entry_type'),
+            'interaction_type' => $this->lng->txt('interaction_type'),
+            'additional_info' => $this->lng->txt('additional_info')
+        ];
     }
 
     /**
@@ -64,7 +69,7 @@ class ilTestArchiveCreatorLogEntry extends ilTestArchiveCreatorElement
      */
     public function getLinkedLabels(): array
     {
-        return array();
+        return [];
     }
 
     /**
@@ -74,14 +79,16 @@ class ilTestArchiveCreatorLogEntry extends ilTestArchiveCreatorElement
      */
     public function getRowData(string $format = 'csv'): array
     {
-        $datetime = new ilDateTime($this->timestamp, IL_CAL_UNIX);
-        return array(
-            'timestamp' => ilDatePresentation::formatDate($datetime),
-            'user_id' => $this->user_id,
-            'login' => $this->login,
-            'question_id' => $this->question_id,
+        return  [
+            'date_time' => $this->date_time,
+            'test' => $this->test,
+            'author' => $this->author,
+            'tst_participant' => $this->tst_participant,
+            'client_ip' => $this->client_ip,
             'question' => $this->question,
-            'logtext' => $this->logtext
-        );
+            'log_entry_type' => $this->log_entry_type,
+            'interaction_type' => $this->interaction_type,
+            'additional_info' => $this->additional_info
+        ];
     }
 }
