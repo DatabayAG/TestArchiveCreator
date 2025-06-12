@@ -163,7 +163,7 @@ support_notifications_info#:#Users can list accounts that should get notified ab
 notifications#:#Notifications
 notifications_info#:#Sent notifications to users (enter login)
 file_prefix#:#File Prefix
-file_prefix_info#:#The prefix will be added to the file name of the generated archive. 8 characters are allowed.
+file_prefix_info#:#The prefix will be added to the file name of the generated archive. 8 characters are allowed: A-Z, a-z, '.' and '-'
 wrong_notification_logins#:#the following login names are not valid: %s
 wrong_file_prefix#:#The prefix has invalid characters
 form_validation_errors#:#The form has wrong inputs. See alerts at the input fields.

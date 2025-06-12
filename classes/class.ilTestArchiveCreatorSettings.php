@@ -195,7 +195,7 @@ class ilTestArchiveCreatorSettings
         // '/[\000-\031\/<>:"\\\\|?* ]/'
 
         // restrict to latin characters and numbers
-        if ($prefix === '' || preg_match('/[A-Za-z0-9.\-]/', $prefix)) {
+        if (preg_match('/^[A-Za-z0-9.\-]*$/', $prefix)) {
             $this->file_prefix = $prefix;
             return true;
         }
