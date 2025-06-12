@@ -80,7 +80,7 @@ class ilTestArchiveCreatorAssets
      * Process HTML code with XSLT
      * This will replace URLs in attributes line 'src' with the function process URL
      */
-    protected function processXslt(string $html, string $xslt_file): string
+    private function processXslt(string $html, string $xslt_file): string
     {
         try {
             // get the xslt document
@@ -114,7 +114,7 @@ class ilTestArchiveCreatorAssets
      * @param bool $in_asset        css code is already in an asset file that is copied to the archive
      * @return string               the processed css code
      */
-    protected function processStyle(string $css, string $url_path, bool $in_asset = true): string
+    private function processStyle(string $css, string $url_path, bool $in_asset = true): string
     {
         // get the prefix for relative urls
         $info = pathinfo($url_path);
@@ -148,7 +148,7 @@ class ilTestArchiveCreatorAssets
      * @param bool $in_asset            URL is already in an asset file, target will be copied to the same directory
      * @return string                   Offline URL to the asset folder in the archive or online URL to the asset delivery script
      */
-    protected function processUrl(string $url, bool $in_asset = false): string
+    private function processUrl(string $url, bool $in_asset = false): string
     {
         try {
             // be prepared for different URL from web or cron job
@@ -176,13 +176,9 @@ class ilTestArchiveCreatorAssets
                 if (!empty($identification = $manager->find($resource_id))) {
                     $resource = $manager->getResource($identification);
                     $extension = $resource->getCurrentRevision()->getInformation()->getSuffix();
-
                     $asset_name = sha1($resource_id) . '.' . $extension;
-                    $sec_name = sha1($resource_id) . '.' . $extension . '.sec';
 
-                    if ($this->copy_assets
-                        && !$this->storage->has($this->storage_path . '/' . $asset_name)
-                        && !$this->storage->has($this->storage_path . '/' . $sec_name)
+                    if ($this->needsCopy($asset_name)
                     ) {
                         $consumer = $this->resource_storage->consume()->stream($identification);
                         $this->storage->writeStream($this->storage_path . '/' . $asset_name, $consumer->getStream());
@@ -193,19 +189,22 @@ class ilTestArchiveCreatorAssets
                 && str_contains($parsed['path'] ?? '', 'deliver.php')
             ) {
                 // url is a local file delivery
-                $info = pathinfo($parsed['path']);
-                $extension = $info['extension'] ?? '';
+                $extension = pathinfo($parsed['path'] ?? '', PATHINFO_EXTENSION);
+                $asset_name = sha1($url) . ($extension == '' ? '' : '.' . $extension);
 
-                $asset_name = sha1($url) . '.' . $extension;
-                $sec_name = sha1($url) . '.' . $extension . '.sec';
-
-                if ($this->copy_assets
-                    && !$this->storage->has($this->storage_path . '/' . $asset_name)
-                    && !$this->storage->has($this->storage_path . '/' . $sec_name)
+                if ($this->needsCopy($asset_name)
                 ) {
                     $fetch_url = ILIAS_HTTP_PATH . '/deliver.php'
                         . substr($parsed['path'], strpos($parsed['path'], 'deliver.php') + strlen('deliver.php'));
-                    $temp_file = $this->fetchFromUrl($fetch_url);
+
+                    list($temp_file, $filename) = $this->fetchFromUrl($fetch_url);
+
+                    // take the extension from the fetched file if given in the url
+                    if ($extension === '' && $filename !== null) {
+                        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                        $asset_name = sha1($url) . ($extension == '' ? '' : '.' . $extension);
+                    }
+
                     if ($temp_file !== null) {
                         $fs = $this->filesystems->deriveFilesystemFrom($temp_file);
                         $path = $this->filesystems->createRelativePath($temp_file);
@@ -233,9 +232,7 @@ class ilTestArchiveCreatorAssets
                             $content = $this->processStyle($system->read($path), $parsed['path'], true);
                         }
 
-                        if ($this->copy_assets
-                            && !$this->storage->has($this->storage_path . '/' . $asset_name)
-                            && !$this->storage->has($this->storage_path . '/' . $sec_name)) {
+                        if ($this->needsCopy($asset_name)) {
                             if (isset($content)) {
                                 $this->storage->write($this->storage_path . '/' . $asset_name, $content);
                             } else {
@@ -271,11 +268,29 @@ class ilTestArchiveCreatorAssets
         }
     }
 
+    /**
+     * Get the extension with a dot if the path has an extension
+     */
+    private function getExtensionWithDot(string $path): string
+    {
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        return (!empty($extension) ? '.' . $extension : '');
+    }
+
+    /**
+     * Check if an asset file needs to be copied to the archive
+     */
+    private function needsCopy(string $asset_name): bool
+    {
+        return $this->copy_assets
+            && !$this->storage->has($this->storage_path . '/' . $asset_name)
+            && !$this->storage->has($this->storage_path . '/' . $asset_name . '.sec');
+    }
 
     /**
      * Get the resource ID of a file resource from the query string
      */
-    public function getResourceId(string $query): ?string
+    private function getResourceId(string $query): ?string
     {
         $params = [];
         parse_str($query, $params);
@@ -296,7 +311,7 @@ class ilTestArchiveCreatorAssets
      * Check if an extension is allowed for being copied to the archive
      * PHP files should not be copied
      */
-    protected function checkExtension(string $extension): bool
+    private function checkExtension(string $extension): bool
     {
         $forbidden = ['php'];
         return !in_array(strtolower($extension), $forbidden);
@@ -304,26 +319,43 @@ class ilTestArchiveCreatorAssets
 
     /**
      * Fetch an asset from an url
-     * @return string absolute path of temporary file
+     * @return array    [filepath, filename]
+     * @see \ILIAS\FileDelivery\Delivery\BaseDelivery::setGeneralHeaders
      */
-    protected function fetchFromUrl(string $url): ?string
+    private function fetchFromUrl(string $url): array
     {
         try {
+            $filename = null;
+
             $temp_file = ilFileUtils::ilTempnam();
+            $head_file = ilFileUtils::ilTempnam();
+
             $fp = fopen($temp_file, 'w');
+            $hp = fopen($head_file, 'w+');
 
             $curl = curl_init($url);
-            curl_setopt($curl, CURLOPT_HEADER, false);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_WRITEHEADER, $hp);
             curl_setopt($curl, CURLOPT_TIMEOUT, 30);
             curl_setopt($curl, CURLOPT_FILE, $fp);
             curl_exec($curl);
+
+            if (!curl_errno($curl)) {
+                rewind($hp);
+                $headers = stream_get_contents($hp);
+
+                if (preg_match('/Content-Disposition: .*filename="([^"]+)"/', $headers, $matches)) {
+                    $filename = $matches[1];
+                }
+            }
+
             curl_close($curl);
             fclose($fp);
+            fclose($hp);
 
-            return $temp_file;
+            return [$temp_file, $filename];
+
         } catch (Throwable $e) {
-            return null;
+            return [null, null];
         }
     }
 }
