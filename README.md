@@ -22,7 +22,7 @@ Please use the official ILIAS bug tracker "Mantis" for bug reporting: https://ma
 ## Plugin installation
 
 1. Put the content of the plugin directory in a subdirectory under your ILIAS main directory:
-`Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator`
+`public/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator`
 2. Move to the base directory of your ILIAS and run `composer du` to reload the current plugin version
 3. Open Administration > Extending ILIAS > Plugins
 4. Install and activate the plugin
