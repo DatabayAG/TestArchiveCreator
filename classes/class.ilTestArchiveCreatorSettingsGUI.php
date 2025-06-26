@@ -259,6 +259,7 @@ class ilTestArchiveCreatorSettingsGUI
         } else {
             $status->setDisabled(true);
             $status->setInfo($this->plugin->txt('message_cron_plugin_inactive'));
+            $schedule->setInfo($this->plugin->txt('message_cron_plugin_inactive'));
             $schedule->setDisabled(true);
         }
 
@@ -435,27 +436,31 @@ class ilTestArchiveCreatorSettingsGUI
 
         $infos[] = $this->lng->txt('cron_last_run') . ': ' . ($run ? ilDatePresentation::formatDate($run) : '-');
 
-        $schedule = match ($job->getScheduleType() ?? $job->getDefaultScheduleType()) {
-            CronJobScheduleType::SCHEDULE_TYPE_DAILY => $this->lng->txt('cron_schedule_daily'),
-            CronJobScheduleType::SCHEDULE_TYPE_WEEKLY => $this->lng->txt('cron_schedule_weekly'),
-            CronJobScheduleType::SCHEDULE_TYPE_MONTHLY => $this->lng->txt('cron_schedule_monthly'),
-            CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY => $this->lng->txt('cron_schedule_quarterly'),
-            CronJobScheduleType::SCHEDULE_TYPE_YEARLY => $this->lng->txt('cron_schedule_yearly'),
-            CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES => sprintf(
-                $this->lng->txt('cron_schedule_in_minutes'),
-                $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
-            ),
-            CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS => sprintf(
-                $this->lng->txt('cron_schedule_in_hours'),
-                $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
-            ),
-            CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS => sprintf(
-                $this->lng->txt('cron_schedule_in_days'),
-                $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
-            )
-        };
+        if ($job->isActive()) {
+            $schedule = match ($job->getScheduleType() ?? $job->getDefaultScheduleType()) {
+                CronJobScheduleType::SCHEDULE_TYPE_DAILY => $this->lng->txt('cron_schedule_daily'),
+                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY => $this->lng->txt('cron_schedule_weekly'),
+                CronJobScheduleType::SCHEDULE_TYPE_MONTHLY => $this->lng->txt('cron_schedule_monthly'),
+                CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY => $this->lng->txt('cron_schedule_quarterly'),
+                CronJobScheduleType::SCHEDULE_TYPE_YEARLY => $this->lng->txt('cron_schedule_yearly'),
+                CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES => sprintf(
+                    $this->lng->txt('cron_schedule_in_minutes'),
+                    $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
+                ),
+                CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS => sprintf(
+                    $this->lng->txt('cron_schedule_in_hours'),
+                    $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
+                ),
+                CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS => sprintf(
+                    $this->lng->txt('cron_schedule_in_days'),
+                    $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
+                )
+            };
 
-        $infos[] = $this->lng->txt('cron_schedule') . ': ' . $schedule;
+            $infos[] = $this->lng->txt('cron_schedule') . ': ' . $schedule;
+        } else {
+            $infos[] = $this->plugin->txt('cron_job_not_active');
+        }
 
         return implode('<br>', $infos);
     }

@@ -174,3 +174,4 @@ include_ip_ranges#:#Include IPs
 include_ip_ranges_info#:#Include client IP ranges in export of participant data.
 ip_range_from#:#IP Range From
 ip_range_to#:#IP Range To
+cron_job_not_active#:#The cron job is not active!

@@ -177,3 +177,4 @@ include_ip_ranges#:#IP-Bereiche
 include_ip_ranges_info#:#Ergänzt die Liste der Teilnehmer*innen um die konfigurierten IP-Bereiche.
 ip_range_from#:#IP-Bereich von
 ip_range_to#:#IP-Bereich bis
+cron_job_not_active#:#Der Cron-Job ist inaktiv!
