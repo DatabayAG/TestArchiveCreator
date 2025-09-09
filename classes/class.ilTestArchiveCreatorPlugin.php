@@ -78,9 +78,9 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
     /**
      * Get the url for loading assets
      */
-    public function getAssetsUrl(int $obj_id): string
+    public function getAssetsUrl(): string
     {
-        return ILIAS_HTTP_PATH . '/' . $this->getDirectory() . '/assets.php/' . $obj_id;
+        return ILIAS_HTTP_PATH . '/' . $this->getDirectory() . '/assets.php';
     }
 
 

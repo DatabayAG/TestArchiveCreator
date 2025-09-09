@@ -37,9 +37,12 @@ class ilTestArchiveCreatorAssetsDelivery
 
             // url is .../assets.php/obj_id/name
             $parts = explode('/', $this->http->request()->getUri()->getPath());
+
+            $params = $this->http->request()->getQueryParams();
+
             $count = count($parts);
-            $obj_id = (int) ($parts[$count - 2] ?? '');
-            $name = basename($parts[$count - 1] ?? '');
+            $obj_id = (int) ($params['obj_id'] ?? '');
+            $name = basename((string) ($params['asset'] ?? ''));
 
             // check if file exists in asset directory and deliver it
             $asset_dir = $data_dir . '/' . $client_id . '/tst_data/archive_plugin/tst_' . $obj_id . '/assets';

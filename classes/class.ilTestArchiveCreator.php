@@ -84,7 +84,7 @@ class ilTestArchiveCreator
         $this->testlog->setTitle($this->plugin->txt('test_log'));
 
         $this->htmlCreator = new ilTestArchiveCreatorHTML($this->plugin, $this->settings);
-        $this->assetsProcessor = new ilTestArchiveCreatorAssets($this->assets, $this->workdir, $this->plugin->getAssetsUrl($this->testObj->getId()));
+        $this->assetsProcessor = new ilTestArchiveCreatorAssets($this->assets, $this->workdir, $this->plugin->getAssetsUrl(), $this->obj_id);
 
         switch ($this->config->pdf_engine) {
             case ilTestArchiveCreatorConfig::ENGINE_LOCAL:

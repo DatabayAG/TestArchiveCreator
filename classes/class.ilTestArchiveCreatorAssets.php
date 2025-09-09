@@ -35,7 +35,7 @@ class ilTestArchiveCreatorAssets
      * @param string $workdir storage of working directory for the archive creation
      * @param string $assets_url url for loading assets for PDF generation
      */
-    public function __construct(ilTestArchiveCreatorList $assets, string $workdir, string $assets_url)
+    public function __construct(ilTestArchiveCreatorList $assets, string $workdir, string $assets_url, int $obj_id)
     {
         global $DIC;
 
@@ -45,6 +45,7 @@ class ilTestArchiveCreatorAssets
 
         $this->storage_path = $workdir . '/assets';
         $this->assets_url = $assets_url;
+        $this->obj_id = $obj_id;
 
         $this->resource_storage = $DIC->resourceStorage();
     }
@@ -215,7 +216,15 @@ class ilTestArchiveCreatorAssets
                     $this->assets->add($asset);
                 }
 
-                if (!$in_asset || $this->linking_path == $this->assets_url) {
+                if ($this->linking_path == $this->assets_url) {
+                    // online url to delivery script
+                    return $this->linking_path . '?obj_id=' . $this->obj_id . '&asset=' . $asset_name;
+
+                    // this would add the asset name with suffix as path info after the script
+                    // use if suffix is important for embedding
+                    // nginx would need a rewrite that cuts this path
+                    // return $this->linking_path . '/' . $asset_name . '?obj_id=' . $this->obj_id . '&asset=' . $asset_name;
+                } elseif (!$in_asset) {
                     // offline link to asset directory or online url to delivery script
                     return $this->linking_path . '/' . $asset_name;
                 } else {
