@@ -2,6 +2,9 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 10.0.0 for ILIAS 10 (2025-11-05)
+- compatibility with ILIAS 10, PHP 8.2 and 8.3
+
 ## 9.3.3 for ILIAS 9 (2025-03-03)
 - Fix: export results for scored passes only (like in results export on export tab)
 
