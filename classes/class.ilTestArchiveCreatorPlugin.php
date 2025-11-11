@@ -224,7 +224,7 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
         $own_wrapper = new \ILIAS\HTTP\Wrapper\ArrayBasedRequestWrapper([
            'baseClass' => $base_class,
            'cmdClass' => $cmd_class,
-           'cmdNode' => $ctrl_structure->getClassCidByName($base_class) . ': ' . $ctrl_structure->getClassCidByName($cmd_class)
+           'cmdNode' => $ctrl_structure->getClassCidByName($base_class) . ':' . $ctrl_structure->getClassCidByName($cmd_class)
         ]);
 
         $context = new ilCtrlContext(
