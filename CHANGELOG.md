@@ -2,8 +2,11 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 9.3.6 for ILIAS 9 (2025-11-11)
+- Fix: ilCtrl issue with cron job
+
 ## 9.3.5 for ILIAS 9 (2025-05-21)
-Fix: Archive created without .zip suffix
+- Fix: Archive created without .zip suffix
 
 ## 9.3.4 for ILIAS 9 (2025-05-07)
 - Fix: Export of SingleChoice Question with Feedback does not work
