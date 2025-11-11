@@ -2,6 +2,9 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 10.0.1 for ILIAS 10 (2025-11-11)
+- Fix: ilCtrl issue with cron job
+
 ## 10.0.0 for ILIAS 10 (2025-11-05)
 - compatibility with ILIAS 10, PHP 8.2 and 8.3
 
