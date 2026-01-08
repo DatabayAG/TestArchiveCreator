@@ -42,8 +42,6 @@ class ilTestArchiveCreatorHTML
 
         // things that would normally be added by the standard global template or the test output GUI
         iljQueryUtil::initjQuery($this->tpl);
-        ilYuiUtil::initDom($this->tpl);
-        ilYuiUtil::initConnection($this->tpl);
 
         // render all MathJax at once in buildContent at the end
         ilMathJax::getInstance()->init(ilMathJax::PURPOSE_DEFERRED_PDF);
