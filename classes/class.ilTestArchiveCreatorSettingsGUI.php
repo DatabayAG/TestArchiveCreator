@@ -82,7 +82,9 @@ class ilTestArchiveCreatorSettingsGUI
         $this->ctrl->saveParameter($this, 'ref_id');
 
         $text = $this->plugin->txt('tb_archive_label') . ' ';
-        if ($this->plugin->isCronPluginActive()) {
+        if ($this->testObj->getAnonymity()) {
+            $text .= $this->plugin->txt('tb_archive_not_for_anonymized');
+        } elseif ($this->plugin->isCronPluginActive()) {
             switch ($this->settings->status) {
                 case ilTestArchiveCreatorPlugin::STATUS_PLANNED:
                     $text .= sprintf($this->plugin->txt('tb_archive_planned'), isset($this->settings->schedule) ? ilDatePresentation::formatDate($this->settings->schedule) : '');
@@ -104,6 +106,7 @@ class ilTestArchiveCreatorSettingsGUI
             $button = ilLinkButton::getInstance();
             $button->setCaption($this->lng->txt('settings'), false);
             $button->setUrl($this->getLinkTarget('editSettings'));
+            $button->setDisabled($this->testObj->getAnonymity());
             $this->toolbar->addButtonInstance($button);
         }
 
@@ -111,6 +114,7 @@ class ilTestArchiveCreatorSettingsGUI
             $button = ilLinkButton::getInstance();
             $button->setCaption($this->lng->txt('create'), false);
             $button->setUrl($this->getLinkTarget('createArchive'));
+            $button->setDisabled($this->testObj->getAnonymity());
             $this->toolbar->addButtonInstance($button);
         }
     }
@@ -128,6 +132,11 @@ class ilTestArchiveCreatorSettingsGUI
         }
 
         if (!$this->config->isPlannedCreationAllowed()) {
+            $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
+            $this->ctrl->redirectToURL("goto.php?target=tst_" . $this->testObj->getRefId());
+        }
+
+        if ($this->testObj->getAnonymity()) {
             $this->tpl->setOnScreenMessage('failure', $this->lng->txt("permission_denied"), true);
             $this->ctrl->redirectToURL("goto.php?target=tst_" . $this->testObj->getRefId());
         }

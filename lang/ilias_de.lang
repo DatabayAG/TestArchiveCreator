@@ -12,6 +12,7 @@ tb_archive_inactive#:#nicht geplant
 tb_archive_planned#:#ab %s
 tb_archive_finished#:#beendet
 tb_archive_manual#:#manuell
+tb_archive_not_for_anonymized#:#nicht für anonyme Tests
 edit_archive_settings#:#Archivierungs-Einstellungen bearbeiten
 status#:#Archivierungs-Status
 status_inactive#:#Keine Archiv-Erstellung geplant
