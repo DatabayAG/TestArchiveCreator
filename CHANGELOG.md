@@ -2,7 +2,10 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
-## 10.0.2 for ILIAs 10 (2026-01-08)
+## 10.0.3 for ILIAS 10 (2026-03-02)
+- Fix: Deactivate for anonymous tests
+
+## 10.0.2 for ILIAS 10 (2026-01-08)
 - Fix: Remove ilYuiUtil initialisations
 
 ## 10.0.1 for ILIAS 10 (2025-11-11)
