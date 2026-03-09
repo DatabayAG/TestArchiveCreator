@@ -2,7 +2,7 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
-## 9.3.7 for ILIAS 9 (2026-02-03)
+## 9.3.7 for ILIAS 9 (2026-03-02)
 - Fix: Deactivate for anonymous tests
 
 ## 9.3.6 for ILIAS 9 (2025-11-11)
