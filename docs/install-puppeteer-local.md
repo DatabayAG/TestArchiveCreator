@@ -2,7 +2,9 @@
 
 [Puppeteer](https://pptr.dev) is a javascript library that uses a headless Chrome browser for automated working with web pages. Please look at the Puppeteer web site https://pptr.dev for general information and installation instructions.
 
-If it should be used for PDF generation, it must be installed on the server that runs the PHP processes of ILIAS and must be executable by the user of the PHP process.
+Before you install if, please check if there are any known vulnerabilities for the current version, e.g. on https://socket.dev/npm/package/puppeteer
+
+To be directly called for PDF generation, puppeteer must be installed on the server that runs the PHP processes of ILIAS and must be executable by the user of the PHP process.
 
 The following installation procedure has been tested on Ubuntu 20.04 running ILIAS with user `www-data` and group `www-data`. You should do the installation steps as **root user** on the server. You may choose your preferred installation directory - here we use `/srv/puppeteer`.
 
@@ -18,7 +20,14 @@ The puppeteer installation will automatically add the headless chrome to the hom
 useradd -d /srv/puppeteer -m -s /bin/bash puppeteer
 su puppeteer
 cd /srv/puppeteer
-npm install puppeteer
+npm install puppeteer --ignore-scripts
+npm audit
+````
+The last command should produce 'found 0 vulnerabilities'. You may also use a tool like Snyk to check for vulnerabilities. If everything looks fine, continue with the installation.
+
+````
+cd /node_modules/puppeteer
+node install.mjs
 exit
 userdel puppeteer
 chown -R www-data:www-data /srv/puppeteer
@@ -31,9 +40,9 @@ Now go to the plugin configuration in ILIAS and choose *Puppeteer on ILIAS Serve
 /srv/puppeteer/node_modules/
 ````
 
-**Chrome** (path below `puppeteer/chrome` may have different version numbers)
+**Chrome** (your path below `puppeteer/chrome` may have a different version number)
 ````
-/srv/puppeteer/.cache/puppeteer/chrome/linux-129.0.6668.89/chrome-linux64/chrome
+/srv/puppeteer/.cache/puppeteer/chrome/linux-146.0.7680.153/chrome-linux64/chrome
 ````
 
 **Node** (path may be different on other distributions)
