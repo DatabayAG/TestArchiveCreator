@@ -35,17 +35,41 @@ const run = async function () {
  * @returns {Promise<*>}
  */
 async function generatePDF(html, options) {
+  const baseMatch = html.match(/<base\s+href=["'](https?:\/\/[^"']+)["']/i);
+  const baseUrl = baseMatch ? baseMatch[1] : 'http://127.0.0.1/index.html';
+
   const browser = await puppeteer.launch({
     headless: true,
     ignoreHTTPSErrors: options.ignoreHttpsErrors,
     executablePath: options.chromeExecutable,
+    userDataDir: '/tmp/testarchivecreator_profile',
     args: getPuppeteerArgs()
   });
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0' });
-  const pdf = await page.pdf(options);
-  await browser.close();
-  return pdf;
+  const context = await browser.createBrowserContext();
+
+  try {
+    const page = await context.newPage();
+    await page.setRequestInterception(true);
+    page.on('request', request => {
+      if (request.url() === baseUrl) {
+        request.respond({
+          status: 200,
+          contentType: 'text/html',
+          body: html
+        });
+      } else {
+        request.continue();
+      }
+    });
+
+    await page.goto(baseUrl, { waitUntil: 'networkidle0' });
+
+    const pdf = await page.pdf(options);
+    return pdf;
+  } finally {
+    await context.close();
+    await browser.close();
+  }
 }
 
 /**
