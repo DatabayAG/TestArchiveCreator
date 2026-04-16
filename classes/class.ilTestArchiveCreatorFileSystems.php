@@ -38,10 +38,11 @@ use ILIAS\Filesystem\Provider\FlySystem\FlySystemFilesystemFactory;
  */
 class ilTestArchiveCreatorFileSystems
 {
-    protected Filesystem $assets;
-    protected Filesystem $components;
-    protected Filesystem $customizing;
-    protected Filesystem $templates;
+    public Filesystem $assets;
+    public Filesystem $components;
+    public Filesystem $customizing;
+    public Filesystem $node_modules;
+    public Filesystem $templates;
 
     public function __construct()
     {
@@ -50,10 +51,10 @@ class ilTestArchiveCreatorFileSystems
         /** @var DelegatingFilesystemFactory $factory */
         $factory = $DIC['filesystem.factory'];
 
-
         $this->assets = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/assets'), true);
         $this->components = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/components'), true);
         $this->customizing = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/Customizing'), true);
+        $this->node_modules = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/public/node_modules'), true);
         $this->templates = $factory->getLocal(new LocalConfig(ILIAS_ABSOLUTE_PATH . '/templates'), true);
     }
 

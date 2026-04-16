@@ -21,7 +21,10 @@ class ilTestArchiveCreatorAssets
     protected string $assets_url;
 
     /** @var string path to the assets directory in the storage */
-    protected string $storage_path;
+    protected string $assets_path;
+
+    /** @var string path to the node_modules directory in the storage */
+    protected string $node_modules_path;
 
     /** @var string relative path for linking the assets from a processed file */
     protected string $linking_path = '';
@@ -45,10 +48,34 @@ class ilTestArchiveCreatorAssets
         $this->storage = $this->filesystems->getPureStorage();
         $this->assets = $assets;
 
-        $this->storage_path = $workdir . '/assets';
+        $this->assets_path = $workdir . '/assets';
         $this->assets_url = $assets_url;
 
         $this->resource_storage = $DIC->resourceStorage();
+    }
+
+    /**
+     * Add MathJax to the archive
+     */
+    public function addMathJax(): void
+    {
+        $source_fs = $this->filesystems->node_modules;
+
+        if (!$source_fs->hasDir('mathjax') || $this->storage->hasDir($this->assets_path . '/mathjax')) {
+            return;
+        }
+
+        $list = $source_fs->listContents('mathjax', true);
+        foreach ($list as $item) {
+            if ($item->isFile()) {
+                try {
+                    $target_path = $this->assets_path . '/' . $item->getPath();
+                    $this->storage->writeStream($target_path, $source_fs->readStream($item->getPath()));
+                } catch (FileAlreadyExistsException) {
+                    // Do nothing with that type of exception
+                }
+            }
+        }
     }
 
     /**
@@ -150,6 +177,10 @@ class ilTestArchiveCreatorAssets
      */
     private function processUrl(string $url, bool $in_asset = false): string
     {
+        if (str_starts_with($url, 'node_modules/mathjax/')) {
+            return $this->linking_path . '/mathjax/' . str_replace('node_modules/mathjax/', '', $url);
+        }
+
         try {
             // be prepared for different URL from web or cron job
             $ilias_host = parse_url(ILIAS_HTTP_PATH, PHP_URL_HOST);
@@ -181,7 +212,7 @@ class ilTestArchiveCreatorAssets
                     if ($this->needsCopy($asset_name)
                     ) {
                         $consumer = $this->resource_storage->consume()->stream($identification);
-                        $this->storage->writeStream($this->storage_path . '/' . $asset_name, $consumer->getStream());
+                        $this->storage->writeStream($this->assets_path . '/' . $asset_name, $consumer->getStream());
                     }
                 }
             } elseif (
@@ -208,7 +239,7 @@ class ilTestArchiveCreatorAssets
                     if ($temp_file !== null) {
                         $fs = $this->filesystems->deriveFilesystemFrom($temp_file);
                         $path = $this->filesystems->createRelativePath($temp_file);
-                        $this->storage->writeStream($this->storage_path . '/' . $asset_name, $fs->readStream($path));
+                        $this->storage->writeStream($this->assets_path . '/' . $asset_name, $fs->readStream($path));
                     }
                 }
             } elseif (!empty($parsed['path'])) {
@@ -234,9 +265,9 @@ class ilTestArchiveCreatorAssets
 
                         if ($this->needsCopy($asset_name)) {
                             if (isset($content)) {
-                                $this->storage->write($this->storage_path . '/' . $asset_name, $content);
+                                $this->storage->write($this->assets_path . '/' . $asset_name, $content);
                             } else {
-                                $this->storage->writeStream($this->storage_path . '/' . $asset_name, $system->readStream($path));
+                                $this->storage->writeStream($this->assets_path . '/' . $asset_name, $system->readStream($path));
                             }
                         }
                     }
@@ -283,8 +314,8 @@ class ilTestArchiveCreatorAssets
     private function needsCopy(string $asset_name): bool
     {
         return $this->copy_assets
-            && !$this->storage->has($this->storage_path . '/' . $asset_name)
-            && !$this->storage->has($this->storage_path . '/' . $asset_name . '.sec');
+            && !$this->storage->has($this->assets_path . '/' . $asset_name)
+            && !$this->storage->has($this->assets_path . '/' . $asset_name . '.sec');
     }
 
     /**

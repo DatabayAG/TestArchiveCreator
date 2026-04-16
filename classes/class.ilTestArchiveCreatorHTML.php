@@ -85,6 +85,9 @@ class ilTestArchiveCreatorHTML
         );
         $tpl->getDataFrom($this->tpl);
 
+        $tpl->addJavaScript('assets/js/mathjax_config.js');
+        $tpl->addJavaScript('node_modules/mathjax/es5/tex-chtml-full.js');
+
         $tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_print.css"), 'print');
         $tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_pdf.css"), 'print');
 

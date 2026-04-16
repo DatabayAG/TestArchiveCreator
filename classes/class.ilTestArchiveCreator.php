@@ -922,6 +922,7 @@ class ilTestArchiveCreator
     ): void {
         $html = $this->htmlCreator->buildContent($title, $description, $content, false);
         if ($this->config->embed_assets) {
+            $this->assetsProcessor->addMathJax();
             $this->createFile($file . '.html', $this->assetsProcessor->processForEmbedding($html, $file));
         } else {
             $this->createFile($file . '.html', $html);
