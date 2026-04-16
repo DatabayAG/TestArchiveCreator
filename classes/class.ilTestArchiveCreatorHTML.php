@@ -42,9 +42,6 @@ class ilTestArchiveCreatorHTML
 
         // things that would normally be added by the standard global template or the test output GUI
         iljQueryUtil::initjQuery($this->tpl);
-
-        // render all MathJax at once in buildContent at the end
-        ilMathJax::getInstance()->init(ilMathJax::PURPOSE_DEFERRED_PDF);
     }
 
     /**
@@ -73,7 +70,7 @@ class ilTestArchiveCreatorHTML
     /**
      * Build a content page
      * This uses a new instance of the content page template with collected css and js files from the main template
-     * The function can be called twice for HTML and PDF outout after processing the content
+     * The function can be called twice for HTML and PDF output after processing the content
      *
      * @see ilLMPresentationGUI::page()
      */
@@ -88,28 +85,8 @@ class ilTestArchiveCreatorHTML
         );
         $tpl->getDataFrom($this->tpl);
 
-
-        // Inclusion of MathJax script to the template is needed for STACK questions
-        // if server-side rendering is not enabled for browser
-
-        if ($for_pdf) {
-            $tpl->removeMediaPlayer();
-            $content = ilMathJax::getInstance()
-                                  ->init(ilMathJax::PURPOSE_PDF)
-                                  ->setRendering(ilMathJax::RENDER_SVG_AS_XML_EMBED)
-                                  ->includeMathJax($tpl)
-                                  ->insertLatexImages($content);
-        } else {
-            $content = ilMathJax::getInstance()
-                                ->init(ilMathJax::PURPOSE_EXPORT)
-                                ->setRendering(ilMathJax::RENDER_SVG_AS_XML_EMBED)
-                                ->includeMathJax($tpl)
-                                ->insertLatexImages($content);
-        }
-
-        $tpl->addCss(ilUtil::getStyleSheetLocation('output', 'test_javascript.css', 'Modules/TestQuestionPool'), 'all');
-        $tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_print.css", "Modules/Test"), 'print');
-        $tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_pdf.css", "Modules/Test"), 'print');
+        $tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_print.css"), 'print');
+        $tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_pdf.css"), 'print');
 
         $tpl->fillContentLanguage();
         $tpl->fillCssFiles();

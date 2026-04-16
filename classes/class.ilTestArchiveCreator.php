@@ -326,14 +326,13 @@ class ilTestArchiveCreator
             $page = new ilTestPageGUI('tst', $page_id);
             $page->setTemplate($this->htmlCreator->getMainTemplate());
             $content = $page->showPage();
-        } else {
-            $content = $this->testObj->getMainSettings()->getIntroductionSettings()->getIntroductionText();
+
+
+            $head_left = $title;
+            $head_right = '';
+
+            $this->createContent($file, $title, $description, $content, $head_left, $head_right);
         }
-
-        $head_left = $title;
-        $head_right = '';
-
-        $this->createContent($file, $title, $description, $content, $head_left, $head_right);
     }
 
     /**
