@@ -132,6 +132,17 @@ class ilTestArchiveCreatorHTML
         }
         $tpl->setVariable('CONTENT', $content);
 
-        return $tpl->get();
+        $page = $tpl->get();
+
+        if (class_exists('\ILIAS\Plugin\LatexHelper\HelperFactory')) {
+            global $DIC;
+            $helper = new \ILIAS\Plugin\LatexHelper\HelperFactory($DIC);
+            if ($helper->plugin()->isActive() && $helper->config()->renderOnServer()) {
+                $server = $helper->server();
+                $page = $server->render($page);
+            }
+        }
+
+        return $page;
     }
 }
