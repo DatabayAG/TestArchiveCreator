@@ -5,7 +5,7 @@ use ILIAS\DI\UIServices as UIServices;
 use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
 
 /**
  * GUI for Limited Media Control
@@ -106,7 +106,7 @@ class ilTestArchiveCreatorSettingsGUI
         $text = $this->plugin->txt('tb_archive_label') . ' ';
         if ($this->testObj->getAnonymity()) {
             $text .= $this->plugin->txt('tb_archive_not_for_anonymized');
-        } elseif ($this->plugin->isCronPluginActive()) {
+        } elseif ($this->plugin->isCronJobActive()) {
             switch ($this->settings->status) {
                 case ilTestArchiveCreatorPlugin::STATUS_PLANNED:
                     $text .= sprintf($this->plugin->txt('tb_archive_planned'), isset($this->settings->schedule) ? ilDatePresentation::formatDate($this->settings->schedule) : '');
@@ -263,12 +263,12 @@ class ilTestArchiveCreatorSettingsGUI
             $st_planned->addSubItem($notifications);
         }
 
-        if ($this->plugin->isCronPluginActive()) {
-            $schedule->setInfo($schedule->getInfo() . '<br>' .$this->getCronInfo());
+        if ($this->plugin->isCronJobActive()) {
+            $schedule->setInfo($schedule->getInfo() . '<br>' . $this->getCronInfo());
         } else {
             $status->setDisabled(true);
-            $status->setInfo($this->plugin->txt('message_cron_plugin_inactive'));
-            $schedule->setInfo($this->plugin->txt('message_cron_plugin_inactive'));
+            $status->setInfo($this->plugin->txt('message_cron_job_inactive'));
+            $schedule->setInfo($this->plugin->txt('message_cron_job_inactive'));
             $schedule->setDisabled(true);
         }
 
@@ -426,9 +426,12 @@ class ilTestArchiveCreatorSettingsGUI
 
         $this->http->saveResponse($this->http->response()->withBody(
             Streams::ofString(
-                $auto->getList($this->http->wrapper()->query()->retrieve('term',
-                    $this->refinery->kindlyTo()->string()))
-            )));
+                $auto->getList($this->http->wrapper()->query()->retrieve(
+                    'term',
+                    $this->refinery->kindlyTo()->string()
+                ))
+            )
+        ));
         $this->http->sendResponse();
     }
 
@@ -439,28 +442,28 @@ class ilTestArchiveCreatorSettingsGUI
     {
         $infos = [];
 
-        /** @var ilTestArchiveCronJob $job */
-        $job = $this->plugin->getCronPlugin()->getCronJobInstance('test_archive_cron');
+        /** @var ilTestArchiveCreatorCronJob $job */
+        $job = $this->plugin->getCronJobInstance(ilTestArchiveCreatorCronJob::id);
         $run = $job->getLastRun();
 
         $infos[] = $this->lng->txt('cron_last_run') . ': ' . ($run ? ilDatePresentation::formatDate($run) : '-');
 
         if ($job->isActive()) {
             $schedule = match ($job->getScheduleType() ?? $job->getDefaultScheduleType()) {
-                CronJobScheduleType::SCHEDULE_TYPE_DAILY => $this->lng->txt('cron_schedule_daily'),
-                CronJobScheduleType::SCHEDULE_TYPE_WEEKLY => $this->lng->txt('cron_schedule_weekly'),
-                CronJobScheduleType::SCHEDULE_TYPE_MONTHLY => $this->lng->txt('cron_schedule_monthly'),
-                CronJobScheduleType::SCHEDULE_TYPE_QUARTERLY => $this->lng->txt('cron_schedule_quarterly'),
-                CronJobScheduleType::SCHEDULE_TYPE_YEARLY => $this->lng->txt('cron_schedule_yearly'),
-                CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES => sprintf(
+                JobScheduleType::DAILY => $this->lng->txt('cron_schedule_daily'),
+                JobScheduleType::WEEKLY => $this->lng->txt('cron_schedule_weekly'),
+                JobScheduleType::MONTHLY => $this->lng->txt('cron_schedule_monthly'),
+                JobScheduleType::QUARTERLY => $this->lng->txt('cron_schedule_quarterly'),
+                JobScheduleType::YEARLY => $this->lng->txt('cron_schedule_yearly'),
+                JobScheduleType::IN_MINUTES => sprintf(
                     $this->lng->txt('cron_schedule_in_minutes'),
                     $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
                 ),
-                CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS => sprintf(
+                JobScheduleType::IN_HOURS => sprintf(
                     $this->lng->txt('cron_schedule_in_hours'),
                     $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
                 ),
-                CronJobScheduleType::SCHEDULE_TYPE_IN_DAYS => sprintf(
+                JobScheduleType::IN_DAYS => sprintf(
                     $this->lng->txt('cron_schedule_in_days'),
                     $job->getScheduleValue() ?? $job->getDefaultScheduleValue()
                 )

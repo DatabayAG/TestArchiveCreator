@@ -5,174 +5,181 @@
 // @author Fred Neumann <fred.neumann@fau.de>
 // @version $Id$
 //
-
 <!-- language file start -->
-tb_archive_label#:#Archive Creation:
-tb_archive_inactive#:#not planned
-tb_archive_planned#:#after %s
-tb_archive_finished#:#finished
-tb_archive_manual#:#manual
-tb_archive_not_for_anonymized#:#not for anonymous tests
-edit_archive_settings#:#Edit Archive Settings
-status#:#Archive Status
-status_inactive#:#No archive creation planned
-status_planned#:#Archive creation planned
-status_finished#:#Archive created
-schedule#:#Creation after
-pass_selection#:#Test Pass Selection
-pass_scored#:#Scored Pass
-pass_best#:#Best Pass
-pass_last#:#Last Pass
-pass_all#:#All Passes
-settings_saved#:#The archive settings are saved.
-questions#:#Questions
-question_id#:#ID
-question_title#:#Title
-question_type#:#Type
-max_points#:#Maximum Points
-files#:#Files
-participant#:#Participant
-participants#:#Participants
-question_presentation#:#Preview
-question_best_solution#:#Best Solution
-answers#:#Answers
-label_generated#:#Generated:
-exam_id#:#Exam ID
-test#:#Test
-first_visit#:#First Test Access:
-last_visit#:#Last Test Access:
-number_passes#:#Number of Passes:
-scored_pass#:#Scored Pass:
-reached_points#:#Reached Points:
-mark_official#:#Mark (official):
-mark_short#:#Mark (short):
-final_result#:#Final Result:
-passed#:#passed
-not_passed#:#not passed
-points#:#Points
-is_scored#:#Scored
-pass_number#:#Pass
-working_time#:#Working Time
-finish_date#:#Finish Date
+allow#:#Archive Creation
+allow_any#:#Any
+allow_any_info#:#Create archives immediately and planned
+allow_none#:#Not Allowed
+allow_none_info#:#Only ILIAS administrators can create archives
+allow_planned#:#Planned
+allow_planned_info#:#Create archives only planned. This requires a running cron job.
 answered#:#Answered
-manual#:#Manual Score
-is_manual#:# (manually scored)
-manual_feedback#:#Manual Feedback
-pass_overview#:#Overview of Test Pass %s
-test_settings#:#Test Settings
-orientation#:#Orientation
-orientation_portrait#:#Portrait
-orientation_landscape#:#Landscape
-zoom_factor#:#Zoom (%)
-plugin_configuration#:#Plugin configuration
+answers#:#Answers
+answers_hash#:#Hash (sha1)
+answers_with_best_solution#:#Answers with Best Solution
+answers_with_best_solution_info#:#Adds the best solution below each question in the answer files for participants.
+archive_created#:#The archive was successfully created.
+archive_errors#:#Errors occurred at archive creation:
+assets#:#Assets
+bs_chrome_path#:#Chrome
+bs_chrome_path_info#:#Path to the executable of chrome from the puppeteer installation
+bs_node_module_path#:#Node Modules
+bs_node_module_path_info#:#Path to the directory node_modules of the puppeteer installation (with / at the end)
+bs_node_path#:#Node
+bs_node_path_info#:#Path to the executable of node from the puppeteer installation
+bs_npm_path#:#Npm
+bs_npm_path_info#:#Path to the executable of npm from the puppeteer installation
+cron_job_not_active#:#The cron job is not active!
+deleted_account#:#Deleted Account
+edit_archive_settings#:#Edit Archive Settings
+embed_assets#:#Integrate Local Media for HTML Export
+embed_assets_info#:#Required images, audio, videos, styles and JavaScript files from this ILIAS installation are copied to the archive and used from there in the HTML files of the archive. Media from other sources will continue to be used with their external URL.
+exam_id#:#Exam ID
+examination_protocol_html#:#Exam Event Protocol (HTML)
+file_prefix#:#File Prefix
+file_prefix_info#:#The prefix will be added to the file name of the generated archive. 8 characters are allowed: A-Z, a-z, '.' and '-'
+files#:#Files
+final_result#:#Final Result:
+finish_date#:#Finish Date
+first_visit#:#First Test Access:
+form_validation_errors#:#The form has wrong inputs. See alerts at the input fields.
+generation_settings#:#Settings for Generation
+git_info#:#Git Information
+given_answer#:#Given Answer
 hide_standard_archive#:#Hide Standard Archive
 hide_standard_archive_info#:#Hides the export option for the standard test archive on the export tab of ILIAS.
+ignore_ssl_errors#:#Ignore SSL Errors
+ignore_ssl_errors_info#:#Ignore SSL certificate errors for loading of images, styles or scripts.
+include_answers#:#Include Answers
+include_answers_info#:#Creates a folder in the archive with the participants' answers.
+include_examination_protocol#:#Exam Event Protocol
+include_examination_protocol_info#:#Add the exam event protocol to the archive, if the plugin for the protocol is active.
+include_ip_ranges#:#Include IPs
+include_ip_ranges_info#:#Include client IP ranges in export of participant data.
+include_questions#:#Include Questions
+include_questions_info#:#Creates a folder on the archive with the test questions.
+include_test_log#:#Test Log
+include_test_log_info#:#Add the log data of the ILIAS test object to the archive if test logging is active.
+introduction_html#:#Introduction (HTML)
+ip_range_from#:#IP Range From
+ip_range_to#:#IP Range To
+is_manual#:# (manually scored)
+is_scored#:#Scored
+job_description#:#Executes planned creations of test archives.
+job_title#:#Test Archive Creation
+keep_creation_directory#:#Keep Directory
+keep_creation_directory_info#:#Don't delete the creation directory after zipping. It is found in the protected ILIAS data directory under tst_data/archive_plugin/tst_123 with 123 being the object ID of the test.
+keep_jobfile#:#Keep Jobfiles
+keep_jobfile_info#:#Keep the temporary files for PDF generation in the creation directory. They can be used for debugging purposes.
+label_generated#:#Generated:
+last_run#:#Last Run
+last_visit#:#Last Test Access:
+log_login#:#Login Name
+log_logtext#:#Log Text
+log_question#:#Question
+log_question_id#:#Question ID
+log_timestamp#:#Date/Time
+log_user_id#:#User ID
+manual#:#Manual Score
+manual_feedback#:#Manual Feedback
+mark_official#:#Mark (official):
+mark_short#:#Mark (short):
+max_points#:#Maximum Points
+message_cron_job_inactive#:#Please activate the cron job "Test Archive Creation" to use the scheduled creation.
+no_archive_created#:#No archive created.
+not_passed#:#not passed
+notification_message#:#The archive files have been created. You can download them here:
+notification_subject#:#ILIAS Test Archive Files created
+notifications#:#Notifications
+notifications_info#:#Sent notifications to users (enter login)
+number_passes#:#Number of Passes:
+object_defaults#:#Default Settings for Test Objects
+one_archive_created#:#1 archive created.
+orientation#:#Orientation
+orientation_landscape#:#Landscape
+orientation_portrait#:#Portrait
+participant#:#Participant
+participants#:#Participants
+participants_csv#:#Participants (CSV)
+participants_html#:#Participants (HTML)
+pass_all#:#All Passes
+pass_best#:#Best Pass
+pass_last#:#Last Pass
+pass_number#:#Pass
+pass_overview#:#Overview of Test Pass %s
+pass_scored#:#Scored Pass
+pass_selection#:#Test Pass Selection
+passed#:#passed
+pdf_engine#:#PDF Generation
+pdf_engine_browsershot#:#Puppeteer on ILIAS Server
+pdf_engine_local_info#:#For test installations. See <a href="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator/docs/install-puppeteer-local.md">Puppeteer-Installation</a>
+pdf_engine_none#:#None
+pdf_engine_none_info#:#Only HTML files are generated. You should then include the local media in the archive so that they are also available when WebAccessChecker is active or after the test has been deleted.
+pdf_engine_server#:#Puppeteer on Separate Server
+pdf_engine_server_info#:#For production environments. See <a href="https://github.com/DatabayAG/tarc-pdf">PDF Generation Server with Puppeteer</a>
+permissions#:#Permissions
+permissions_require_role#:#User
+permissions_require_role_no#:#all with write permission on test
+permissions_require_role_select#:#Selected Roles
+permissions_require_role_yes#:#all with write permission on test and a selected global role
+plugin_configuration#:#Plugin configuration
+points#:#Points
 privacy_settings#:#Privacy Settings
+question_best_solution#:#Best Solution
+question_id#:#ID
+question_presentation#:#Preview
+question_title#:#Title
+question_type#:#Type
+questions#:#Questions
+questions_csv#:#Question List (CSV)
+questions_html#:#Question List (HTML)
+questions_with_best_solution#:#Questions with Best Solution
+questions_with_best_solution_info#:#Creates for each question a separate file with the best solution.
+random_questions#:#Questions of Random Test
+random_questions_all#:#Add all questions
+random_questions_used#:#Add only used questions
+reached_points#:#Reached Points:
+reached_points_of#:#%s of %s
+schedule#:#Creation after
+schedule_info#:#Earliest creation time. The actual time is determined by the system settings of the archiving cron job.
+scored_pass#:#Scored Pass:
+server_url#:#Url
+server_url_info#:#Url of the PDF generation server.
+set_last_run#:#Set Last Run
+set_last_run_info#:#The next run starts by the schedule based on the last run
+settings_html#:#Test Settings (HTML)
+settings_saved#:#The archive settings are saved.
+status#:#Archive Status
+status_finished#:#Archive created
+status_inactive#:#No archive creation planned
+status_planned#:#Archive creation planned
+support_file_prefix#:#Support Filename Prefix
+support_file_prefix_info#:#Users can define a string that is prefixed to the generated filename.
+support_notifications#:#Support Notifications
+support_notifications_info#:#Users can list accounts that should get notified about the created archive.
+tb_archive_finished#:#finished
+tb_archive_inactive#:#not planned
+tb_archive_label#:#Archive Creation:
+tb_archive_manual#:#manual
+tb_archive_not_for_anonymized#:#not for anonymous tests
+tb_archive_planned#:#after %s
+test#:#Test
+test_archive#:#Test Archive
+test_log#:#Test Log
+test_log_csv#:#Test Log (CSV)
+test_log_html#:#Test Log (HTML)
+test_log_xlsx#:#Test Log (XLSX)
+test_results_csv#:#Test Results (CSV)
+test_results_xlsx#:#Test Results (MS Excel)
+test_settings#:#Test Settings
 with_login#:#User Names
 with_login_info#:#Adds the ILIAS user names to the files in the archive.
 with_matriculation#:#Matriculation
 with_matriculation_info#:#Adds the matriculation numbers to the files in the archive.
 with_results#:#Test Results
 with_results_info#:#Adds an export of test results as .csv und .xslx files.
-object_defaults#:#Default Settings for Test Objects
-random_questions#:#Questions of Random Test
-random_questions_all#:#Add all questions
-random_questions_used#:#Add only used questions
-reached_points_of#:#%s of %s
-given_answer#:#Given Answer
-answers_hash#:#Hash (sha1)
-message_cron_plugin_inactive#:#Please install and activate the plugin TestArchiveCron (https://github.com/DatabayAG/TestArchiveCron) to use the scheduled creation.
-keep_creation_directory#:#Keep Directory
-keep_creation_directory_info#:#Don't delete the creation directory after zipping. It is found in the protected ILIAS data directory under tst_data/archive_plugin/tst_123 with 123 being the object ID of the test.
-questions_csv#:#Question List (CSV)
-questions_html#:#Question List (HTML)
-participants_csv#:#Participants (CSV)
-participants_html#:#Participants (HTML)
-settings_html#:#Test Settings (HTML)
-introduction_html#:#Introduction (HTML)
-test_results_csv#:#Test Results (CSV)
-test_results_xlsx#:#Test Results (MS Excel)
-test_archive#:#Test Archive
-ignore_ssl_errors#:#Ignore SSL Errors
-ignore_ssl_errors_info#:#Ignore SSL certificate errors for loading of images, styles or scripts.
-keep_jobfile#:#Keep Jobfiles
-keep_jobfile_info#:#Keep the temporary files for PDF generation in the creation directory. They can be used for debugging purposes.
-include_questions#:#Include Questions
-include_questions_info#:#Creates a folder on the archive with the test questions.
-include_answers#:#Include Answers
-include_answers_info#:#Creates a folder in the archive with the participants' answers.
-questions_with_best_solution#:#Questions with Best Solution
-questions_with_best_solution_info#:#Creates for each question a separate file with the best solution.
-answers_with_best_solution#:#Answers with Best Solution
-answers_with_best_solution_info#:#Adds the best solution below each question in the answer files for participants.
-permissions#:#Permissions
-permissions_require_role#:#User
-permissions_require_role_no#:#all with write permission on test
-permissions_require_role_yes#:#all with write permission on test and a selected global role
-permissions_require_role_select#:#Selected Roles
-allow#:#Archive Creation
-allow_any#:#Any
-allow_any_info#:#Create archives immediately and planned
-allow_planned#:#Planned
-allow_planned_info#:#Create archives only planned. This requires a running cron job.
-allow_none#:#Not Allowed
-allow_none_info#:#Only ILIAS administrators can create archives
-schedule_info#:#Earliest creation time. The actual time is determined by the system settings of the archiving cron job.
-generation_settings#:#Settings for Generation
-embed_assets#:#Integrate Local Media for HTML Export
-embed_assets_info#:#Required images, audio, videos, styles and JavaScript files from this ILIAS installation are copied to the archive and used from there in the HTML files of the archive. Media from other sources will continue to be used with their external URL.
-pdf_engine#:#PDF Generation
-pdf_engine_none#:#None
-pdf_engine_none_info#:#Only HTML files are generated. You should then include the local media in the archive so that they are also available when WebAccessChecker is active or after the test has been deleted.
-pdf_engine_browsershot#:#Puppeteer on ILIAS Server
-bs_node_module_path#:#Node Modules
-bs_node_module_path_info#:#Path to the directory node_modules of the puppeteer installation (with / at the end)
-bs_chrome_path#:#Chrome
-bs_chrome_path_info#:#Path to the executable of chrome from the puppeteer installation
-bs_node_path#:#Node
-bs_node_path_info#:#Path to the executable of node from the puppeteer installation
-bs_npm_path#:#Npm
-bs_npm_path_info#:#Path to the executable of npm from the puppeteer installation
-examination_protocol_html#:#Exam Event Protocol (HTML)
-assets#:#Assets
-include_test_log#:#Test Log
-include_test_log_info#:#Add the log data of the ILIAS test object to the archive if test logging is active.
-include_examination_protocol#:#Exam Event Protocol
-include_examination_protocol_info#:#Add the exam event protocol to the archive, if the plugin for the protocol is active.
-test_log#:#Test Log
-test_log_html#:#Test Log (HTML)
-test_log_csv#:#Test Log (CSV)
-test_log_xlsx#:#Test Log (XLSX)
-log_timestamp#:#Date/Time
-log_user_id#:#User ID
-log_login#:#Login Name
-log_question_id#:#Question ID
-log_question#:#Question
-log_logtext#:#Log Text
-pdf_engine_server#:#Puppeteer on Separate Server
-server_url#:#Url
-server_url_info#:#Url of the PDF generation server.
-pdf_engine_server_info#:#For production environments. See <a href="https://github.com/DatabayAG/tarc-pdf">PDF Generation Server with Puppeteer</a>
-pdf_engine_local_info#:#For test installations. See <a href="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator/docs/install-puppeteer-local.md">Puppeteer-Installation</a>
-archive_errors#:#Errors occurred at archive creation:
-archive_created#:#The archive was successfully created.
-git_info#:#Git Information
-deleted_account#:#Deleted Account
-support_file_prefix#:#Support Filename Prefix
-support_file_prefix_info#:#Users can define a string that is prefixed to the generated filename.
-support_notifications#:#Support Notifications
-support_notifications_info#:#Users can list accounts that should get notified about the created archive.
-notifications#:#Notifications
-notifications_info#:#Sent notifications to users (enter login)
-file_prefix#:#File Prefix
-file_prefix_info#:#The prefix will be added to the file name of the generated archive. 8 characters are allowed: A-Z, a-z, '.' and '-'
-wrong_notification_logins#:#the following login names are not valid: %s
+working_time#:#Working Time
 wrong_file_prefix#:#The prefix has invalid characters
-form_validation_errors#:#The form has wrong inputs. See alerts at the input fields.
-notification_subject#:#ILIAS Test Archive Files created
-notification_message#:#The archive files have been created. You can download them here:
-include_ip_ranges#:#Include IPs
-include_ip_ranges_info#:#Include client IP ranges in export of participant data.
-ip_range_from#:#IP Range From
-ip_range_to#:#IP Range To
-cron_job_not_active#:#The cron job is not active!
+wrong_notification_logins#:#the following login names are not valid: %s
+x_archives_created#:#%s archives created.
+zoom_factor#:#Zoom (%)

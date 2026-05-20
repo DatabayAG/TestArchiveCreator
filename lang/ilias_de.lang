@@ -5,177 +5,184 @@
 // @author Fred Neumann <fred.neumann@fau.de>
 // @version $Id$
 //
-
 <!-- language file start -->
-tb_archive_label#:#Archiv-Erstellung:
-tb_archive_inactive#:#nicht geplant
-tb_archive_planned#:#ab %s
-tb_archive_finished#:#beendet
-tb_archive_manual#:#manuell
-tb_archive_not_for_anonymized#:#nicht für anonyme Tests
-edit_archive_settings#:#Archivierungs-Einstellungen bearbeiten
-status#:#Archivierungs-Status
-status_inactive#:#Keine Archiv-Erstellung geplant
-status_planned#:#Archiv-Erstellung geplant
-status_finished#:#Archiv erstellt
-schedule#:#Erzeugung ab
-pass_selection#:#Testlauf-Auswahl
-pass_scored#:#Bewerteter Testlauf
-pass_best#:#Bester Testlauf
-pass_last#:#Letzter Testlauf
-pass_all#:#Alle Testläufe
-settings_saved#:#Die Archivierungs-Einstellungen wurden gespeichert.
-questions#:#Fragen
-question_id#:#ID
-question_title#:#Titel
-question_type#:#Typ
-max_points#:#Maximale Punktzahl
-files#:#Dateien
-participant#:#Teilnehmer*in
-participants#:#Teilnehmer*innen
-question_presentation#:#Voransicht
-question_best_solution#:#Musterlösung
-answers#:#Antworten
-label_generated#:#Generiert:
-exam_id#:#Prüfungsnummer
-test#:#Test
-first_visit#:#Erster Test-Zugriff:
-last_visit#:#Letzter Test-Zugriff:
-number_passes#:#Anzahl Testläufe:
-scored_pass#:#Bewerteter Testlauf:
-reached_points#:#Erreichte Punktzahl:
-mark_official#:#Note (offiziell):
-mark_short#:#Note (kurz):
-final_result#:#Endergebnis:
-passed#:#bestanden
-not_passed#:#nicht bestanden
-points#:#Punkte
-is_scored#:#Bewertet
-pass_number#:#Durchlauf
-working_time#:#Bearbeitungsdauer
-finish_date#:#Abgabedatum
+allow#:#Archiv-Erzeugung
+allow_any#:#Beliebig
+allow_any_info#:#Archive sofort oder geplant erzeugen.
+allow_none#:#Nicht erlaubt
+allow_none_info#:#Archive können nur von Administratoren erzeugt werden.
+allow_planned#:#Geplant
+allow_planned_info#:#Archive nur geplant erzeugen. Dazu muss der Cron-Job laufen.
 answered#:#Beantwortet
-manual#:#Manuelle Bewertung
-is_manual#:# (manuell bewertet)
-manual_feedback#:#Manuelle Rückmeldung
-pass_overview#:#Übersicht zu Testlauf %s
-test_settings#:#Test-Einstellungen
-orientation#:#Ausrichtung
-orientation_portrait#:#Hochformat
-orientation_landscape#:#Querformat
-zoom_factor#:#Vergrößerung (%)
-plugin_configuration#:#Plugin-Konfiguration
+answers#:#Antworten
+answers_hash#:#Hash (sha1)
+answers_with_best_solution#:#Antworten mit Musterlösung
+answers_with_best_solution_info#:#Fügt in die Dateien der Antworten der Teilnehmer*innen unter jeder Frage die Musterlösung ein.
+archive_created#:#Das Archiv wurde erstellt.
+archive_created#:#Das Archiv wurde erzeugt.
+archive_errors#:#Bei der Erzeugung des Archivs traten Fehler auf:
+archive_errors#:#Beim Erstellen des Archivs sind Fehler aufgetreten:
+assets#:#Assets
+bs_chrome_path#:#Chrome
+bs_chrome_path_info#:#Pfad zum zum Executable von chrome der puppeteer-Installation
+bs_node_module_path#:#Node Modules
+bs_node_module_path_info#:#Pfad zum Verzeichnis node_modules der puppeteer-Installation (mit / am Ende)
+bs_node_path#:#Node
+bs_node_path_info#:#Pfad zum zum Executable von node der puppeteer-Installation
+bs_npm_path#:#Npm
+bs_npm_path_info#:#Pfad zum zum Executable von npm der puppeteer-Installation
+cron_job_not_active#:#Der Cron-Job ist inaktiv!
+deleted_account#:#Gelöschtes Konto
+edit_archive_settings#:#Archivierungs-Einstellungen bearbeiten
+embed_assets#:#Lokale Medien für HTML-Export einbinden
+embed_assets_info#:#Benötigte Bilder, Audios, Videos, Styles und JavaScript-Dateien aus dieser ILIAS-Installation, werden ins Archiv kopiert und von dort in den HTML-Dateien des Archivs verwendet. Medien aus anderen Quellen werden weiterhin mit ihrer externen URL verwendet.
+exam_id#:#Prüfungsnummer
+examination_protocol_html#:#Prüfungsereignis-Protokoll (HTML)
+file_prefix#:#Datei-Bezeichnung
+file_prefix_info#:#Die Dateibezeichnung wird dem Dateinamen des Exports vorangestellt. Es sind max. 8 Zeichen zulässig. Erlaubt sind A-Z, a-z, "." und "-".
+files#:#Dateien
+final_result#:#Endergebnis:
+finish_date#:#Abgabedatum
+first_visit#:#Erster Test-Zugriff:
+form_validation_errors#:#Das Formular hat fehlerhafte Eingaben, siehe Bemerkungen bei den Eingabefeldern.
+generation_settings#:#Einstellungen zur Generierung
+git_info#:#Git-Informationen
+given_answer#:#Abgegebene Antwort
 hide_standard_archive#:#Standard-Archiv ausblenden
 hide_standard_archive_info#:#Blendet auf dem Export-Reiter die Export-Option für das Standard-Testarchiv von ILIAS aus.
+ignore_ssl_errors#:#SSL-Fehler ignorieren
+ignore_ssl_errors_info#:#Ignoriert SSL-Zertifikatsfehler beim Laden von eingebetteten Bildern, Styles und Skripten.
+include_answers#:#Antworten einbinden
+include_answers_info#:#Erzeugt einen Ordner im Archiv mit den Antworten der Teilnehmer*innen.
+include_examination_protocol#:#Prüfungsereignis-Protokoll
+include_examination_protocol_info#:#Bindet das Prüfungsereignis-Prokoll ins Archiv ein, falls das entsprechende Plugin aktiv ist.
+include_ip_ranges#:#IP-Bereiche
+include_ip_ranges_info#:#Ergänzt die Liste der Teilnehmer*innen um die konfigurierten IP-Bereiche.
+include_questions#:#Fragen einbinden
+include_questions_info#:#Erzeugt einen Ordner im Archiv mit den Fragen des Tests.
+include_test_log#:#Test-Protokoll
+include_test_log_info#:#Bindet die Protokolldaten des ILIAS-Tests ins Archiv ein, falls sie aufgezeichnet wurden.
+introduction_html#:#Einleitung (HTML)
+ip_range_from#:#IP-Bereich von
+ip_range_to#:#IP-Bereich bis
+is_manual#:# (manuell bewertet)
+is_scored#:#Bewertet
+job_description#:#Führt geplante Test-Archivierungen aus.
+job_title#:#Test-Archivierung
+keep_creation_directory#:#Verzeichnis behalten
+keep_creation_directory_info#:#Das Verzeichnis der Archiv-Erzeugung soll nach dem Packen als ZIP-Datei nicht gelöscht werden. Es ist im geschützten ILIAS-Datenverzeichnis unter tst_data/archive_plugin/tst_123 zu finden, wobei 123 die Objekt-ID des Tests ist.
+keep_jobfile#:#Jobfiles behalten
+keep_jobfile_info#:#Die temporären Datien zur PDF-Erzeugung soll im Archiv-Ordner behalten bleiben. Sie können zur Fehlersuche verwendet werden.
+label_generated#:#Generiert:
+last_cron_run#:#Letzter Durchlauf
+last_run#:#Letzter Durchlauf
+last_visit#:#Letzter Test-Zugriff:
+log_login#:#Login-Name
+log_logtext#:#Protokolleintrag
+log_question#:#Frage
+log_question_id#:#Fragen-ID
+log_timestamp#:#Datum/Uhrzeit
+log_user_id#:#Benutzer-ID
+manual#:#Manuelle Bewertung
+manual_feedback#:#Manuelle Rückmeldung
+mark_official#:#Note (offiziell):
+mark_short#:#Note (kurz):
+max_points#:#Maximale Punktzahl
+message_cron_job_inactive#:#Bitte aktivieren Sie den Cron-Job "Test-Archivierung", um die zeitgesteuerte Archivierung zu nutzen.
+no_archive_created#:#Kein Archiv erzeugt
+not_passed#:#nicht bestanden
+notification_message#:#Die Archivdatein wurden erstellt. Sie können sie hier herunterladen:
+notification_subject#:#ILIAS Test Archiv Dateien erstellt
+notifications#:#Benachrichtigungen
+notifications_info#:#Benachrichtigung an die angegebenen Nutzer*innen versenden (bitte Nutzerkennung angeben)
+number_passes#:#Anzahl Testläufe:
+object_defaults#:#Standard-Einstellungen für Tests
+one_archive_created#:#1 Archiv erzeugt
+orientation#:#Ausrichtung
+orientation_landscape#:#Querformat
+orientation_portrait#:#Hochformat
+participant#:#Teilnehmer*in
+participants#:#Teilnehmer*innen
+participants_csv#:#Teilnehmer*innen (CSV)
+participants_html#:#Teilnehmer*innen (HTML)
+pass_all#:#Alle Testläufe
+pass_best#:#Bester Testlauf
+pass_last#:#Letzter Testlauf
+pass_number#:#Durchlauf
+pass_overview#:#Übersicht zu Testlauf %s
+pass_scored#:#Bewerteter Testlauf
+pass_selection#:#Testlauf-Auswahl
+passed#:#bestanden
+pdf_engine#:#PDF Generierung
+pdf_engine_browsershot#:#Puppeteer auf ILIAS-Server
+pdf_engine_local_info#:#Für Testinstallationen. Siehe <a href="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator/docs/install-puppeteer-local.md">Puppeteer-Installation</a>
+pdf_engine_none#:#Keine
+pdf_engine_none_info#:#Es werden nur HTML-Dateien erzeugt. Sie sollten dann die lokalen Medien ins Archiv einbinden, damit diese auch bei aktivem WebAccessChecker oder nach dem Löschen des Tests verfügbar sind.
+pdf_engine_server#:#Puppeteer auf separatem Server
+pdf_engine_server_info#:#Für produktive Umgebungen. Siehe <a href="https://github.com/DatabayAG/tarc-pdf">PDF-Generierungs-Server mit Puppeteer</a>
+permissions#:#Berechtigungen
+permissions_require_role#:#Benutzer*innen
+permissions_require_role_no#:#alle mit Schreibrecht im Test
+permissions_require_role_select#:#Ausgewählte Rollen
+permissions_require_role_yes#:#alle mit Schreibrecht im Test UND einer ausgewählten globalen Rolle
+plugin_configuration#:#Plugin-Konfiguration
+points#:#Punkte
 privacy_settings#:#Datenschutz-Einstellungen
+question_best_solution#:#Musterlösung
+question_id#:#ID
+question_presentation#:#Voransicht
+question_title#:#Titel
+question_type#:#Typ
+questions#:#Fragen
+questions_csv#:#Fragenliste (CSV)
+questions_html#:#Fragenliste (HTML)
+questions_with_best_solution#:#Fragen mit Musterlösung
+questions_with_best_solution_info#:#Erzeugt zu jeder Frage auch eine Datei mit der Musterlösung.
+random_questions#:#Fragen im Zufallstest
+random_questions_all#:#Alle Fragen aufnehmen
+random_questions_used#:#Nur verwendete Fragen aufnehmen
+reached_points#:#Erreichte Punktzahl:
+reached_points_of#:#%s von %s
+schedule#:#Erzeugung ab
+schedule_info#:#Frühester Zeitpunkt der Generierung. Der tatsächliche hängt von den Systemeinstellungen des Archivierungs-Cron-Jobs ab.
+scored_pass#:#Bewerteter Testlauf:
+server_url#:#Url
+server_url_info#:#Url des Servers zur PDF-Generierung
+set_last_run#:#Setze letzten Durchlauf
+set_last_run_info#:#Der nächste Start wird ausgehend vom letzten Durchlauf anhand des Zeitplans bestimmt
+settings_html#:#Test-Einstellungen (HTML)
+settings_saved#:#Die Archivierungs-Einstellungen wurden gespeichert.
+status#:#Archivierungs-Status
+status_finished#:#Archiv erstellt
+status_inactive#:#Keine Archiv-Erstellung geplant
+status_planned#:#Archiv-Erstellung geplant
+support_file_prefix#:#Zusatz in Dateinamen ermöglichen
+support_file_prefix_info#:#Erzeugt eine Eingabefeld für Nutzer*innen, in dem ein Wortteil dem Dateinamen vorangestellt (Prefix) wird.
+support_notifications#:#Benachrichtigungen aktivieren
+support_notifications_info#:#Nutzer*inenn können Nutzernamen angeben, an die nach Erstellung eine Nachricht gesendet wird.
+tb_archive_finished#:#beendet
+tb_archive_inactive#:#nicht geplant
+tb_archive_label#:#Archiv-Erstellung:
+tb_archive_manual#:#manuell
+tb_archive_not_for_anonymized#:#nicht für anonyme Tests
+tb_archive_planned#:#ab %s
+test#:#Test
+test_archive#:#Test-Archiv
+test_log#:#Test-Protokoll
+test_log_csv#:#Test-Protokoll (CSV)
+test_log_html#:#Test-Protokoll (HTML)
+test_log_xlsx#:#Test-Protokoll (XLSX)
+test_results_csv#:#Testergebnisse (CSV)
+test_results_xlsx#:#Testergebnisse (MS Excel)
+test_settings#:#Test-Einstellungen
 with_login#:#Benutzernamen
 with_login_info#:#Trägt die ILIAS-Benutzernamen in den Ausgabedateien des Archivs ein.
 with_matriculation#:#Matrikelnummern
 with_matriculation_info#:#Trägt die Matrikelnummern in den Ausgabedateien des Archivs ein.
 with_results#:#Testergebnisse
 with_results_info#:#Bindet einen Export der Testergebnisse als .csv- und .xslx-Dateien ein.
-object_defaults#:#Standard-Einstellungen für Tests
-random_questions#:#Fragen im Zufallstest
-random_questions_all#:#Alle Fragen aufnehmen
-random_questions_used#:#Nur verwendete Fragen aufnehmen
-reached_points_of#:#%s von %s
-given_answer#:#Abgegebene Antwort
-answers_hash#:#Hash (sha1)
-message_cron_plugin_inactive#:#Bitte installieren und aktivieren Sie das Plugin TestArchiveCron (https://github.com/DatabayAG/TestArchiveCron), um die zeitgesteuerte Archivierung zu nutzen.
-keep_creation_directory#:#Verzeichnis behalten
-keep_creation_directory_info#:#Das Verzeichnis der Archiv-Erzeugung soll nach dem Packen als ZIP-Datei nicht gelöscht werden. Es ist im geschützten ILIAS-Datenverzeichnis unter tst_data/archive_plugin/tst_123 zu finden, wobei 123 die Objekt-ID des Tests ist.
-questions_csv#:#Fragenliste (CSV)
-questions_html#:#Fragenliste (HTML)
-participants_csv#:#Teilnehmer*innen (CSV)
-participants_html#:#Teilnehmer*innen (HTML)
-settings_html#:#Test-Einstellungen (HTML)
-introduction_html#:#Einleitung (HTML)
-test_results_csv#:#Testergebnisse (CSV)
-test_results_xlsx#:#Testergebnisse (MS Excel)
-test_archive#:#Test-Archiv
-ignore_ssl_errors#:#SSL-Fehler ignorieren
-ignore_ssl_errors_info#:#Ignoriert SSL-Zertifikatsfehler beim Laden von eingebetteten Bildern, Styles und Skripten.
-keep_jobfile#:#Jobfiles behalten
-keep_jobfile_info#:#Die temporären Datien zur PDF-Erzeugung soll im Archiv-Ordner behalten bleiben. Sie können zur Fehlersuche verwendet werden.
-include_questions#:#Fragen einbinden
-include_questions_info#:#Erzeugt einen Ordner im Archiv mit den Fragen des Tests.
-include_answers#:#Antworten einbinden
-include_answers_info#:#Erzeugt einen Ordner im Archiv mit den Antworten der Teilnehmer*innen.
-questions_with_best_solution#:#Fragen mit Musterlösung
-questions_with_best_solution_info#:#Erzeugt zu jeder Frage auch eine Datei mit der Musterlösung.
-answers_with_best_solution#:#Antworten mit Musterlösung
-answers_with_best_solution_info#:#Fügt in die Dateien der Antworten der Teilnehmer*innen unter jeder Frage die Musterlösung ein.
-permissions#:#Berechtigungen
-permissions_require_role#:#Benutzer*innen
-permissions_require_role_no#:#alle mit Schreibrecht im Test
-permissions_require_role_yes#:#alle mit Schreibrecht im Test UND einer ausgewählten globalen Rolle
-permissions_require_role_select#:#Ausgewählte Rollen
-allow#:#Archiv-Erzeugung
-allow_any#:#Beliebig
-allow_any_info#:#Archive sofort oder geplant erzeugen.
-allow_planned#:#Geplant
-allow_planned_info#:#Archive nur geplant erzeugen. Dazu muss der Cron-Job laufen.
-allow_none#:#Nicht erlaubt
-allow_none_info#:#Archive können nur von Administratoren erzeugt werden.
-schedule_info#:#Frühester Zeitpunkt der Generierung. Der tatsächliche hängt von den Systemeinstellungen des Archivierungs-Cron-Jobs ab.
-generation_settings#:#Einstellungen zur Generierung
-embed_assets#:#Lokale Medien für HTML-Export einbinden
-embed_assets_info#:#Benötigte Bilder, Audios, Videos, Styles und JavaScript-Dateien aus dieser ILIAS-Installation, werden ins Archiv kopiert und von dort in den HTML-Dateien des Archivs verwendet. Medien aus anderen Quellen werden weiterhin mit ihrer externen URL verwendet.
-pdf_engine#:#PDF Generierung
-pdf_engine_none#:#Keine
-pdf_engine_none_info#:#Es werden nur HTML-Dateien erzeugt. Sie sollten dann die lokalen Medien ins Archiv einbinden, damit diese auch bei aktivem WebAccessChecker oder nach dem Löschen des Tests verfügbar sind.
-pdf_engine_browsershot#:#Puppeteer auf ILIAS-Server
-bs_node_module_path#:#Node Modules
-bs_node_module_path_info#:#Pfad zum Verzeichnis node_modules der puppeteer-Installation (mit / am Ende)
-bs_chrome_path#:#Chrome
-bs_chrome_path_info#:#Pfad zum zum Executable von chrome der puppeteer-Installation
-bs_node_path#:#Node
-bs_node_path_info#:#Pfad zum zum Executable von node der puppeteer-Installation
-bs_npm_path#:#Npm
-bs_npm_path_info#:#Pfad zum zum Executable von npm der puppeteer-Installation
-archive_created#:#Das Archiv wurde erzeugt.
-archive_errors#:#Bei der Erzeugung des Archivs traten Fehler auf:
-examination_protocol_html#:#Prüfungsereignis-Protokoll (HTML)
-assets#:#Assets
-include_test_log#:#Test-Protokoll
-include_test_log_info#:#Bindet die Protokolldaten des ILIAS-Tests ins Archiv ein, falls sie aufgezeichnet wurden.
-include_examination_protocol#:#Prüfungsereignis-Protokoll
-include_examination_protocol_info#:#Bindet das Prüfungsereignis-Prokoll ins Archiv ein, falls das entsprechende Plugin aktiv ist.
-test_log#:#Test-Protokoll
-test_log_html#:#Test-Protokoll (HTML)
-test_log_csv#:#Test-Protokoll (CSV)
-test_log_xlsx#:#Test-Protokoll (XLSX)
-log_timestamp#:#Datum/Uhrzeit
-log_user_id#:#Benutzer-ID
-log_login#:#Login-Name
-log_question_id#:#Fragen-ID
-log_question#:#Frage
-log_logtext#:#Protokolleintrag
-pdf_engine_server#:#Puppeteer auf separatem Server
-server_url#:#Url
-server_url_info#:#Url des Servers zur PDF-Generierung
-pdf_engine_server_info#:#Für produktive Umgebungen. Siehe <a href="https://github.com/DatabayAG/tarc-pdf">PDF-Generierungs-Server mit Puppeteer</a>
-pdf_engine_local_info#:#Für Testinstallationen. Siehe <a href="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator/docs/install-puppeteer-local.md">Puppeteer-Installation</a>
-archive_errors#:#Beim Erstellen des Archivs sind Fehler aufgetreten:
-archive_created#:#Das Archiv wurde erstellt.
-git_info#:#Git-Informationen
-deleted_account#:#Gelöschtes Konto
-support_file_prefix#:#Zusatz in Dateinamen ermöglichen
-support_file_prefix_info#:#Erzeugt eine Eingabefeld für Nutzer*innen, in dem ein Wortteil dem Dateinamen vorangestellt (Prefix) wird.
-support_notifications#:#Benachrichtigungen aktivieren
-support_notifications_info#:#Nutzer*inenn können Nutzernamen angeben, an die nach Erstellung eine Nachricht gesendet wird.
-notifications#:#Benachrichtigungen
-notifications_info#:#Benachrichtigung an die angegebenen Nutzer*innen versenden (bitte Nutzerkennung angeben)
-file_prefix#:#Datei-Bezeichnung
-file_prefix_info#:#Die Dateibezeichnung wird dem Dateinamen des Exports vorangestellt. Es sind max. 8 Zeichen zulässig. Erlaubt sind A-Z, a-z, "." und "-".
-wrong_notification_logins#:#Die folgenden Logins sind nicht gültig: %s
+working_time#:#Bearbeitungsdauer
 wrong_file_prefix#:#Das Präfix enthält ungültige Zeichen
-form_validation_errors#:#Das Formular hat fehlerhafte Eingaben, siehe Bemerkungen bei den Eingabefeldern.
-last_cron_run#:#Letzter Durchlauf
-notification_subject#:#ILIAS Test Archiv Dateien erstellt
-notification_message#:#Die Archivdatein wurden erstellt. Sie können sie hier herunterladen:
-include_ip_ranges#:#IP-Bereiche
-include_ip_ranges_info#:#Ergänzt die Liste der Teilnehmer*innen um die konfigurierten IP-Bereiche.
-ip_range_from#:#IP-Bereich von
-ip_range_to#:#IP-Bereich bis
-cron_job_not_active#:#Der Cron-Job ist inaktiv!
+wrong_notification_logins#:#Die folgenden Logins sind nicht gültig: %s
+x_archives_created#:#%s Archive erzeugt
+zoom_factor#:#Vergrößerung (%)

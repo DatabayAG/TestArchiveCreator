@@ -1,7 +1,10 @@
 <?php
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
+
 use ILIAS\DI\Container;
+use ILIAS\Cron\CronJob;
+use ILIAS\Cron\Job\JobProvider;
 
 /**
  * Basic plugin file
@@ -10,7 +13,7 @@ use ILIAS\DI\Container;
  * @version $Id$
  *
  */
-class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
+class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin implements JobProvider
 {
     private const PATH_IN_PUBLIC = 'Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator';
     private const LANG_MODULE = 'ui_uihk_tarc_ui';
@@ -36,6 +39,8 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
 
     /** @var ilTestArchiveCreatorSettings[] */
     protected $settings = [];
+
+    protected ?CronJob $cron_job = null;
 
 
     /**
@@ -138,9 +143,9 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
     /**
      * Check if the cron plugin is active
      */
-    public function isCronPluginActive(): bool
+    public function isCronJobActive(): bool
     {
-        return !empty($this->getActivePluginBySlotAndName('crnhk', 'TestArchiveCron'));
+        return $this->getCronJobInstance(ilTestArchiveCreatorCronJob::id)->isActive();
     }
 
     /**
@@ -151,14 +156,6 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
         return $this->getActivePluginBySlotAndName('uihk', 'ExaminationProtocol');
     }
 
-    /**
-     * Get the cron plugin object
-     * @return ilTestArchiveCronPlugin
-     */
-    public function getCronPlugin(): ?ilPlugin
-    {
-        return $this->getActivePluginBySlotAndName('crnhk', 'TestArchiveCron');
-    }
 
     /**
      * Get an active plugin by slot id and plugin name
@@ -402,5 +399,25 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin
             }
         }
         return parent::txt($a_var);
+    }
+
+    public function getCronJobInstances(): array
+    {
+        return [$this->getCronJobInstance(ilTestArchiveCreatorCronJob::id)];
+    }
+
+    public function getCronJobInstance(string $jobId): CronJob
+    {
+        if ($jobId !== ilTestArchiveCreatorCronJob::id) {
+            throw new OutOfBoundsException(
+                "Job [$jobId] not found."
+            );
+        }
+
+        if (!isset($this->cron_job)) {
+            $this->cron_job = new ilTestArchiveCreatorCronJob($this);
+            $this->cron_job->loadData();
+        }
+        return $this->cron_job;
     }
 }
