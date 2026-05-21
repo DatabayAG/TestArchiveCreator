@@ -2,6 +2,12 @@
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
 use ILIAS\DI\RBACServices as RBACServices;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ILIAS\UI\Component\Input\Field\Factory as FieldFactory;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
+use ILIAS\HTTP\Services as HTTPServices;
+use ILIAS\UICore\GlobalTemplate;
 
 /**
  * Test archive creator configuration user interface class
@@ -20,6 +26,10 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
     protected ilToolbarGUI $toolbar;
     protected ilGlobalTemplateInterface $tpl;
     private RBACServices $rbac;
+    private Factory $ui_factory;
+    private Renderer $ui_renderer;
+    private HTTPServices $http;
+
     /** @var ilTestArchiveCreatorPlugin */
     protected ilPlugin $plugin;
     protected ilTestArchiveCreatorConfig $config;
@@ -38,6 +48,9 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
         $this->toolbar = $DIC->toolbar();
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->rbac = $DIC->rbac();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
+        $this->http = $DIC->http();
 
         $this->lng->loadLanguageModule('assessment');
     }
@@ -69,7 +82,7 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
     protected function editConfiguration(): void
     {
         $form = $this->initConfigForm();
-        $this->tpl->setContent($form->getHTML());
+        $this->tpl->setContent($this->ui_renderer->render($form));
     }
 
     /**
@@ -78,297 +91,321 @@ class ilTestArchiveCreatorConfigGUI extends ilPluginConfigGUI
     protected function saveConfiguration(): void
     {
         $form = $this->initConfigForm();
-        if (!$form->checkInput()) {
-            $form->setValuesByPost();
-            $this->tpl->setContent($form->getHTML());
+        $request = $this->http->request();
+        $form = $form->withRequest($request);
+        $all_data = $form->getData();
+
+        if (!$all_data) {
+            $this->tpl->setContent($this->ui_renderer->render($form));
             return;
         }
 
-        $this->config->pdf_engine = $form->getInput('pdf_engine');
-        $this->config->embed_assets = $form->getInput('embed_assets');
+        // without section
+        $data = $all_data;
 
-        $this->config->hide_standard_archive = $form->getInput('hide_standard_archive');
-        $this->config->keep_creation_directory = $form->getInput('keep_creation_directory');
-        $this->config->keep_jobfile = $form->getInput('keep_jobfile');
-        $this->config->ignore_ssl_errors = $form->getInput('ignore_ssl_errors');
+        $this->config->hide_standard_archive = (bool) ($data['hide_standard_archive'] ?? null);
 
-        $this->config->support_file_prefix = $form->getInput('support_file_prefix');
-        $this->config->support_notifications = $form->getInput('support_notifications');
+        $this->config->keep_creation_directory = (bool) ($data['keep_creation_directory'] ?? null);
+        if ($this->config->keep_creation_directory) {
+            $this->config->keep_jobfile = (bool) ($data['keep_creation_directory']['keep_jobfile'] ?? null);
+        }
 
-        $this->config->bs_node_module_path = $form->getInput('bs_node_module_path');
-        $this->config->bs_chrome_path = $form->getInput('bs_chrome_path');
-        $this->config->bs_node_path = $form->getInput('bs_node_path');
+        $this->config->support_file_prefix = (bool) ($data['support_file_prefix'] ?? null);
+        $this->config->support_notifications = (bool) ($data['support_notifications'] ?? null);
 
-        $this->config->server_url = $form->getInput('server_url');
+        // section generation settings
+        $data = $all_data['generation_settings'] ?? [];
 
-        $this->config->with_login = $form->getInput('with_login');
-        $this->config->with_matriculation = $form->getInput('with_matriculation');
-        $this->config->with_results = $form->getInput('with_results');
-        $this->config->include_ip_ranges = $form->getInput('include_ip_ranges');
+        $this->config->embed_assets = (bool) ($data['embed_assets'] ?? null);
+
+        $this->config->pdf_engine = (string) ($data['pdf_engine_group'][0] ?? null);
+        if ($this->config->pdf_engine === ilTestArchiveCreatorConfig::ENGINE_LOCAL) {
+            $this->config->bs_node_module_path = (string) ($data['pdf_engine_group'][1]['bs_node_module_path'] ?? null);
+            $this->config->bs_chrome_path = (string) ($data['pdf_engine_group'][1]['bs_chrome_path'] ?? null);
+            $this->config->bs_node_path = (string) ($data['pdf_engine_group'][1]['bs_node_path'] ?? null);
+        } elseif ($this->config->pdf_engine === ilTestArchiveCreatorConfig::ENGINE_SERVER) {
+            $this->config->server_url = (string) ($data['pdf_engine_group'][1]['server_url'] ?? null);
+        }
+
+        $this->config->ignore_ssl_errors = (bool) ($data['ignore_ssl_errors'] ?? null);
+
+        // section object defaults
+        $data = $all_data['object_defaults'] ?? [];
+
+        $this->config->include_questions = (bool) ($data['include_questions'] ?? null);
+        if ($this->config->include_questions) {
+            $this->config->random_questions = (string) ($data['include_questions']['random_questions'] ?? null);
+            $this->config->questions_with_best_solution = (bool) ($data['include_questions']['questions_with_best_solution'] ?? null);
+        }
+
+        $this->config->include_answers = (bool) ($data['include_answers'] ?? null);
+        if ($this->config->include_answers) {
+            $this->config->pass_selection = (string) ($data['include_answers']['pass_selection'] ?? null);
+            $this->config->answers_with_best_solution = (bool) ($data['include_answers']['answers_with_best_solution'] ?? null);
+        }
+
+        $this->config->orientation = (string) ($data['orientation'] ?? null);
+        $this->config->zoom_factor = (float) ($data['zoom_factor'] ?? 100) / 100;
+
+        // section privacy settings
+        $data = $all_data['privacy_settings'] ?? [];
+
+        $this->config->with_login = (bool) ($data['with_login'] ?? null);
+        $this->config->with_matriculation = (bool) ($data['with_matriculation'] ?? null);
+        $this->config->with_results = (bool) ($data['with_results'] ?? null);
+        $this->config->include_ip_ranges = (bool) ($data['include_ip_ranges'] ?? null);
+
         if ($this->plugin->isTestLogActive()) {
-            $this->config->include_test_log = $form->getInput('include_test_log');
+            $this->config->include_test_log = (bool) ($data['include_test_log'] ?? null);
         }
         if ($this->plugin->isExaminationProtocolPluginActive()) {
-            $this->config->include_examination_protocol = $form->getInput('include_examination_protocol');
+            $this->config->include_examination_protocol = (bool) ($data['include_examination_protocol'] ?? null);
         }
 
-        $this->config->include_questions = $form->getInput('include_questions');
-        $this->config->include_answers = $form->getInput('include_answers');
-        $this->config->questions_with_best_solution = $form->getInput('questions_with_best_solution');
-        $this->config->answers_with_best_solution = $form->getInput('answers_with_best_solution');
+        // section permissions
+        $data = $all_data['permissions'] ?? [];
 
-        $this->config->pass_selection = $form->getInput('pass_selection');
-        $this->config->random_questions = $form->getInput('random_questions');
+        $this->config->require_global_role = (bool) ($data['require_role'][0] ?? null);
+        if ($this->config->require_global_role) {
+            $this->config->global_role_ids = array_map('intval', (array) ($data['require_role'][1]['role_select'] ?? []));
+        } else {
+            $this->config->global_role_ids = [];
+        }
 
-        $this->config->zoom_factor = $form->getInput('zoom_factor') / 100;
-        $this->config->orientation = $form->getInput('orientation');
-
-        $this->config->user_allow = $form->getInput('user_allow');
-
-        $this->config->require_global_role = $form->getInput('require_role');
-        $form->setValuesByPost();
-        $this->config->global_role_ids = array_map('intval', $form->getItemByPostVar('role_select')->getMultiValues());
+        $this->config->user_allow = (string) ($data['user_allow'] ?? null);
 
         $this->config->save();
-
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
+        $this->tpl->setOnScreenMessage(GlobalTemplate::MESSAGE_TYPE_SUCCESS, $this->lng->txt("settings_saved"), true);
         $this->ctrl->redirect($this, 'editConfiguration');
     }
 
     /**
      * Fill the configuration form
      */
-    protected function initConfigForm(): ilPropertyFormGUI
+    protected function initConfigForm(): Standard
     {
-        $form = new ilPropertyFormGUI();
-        $form->setFormAction($this->ctrl->getFormAction($this, 'editConfiguration'));
-        $form->setTitle($this->plugin->txt('plugin_configuration'));
+        $f = $this->ui_factory->input()->field();
 
+        $inputs = [
+            'hide_standard_archive' => $f->checkbox(
+                $this->plugin->txt('hide_standard_archive'),
+                $this->plugin->txt('hide_standard_archive_info')
+            )->withValue($this->config->hide_standard_archive),
 
-        $hide = new ilCheckboxInputGUI($this->plugin->txt('hide_standard_archive'), 'hide_standard_archive');
-        $hide->setInfo($this->plugin->txt('hide_standard_archive_info'));
-        $hide->setChecked($this->config->hide_standard_archive);
-        $form->addItem($hide);
+            'keep_creation_directory' => $f->optionalGroup(
+                [
+                    'keep_jobfile' => $f->checkbox(
+                        $this->plugin->txt('keep_jobfile'),
+                        $this->plugin->txt('keep_jobfile_info')
+                    )->withValue($this->config->keep_jobfile)
+                ],
+                $this->plugin->txt('keep_creation_directory'),
+                $this->plugin->txt('keep_creation_directory_info')
+            )->withValue($this->config->keep_creation_directory ? ['keep_jobfile' => $this->config->keep_jobfile] : null),
 
-        $keep = new ilCheckboxInputGUI($this->plugin->txt('keep_creation_directory'), 'keep_creation_directory');
-        $keep->setInfo($this->plugin->txt('keep_creation_directory_info'));
-        $keep->setChecked($this->config->keep_creation_directory);
-        $form->addItem($keep);
+            'support_file_prefix' => $f->checkbox(
+                $this->plugin->txt('support_file_prefix'),
+                $this->plugin->txt('support_file_prefix_info')
+            )->withValue($this->config->support_file_prefix),
 
-        $job = new ilCheckboxInputGUI($this->plugin->txt('keep_jobfile'), 'keep_jobfile');
-        $job->setInfo($this->plugin->txt('keep_jobfile_info'));
-        $job->setChecked($this->config->keep_jobfile);
-        $keep->addSubItem($job);
+            'support_notifications' => $f->checkbox(
+                $this->plugin->txt('support_notifications'),
+                $this->plugin->txt('support_notifications_info')
+            )->withValue($this->config->support_notifications),
 
-        $prefix = new ilCheckboxInputGUI($this->plugin->txt('support_file_prefix'), 'support_file_prefix');
-        $prefix->setInfo($this->plugin->txt('support_file_prefix_info'));
-        $prefix->setChecked($this->config->support_file_prefix);
-        $form->addItem($prefix);
+            'generation_settings' => $f->section(
+                [
+                    'embed_assets' => $f->checkbox(
+                        $this->plugin->txt('embed_assets'),
+                        $this->plugin->txt('embed_assets_info')
+                    )->withValue($this->config->embed_assets),
 
-        $notifications = new ilCheckboxInputGUI($this->plugin->txt('support_notifications'), 'support_notifications');
-        $notifications->setInfo($this->plugin->txt('support_notifications_info'));
-        $notifications->setChecked($this->config->support_notifications);
-        $form->addItem($notifications);
+                    'pdf_engine_group' => $f->switchableGroup(
+                        [
+                            ilTestArchiveCreatorConfig::ENGINE_NONE => $f->group(
+                                []
+                            )->withLabel($this->plugin->txt('pdf_engine_none'))->withByline($this->plugin->txt('pdf_engine_none_info')),
 
-        $header = new ilFormSectionHeaderGUI();
-        $header->setTitle($this->plugin->txt('generation_settings'));
-        $form->addItem($header);
+                            ilTestArchiveCreatorConfig::ENGINE_LOCAL => $f->group(
+                                [
+                                    'bs_node_module_path' => $f->text(
+                                        $this->plugin->txt('bs_node_module_path'),
+                                        $this->plugin->txt('bs_node_module_path_info')
+                                    )->withValue($this->config->bs_node_module_path),
 
-        $assets = new ilCheckboxInputGUI($this->plugin->txt('embed_assets'), 'embed_assets');
-        $assets->setInfo($this->plugin->txt('embed_assets_info'));
-        $assets->setChecked($this->config->embed_assets);
-        $form->addItem($assets);
+                                    'bs_chrome_path' => $f->text(
+                                        $this->plugin->txt('bs_chrome_path'),
+                                        $this->plugin->txt('bs_chrome_path_info')
+                                    )->withValue($this->config->bs_chrome_path),
 
-        $engine = new ilRadioGroupInputGUI($this->plugin->txt('pdf_engine'), 'pdf_engine');
-        $engine->setValue($this->config->pdf_engine);
-        $form->addItem($engine);
+                                    'bs_node_path' => $f->text(
+                                        $this->plugin->txt('bs_node_path'),
+                                        $this->plugin->txt('bs_node_path_info')
+                                    )->withValue($this->config->bs_node_path)
+                                ]
+                            )->withLabel($this->plugin->txt('pdf_engine_local'))->withByline($this->plugin->txt('pdf_engine_local_info')),
 
-        $none = new ilRadioOption($this->plugin->txt('pdf_engine_none'), ilTestArchiveCreatorConfig::ENGINE_NONE);
-        $none->setInfo($this->plugin->txt('pdf_engine_none_info'));
-        $engine->addOption($none);
+                            ilTestArchiveCreatorConfig::ENGINE_SERVER => $f->group(
+                                [
+                                    'server_url' => $f->text(
+                                        $this->plugin->txt('server_url'),
+                                        $this->plugin->txt('server_url_info')
+                                    )->withValue($this->config->server_url)
+                                ]
+                            )->withLabel($this->plugin->txt('pdf_engine_server'))->withByline($this->plugin->txt('pdf_engine_server_info'))
+                        ],
+                        $this->plugin->txt('pdf_engine')
+                    )->withValue($this->config->pdf_engine),
 
-        // Local Puppeteer
+                    'ignore_ssl_errors' => $f->checkbox(
+                        $this->plugin->txt('ignore_ssl_errors'),
+                        $this->plugin->txt('ignore_ssl_errors_info')
+                    )->withValue($this->config->ignore_ssl_errors)
+                ],
+                $this->plugin->txt('generation_settings')
+            ),
 
-        $local = new ilRadioOption($this->plugin->txt('pdf_engine_browsershot'), ilTestArchiveCreatorConfig::ENGINE_LOCAL);
-        $local->setInfo($this->plugin->txt('pdf_engine_local_info'));
-        $engine->addOption($local);
+            'object_defaults' => $f->section(
+                [
+                    'include_questions' => $f->optionalGroup(
+                        [
+                            'random_questions' => $f->radio($this->plugin->txt('random_questions'), )
+                                ->withOption(ilTestArchiveCreatorPlugin::RANDOM_ALL, $this->plugin->txt('random_questions_all'))
+                                ->withOption(ilTestArchiveCreatorPlugin::RANDOM_USED, $this->plugin->txt('random_questions_used'))
+                                                    ->withValue($this->config->random_questions),
 
-        $path = new ilTextInputGUI($this->plugin->txt('bs_node_module_path'), 'bs_node_module_path');
-        $path->setInfo($this->plugin->txt('bs_node_module_path_info'));
-        $path->setValue($this->config->bs_node_module_path);
-        $local->addSubItem($path);
+                            'questions_with_best_solution' => $f->checkbox(
+                                $this->plugin->txt('questions_with_best_solution'),
+                                $this->plugin->txt('questions_with_best_solution_info')
+                            )->withValue($this->config->questions_with_best_solution)
+                        ],
+                        $this->plugin->txt('include_questions'),
+                        $this->plugin->txt('include_questions_info')
+                    )->withValue($this->config->include_questions ? [
+                        'random_questions' => $this->config->random_questions,
+                        'questions_with_best_solution' => $this->config->questions_with_best_solution
+                    ] : null),
 
-        $path = new ilTextInputGUI($this->plugin->txt('bs_chrome_path'), 'bs_chrome_path');
-        $path->setInfo($this->plugin->txt('bs_chrome_path_info'));
-        $path->setValue($this->config->bs_chrome_path);
-        $local->addSubItem($path);
+                    'include_answers' => $f->optionalGroup(
+                        [
+                            'pass_selection' => $f->radio(
+                                $this->plugin->txt('pass_selection')
+                            )
+                                ->withOption(ilTestArchiveCreatorPlugin::PASS_SCORED, $this->plugin->txt('pass_scored'))
+                                ->withOption(ilTestArchiveCreatorPlugin::PASS_ALL, $this->plugin->txt('pass_all'))
+                                ->withValue($this->config->pass_selection),
 
-        $path = new ilTextInputGUI($this->plugin->txt('bs_node_path'), 'bs_node_path');
-        $path->setInfo($this->plugin->txt('bs_node_path_info'));
-        $path->setValue($this->config->bs_node_path);
-        $local->addSubItem($path);
+                            'answers_with_best_solution' => $f->checkbox(
+                                $this->plugin->txt('answers_with_best_solution'),
+                                $this->plugin->txt('answers_with_best_solution_info')
+                            )->withValue($this->config->answers_with_best_solution)
+                        ],
+                        $this->plugin->txt('include_answers'),
+                        $this->plugin->txt('include_answers_info')
+                    )->withValue($this->config->include_answers ? [
+                        'pass_selection' => $this->config->pass_selection,
+                        'answers_with_best_solution' => $this->config->answers_with_best_solution
+                    ] : null),
 
-        // Remote Puppeteer Server
+                    'orientation' => $f->radio($this->plugin->txt('orientation'))
+                        ->withOption(ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT, $this->plugin->txt('orientation_portrait'))
+                        ->withOption(ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE, $this->plugin->txt('orientation_landscape'))
+                        ->withValue(empty($this->config->orientation) ? ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT : $this->config->orientation),
 
-        $server = new ilRadioOption($this->plugin->txt('pdf_engine_server'), ilTestArchiveCreatorConfig::ENGINE_SERVER);
-        $server->setInfo($this->plugin->txt('pdf_engine_server_info'));
-        $engine->addOption($server);
+                    'zoom_factor' => $f->numeric(
+                        $this->plugin->txt('zoom_factor')
+                    )->withValue((int) ($this->config->zoom_factor * 100))
+                ],
+                $this->plugin->txt('object_defaults')
+            ),
 
-        $url = new ilTextInputGUI($this->plugin->txt('server_url'), 'server_url');
-        $url->setInfo($this->plugin->txt('server_url_info'));
-        $url->setValue($this->config->server_url);
-        $server->addSubItem($url);
+            'privacy_settings' => $f->section(
+                [
+                    'with_login' => $f->checkbox(
+                        $this->plugin->txt('with_login'),
+                        $this->plugin->txt('with_login_info')
+                    )->withValue($this->config->with_login),
 
+                    'with_matriculation' => $f->checkbox(
+                        $this->plugin->txt('with_matriculation'),
+                        $this->plugin->txt('with_matriculation_info')
+                    )->withValue($this->config->with_matriculation),
 
-        $errors = new ilCheckboxInputGUI($this->plugin->txt('ignore_ssl_errors'), 'ignore_ssl_errors');
-        $errors->setInfo($this->plugin->txt('ignore_ssl_errors_info'));
-        $errors->setChecked($this->config->ignore_ssl_errors);
-        $form->addItem($errors);
+                    'with_results' => $f->checkbox(
+                        $this->plugin->txt('with_results'),
+                        $this->plugin->txt('with_results_info')
+                    )->withValue($this->config->with_results),
 
-        // Object Defaults
+                    'include_ip_ranges' => $f->checkbox(
+                        $this->plugin->txt('include_ip_ranges'),
+                        $this->plugin->txt('include_ip_ranges_info')
+                    )->withValue($this->config->include_ip_ranges),
 
-        $header = new ilFormSectionHeaderGUI();
-        $header->setTitle($this->plugin->txt('object_defaults'));
-        $form->addItem($header);
+                    'include_test_log' => $f->checkbox(
+                        $this->plugin->txt('include_test_log'),
+                        $this->plugin->txt('include_test_log_info')
+                    )->withValue($this->plugin->isTestLogActive() && $this->config->include_test_log)
+                        ->withDisabled(!$this->plugin->isTestLogActive()),
 
-        $questions = new ilCheckboxInputGUI($this->plugin->txt('include_questions'), 'include_questions');
-        $questions->setInfo($this->plugin->txt('include_questions_info'));
-        $questions->setChecked($this->config->include_questions);
-        $form->addItem($questions);
+                    'include_examination_protocol' => $f->checkbox(
+                        $this->plugin->txt('include_examination_protocol'),
+                        $this->plugin->txt('include_examination_protocol_info')
+                    )->withValue($this->plugin->isExaminationProtocolPluginActive() && $this->config->include_examination_protocol)
+                        ->withDisabled(!$this->plugin->isExaminationProtocolPluginActive())
+                ],
+                $this->plugin->txt('privacy_settings')
+            ),
 
-        $random_questions = new ilSelectInputGUI($this->plugin->txt('random_questions'), 'random_questions');
-        $random_questions->setOptions(array(
-            ilTestArchiveCreatorPlugin::RANDOM_ALL => $this->plugin->txt('random_questions_all'),
-            ilTestArchiveCreatorPlugin::RANDOM_USED => $this->plugin->txt('random_questions_used'),
-        ));
-        $random_questions->setValue($this->config->random_questions);
-        $questions->addSubItem($random_questions);
+            'permissions' => $f->section(
+                [
+                    'require_role' => $f->switchableGroup(
+                        [
+                            '0' => $f->group([])->withLabel($this->plugin->txt('permissions_require_role_no')),
+                            '1' => $f->group([
+                                'role_select' => $f->multiSelect(
+                                    $this->plugin->txt('permissions_require_role_select'),
+                                    $this->globalRoleOptions()
+                                )->withValue($this->globalRoleValues())
+                            ])->withLabel($this->plugin->txt('permissions_require_role_yes'))
+                        ],
+                        $this->plugin->txt('permissions_require_role')
+                    )->withValue($this->config->require_global_role ? '1' : '0'),
 
-        $qbest = new ilCheckboxInputGUI($this->plugin->txt('questions_with_best_solution'), 'questions_with_best_solution');
-        $qbest->setInfo($this->plugin->txt('questions_with_best_solution_info'));
-        $qbest->setChecked($this->config->questions_with_best_solution);
-        $questions->addSubItem($qbest);
+                    'user_allow' => $f->radio($this->plugin->txt('allow'))
+                        ->withOption(ilTestArchiveCreatorConfig::ALLOW_ANY, $this->plugin->txt('allow_any'), $this->plugin->txt('allow_any_info'))
+                        ->withOption(ilTestArchiveCreatorConfig::ALLOW_PLANNED, $this->plugin->txt('allow_planned'), $this->plugin->txt('allow_planned_info'))
+                        ->withOption(ilTestArchiveCreatorConfig::ALLOW_NONE, $this->plugin->txt('allow_none'), $this->plugin->txt('allow_none_info'))
+                        ->withValue(empty($this->config->user_allow) ? ilTestArchiveCreatorConfig::ALLOW_NONE : $this->config->user_allow)
+                ],
+                $this->plugin->txt('permissions')
+            )
+        ];
 
-
-        $answers = new ilCheckboxInputGUI($this->plugin->txt('include_answers'), 'include_answers');
-        $answers->setInfo($this->plugin->txt('include_answers_info'));
-        $answers->setChecked($this->config->include_answers);
-        $form->addItem($answers);
-
-        $pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
-        $pass_selection->setOptions(array(
-            ilTestArchiveCreatorPlugin::PASS_SCORED => $this->plugin->txt('pass_scored'),
-            ilTestArchiveCreatorPlugin::PASS_ALL => $this->plugin->txt('pass_all'),
-        ));
-        $pass_selection->setValue($this->config->pass_selection);
-        $answers->addSubItem($pass_selection);
-
-        $abest = new ilCheckboxInputGUI($this->plugin->txt('answers_with_best_solution'), 'answers_with_best_solution');
-        $abest->setInfo($this->plugin->txt('answers_with_best_solution_info'));
-        $abest->setChecked($this->config->answers_with_best_solution);
-        $answers->addSubItem($abest);
-
-
-        $orientation = new ilSelectInputGUI($this->plugin->txt('orientation'), 'orientation');
-        $orientation->setOptions(array(
-            ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
-            ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
-        ));
-        $orientation->setValue($this->config->orientation);
-        $form->addItem($orientation);
-
-        $zoom_factor = new ilNumberInputGUI($this->plugin->txt('zoom_factor'), 'zoom_factor');
-        $zoom_factor->setSize(5);
-        $zoom_factor->allowDecimals(false);
-        $zoom_factor->setValue($this->config->zoom_factor * 100);
-        $form->addItem($zoom_factor);
-
-        // Privacy settings
-
-        $header = new ilFormSectionHeaderGUI();
-        $header->setTitle($this->plugin->txt('privacy_settings'));
-        $form->addItem($header);
-
-        $with_login = new ilCheckboxInputGUI($this->plugin->txt('with_login'), 'with_login');
-        $with_login->setInfo($this->plugin->txt('with_login_info'));
-        $with_login->setChecked($this->config->with_login);
-        $form->addItem($with_login);
-
-        $with_matriculation = new ilCheckboxInputGUI($this->plugin->txt('with_matriculation'), 'with_matriculation');
-        $with_matriculation->setInfo($this->plugin->txt('with_matriculation_info'));
-        $with_matriculation->setChecked($this->config->with_matriculation);
-        $form->addItem($with_matriculation);
-
-        $with_results = new ilCheckboxInputGUI($this->plugin->txt('with_results'), 'with_results');
-        $with_results->setInfo($this->plugin->txt('with_results_info'));
-        $with_results->setChecked($this->config->with_results);
-        $form->addItem($with_results);
-
-        $include_ip_ranges = new ilCheckboxInputGUI($this->plugin->txt('include_ip_ranges'), 'include_ip_ranges');
-        $include_ip_ranges->setInfo($this->plugin->txt('include_ip_ranges_info'));
-        $include_ip_ranges->setChecked($this->config->include_ip_ranges);
-        $form->addItem($include_ip_ranges);
-
-        $include_test_log = new ilCheckboxInputGUI($this->plugin->txt('include_test_log'), 'include_test_log');
-        $include_test_log->setInfo($this->plugin->txt('include_test_log_info'));
-        $include_test_log->setChecked($this->plugin->isTestLogActive() && $this->config->include_test_log);
-        $include_test_log->setDisabled(!$this->plugin->isTestLogActive());
-        $form->addItem($include_test_log);
-
-        $include_examination_protocol = new ilCheckboxInputGUI($this->plugin->txt('include_examination_protocol'), 'include_examination_protocol');
-        $include_examination_protocol->setInfo($this->plugin->txt('include_examination_protocol_info'));
-        $include_examination_protocol->setChecked($this->plugin->isExaminationProtocolPluginActive() && $this->config->include_examination_protocol);
-        $include_examination_protocol->setDisabled(!$this->plugin->isExaminationProtocolPluginActive());
-        $form->addItem($include_examination_protocol);
-
-        $header = new ilFormSectionHeaderGUI();
-        $header->setTitle($this->plugin->txt('permissions'));
-        $form->addItem($header);
-
-        $role = new ilRadioGroupInputGUI($this->plugin->txt('permissions_require_role'), 'require_role');
-        $role->setValue($this->config->require_global_role ? '1' : '0');
-        $option = new ilRadioOption($this->plugin->txt('permissions_require_role_no'), '0');
-        $role->addOption($option);
-        $option = new ilRadioOption($this->plugin->txt('permissions_require_role_yes'), '1');
-        $role->addOption($option);
-        $role_select = new ilSelectInputGUI($this->plugin->txt('permissions_require_role_select'), 'role_select');
-        $role_select->setMulti(true);
-        $role_select->setOptions($this->globalRoleOptions());
-        if (!empty($this->config->global_role_ids)) {
-            $role_select->setValue($this->config->global_role_ids[0]);
-        }
-        $role_select->setMultiValues($this->config->global_role_ids);
-        $option->addSubItem($role_select);
-        $form->addItem($role);
-
-        $access = new ilRadioGroupInputGUI($this->plugin->txt('allow'), 'user_allow');
-        $option = new ilRadioOption($this->plugin->txt('allow_any'), ilTestArchiveCreatorConfig::ALLOW_ANY);
-        $option->setInfo($this->plugin->txt('allow_any_info'));
-        $access->addOption($option);
-        $option = new ilRadioOption($this->plugin->txt('allow_planned'), ilTestArchiveCreatorConfig::ALLOW_PLANNED);
-        $option->setInfo($this->plugin->txt('allow_planned_info'));
-        $access->addOption($option);
-        $option = new ilRadioOption($this->plugin->txt('allow_none'), ilTestArchiveCreatorConfig::ALLOW_NONE);
-        $option->setInfo($this->plugin->txt('allow_none_info'));
-        $access->addOption($option);
-        $access->setValue($this->config->user_allow);
-        $form->addItem($access);
-
-        $form->addCommandButton('saveConfiguration', $this->lng->txt('save'));
-
-        return $form;
+        return $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, 'saveConfiguration'),
+            $inputs
+        );
     }
 
     private function globalRoleOptions(): array
     {
-        $options = [
-            '0' => $this->lng->txt('please_select')
-        ];
-
+        $options = [];
         foreach ($this->rbac->review()->getGlobalRoles() as $role_id) {
-            $options[$role_id] = ilObject::_lookupTitle($role_id);
+            $options[(string) $role_id] = ilObject::_lookupTitle($role_id);
         }
 
         return $options;
+    }
+
+    private function globalRoleValues(): array
+    {
+        $values = [];
+        $options = $this->globalRoleOptions();
+        foreach ($this->config->global_role_ids as $role_id) {
+            if (isset($options[(string) $role_id])) {
+                $values[] = (string) $role_id;
+            }
+        }
+        return $values;
     }
 }

@@ -12,7 +12,7 @@ class ilTestArchiveCreatorConfig
     public const ALLOW_NONE = 'none';
 
     public const ENGINE_NONE = '';
-    public const ENGINE_LOCAL = 'browsershot';
+    public const ENGINE_LOCAL = 'local';
     public const ENGINE_SERVER = 'server';
 
 
@@ -64,16 +64,16 @@ class ilTestArchiveCreatorConfig
     /** @var bool embed the asset files in the archive */
     public bool $embed_assets;
 
-    /** @var string path to node_modules for browsershot */
+    /** @var string path to node_modules for puppeteer */
     public string $bs_node_module_path;
 
-    /** @var string path to chrome binary for browsershot  */
+    /** @var string path to chrome binary for puppeteer  */
     public string $bs_chrome_path;
 
-    /** @var string path to node binary for browsershot */
+    /** @var string path to node binary for puppeteer */
     public string $bs_node_path;
 
-    /** @var string path to npm binary for browsershot */
+    /** @var string path to npm binary for puppeteer */
     public string $bs_npm_path;
 
     /** @var bool include the configured participant ip ranges in the archive */
@@ -125,8 +125,8 @@ class ilTestArchiveCreatorConfig
         $this->settings = new ilSetting('ilTestArchiveCreator');
 
         $this->embed_assets = (bool) $this->settings->get('embed_assets', false);
-        $this->user_allow = (string) $this->settings->get('user_allow', self::ALLOW_ANY);
-        $this->pdf_engine = (string) $this->settings->get('pdf_engine', self::ENGINE_NONE);
+        $this->user_allow = $this->matchUserAllow($this->settings->get('user_allow'));
+        $this->pdf_engine = $this->matchPdfEngine($this->settings->get('pdf_engine'));
 
         $this->hide_standard_archive = (bool) $this->settings->get('hide_standard_archive', true);
         $this->keep_creation_directory = (bool) $this->settings->get('keep_creation_directory', false);
@@ -155,11 +155,11 @@ class ilTestArchiveCreatorConfig
         $this->questions_with_best_solution = (bool) $this->settings->get('questions_with_best_solution', true);
         $this->answers_with_best_solution = (bool) $this->settings->get('answers_with_best_solution', true);
 
-        $this->pass_selection = (string) $this->settings->get('pass_selection', ilTestArchiveCreatorPlugin::PASS_SCORED);
-        $this->random_questions = (string) $this->settings->get('random_questions', ilTestArchiveCreatorPlugin::RANDOM_USED);
+        $this->pass_selection = $this->matchPassSelection($this->settings->get('pass_selection'));
+        $this->random_questions = $this->matchRandomQuestions($this->settings->get('random_questions'));
 
         $this->zoom_factor = (float) $this->settings->get('zoom_factor', '1.0');
-        $this->orientation = (string) $this->settings->get('orientation', ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT);
+        $this->orientation = $this->matchOrientation($this->settings->get('orientation'));
 
         $this->require_global_role = (bool) $this->settings->get('require_global_role', false);
         $this->global_role_ids = array_map(
@@ -174,9 +174,8 @@ class ilTestArchiveCreatorConfig
      */
     public function save()
     {
-        $this->settings->set('user_allow', (string) $this->user_allow);
         $this->settings->set('embed_assets', (bool) $this->embed_assets ? '1' : '0');
-        $this->settings->set('pdf_engine', (string) $this->pdf_engine);
+        $this->settings->set('pdf_engine', $this->matchPdfEngine($this->pdf_engine));
         $this->settings->set('hide_standard_archive', (bool) $this->hide_standard_archive ? '1' : '0');
         $this->settings->set('keep_creation_directory', (bool) $this->keep_creation_directory ? '1' : '0');
         $this->settings->set('keep_jobfile', (bool) $this->keep_jobfile ? '1' : '0');
@@ -204,14 +203,16 @@ class ilTestArchiveCreatorConfig
         $this->settings->set('questions_with_best_solution', (bool) $this->questions_with_best_solution ? '1' : '0');
         $this->settings->set('answers_with_best_solution', (bool) $this->answers_with_best_solution ? '1' : '0');
 
-        $this->settings->set('pass_selection', (string) $this->pass_selection);
-        $this->settings->set('random_questions', (string) $this->random_questions);
+        $this->settings->set('pass_selection', $this->matchPassSelection($this->pass_selection));
+        $this->settings->set('random_questions', $this->matchRandomQuestions($this->random_questions));
 
         $this->settings->set('zoom_factor', (string) $this->zoom_factor);
         $this->settings->set('orientation', (string) $this->orientation);
 
-        $this->settings->set('require_global_role', (bool) $this->require_global_role);
+        $this->settings->set('require_global_role', (bool) $this->require_global_role ? '1' : '0');
         $this->settings->set('global_role_ids', implode(',', $this->global_role_ids));
+
+        $this->settings->set('user_allow', $this->matchUserAllow($this->user_allow));
     }
 
 
@@ -266,4 +267,46 @@ class ilTestArchiveCreatorConfig
         }
         return false;
     }
+
+    private function matchPdfEngine(?string $engine): string
+    {
+        return match($engine) {
+            'browsershot' => self::ENGINE_LOCAL,                    // backward compatibility
+            self::ENGINE_LOCAL, self::ENGINE_SERVER => $engine,
+            default => self::ENGINE_NONE
+        };
+    }
+
+    private function matchUserAllow(?string $allow): string
+    {
+        return match($allow) {
+            self::ALLOW_PLANNED, self::ALLOW_NONE => $allow,
+            default => self::ALLOW_ANY
+        };
+    }
+
+    private function matchRandomQuestions(?string $random): string
+    {
+        return match($random) {
+            ilTestArchiveCreatorPlugin::RANDOM_ALL => $random,
+            default => ilTestArchiveCreatorPlugin::RANDOM_USED
+        };
+    }
+
+    private function matchPassSelection(?string $selection): string
+    {
+        return match($selection) {
+            ilTestArchiveCreatorPlugin::PASS_ALL => $selection,
+            default => ilTestArchiveCreatorPlugin::PASS_SCORED
+        };
+    }
+
+    private function matchOrientation(?string $orientation): string
+    {
+        return match($orientation) {
+            ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE => $orientation,
+            default => ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT
+        };
+    }
+
 }

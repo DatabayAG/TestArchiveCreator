@@ -114,7 +114,7 @@ pass_scored#:#Bewerteter Testlauf
 pass_selection#:#Testlauf-Auswahl
 passed#:#bestanden
 pdf_engine#:#PDF Generierung
-pdf_engine_browsershot#:#Puppeteer auf ILIAS-Server
+pdf_engine_local#:#Puppeteer auf ILIAS-Server
 pdf_engine_local_info#:#Für Testinstallationen. Siehe <a href="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator/docs/install-puppeteer-local.md">Puppeteer-Installation</a>
 pdf_engine_none#:#Keine
 pdf_engine_none_info#:#Es werden nur HTML-Dateien erzeugt. Sie sollten dann die lokalen Medien ins Archiv einbinden, damit diese auch bei aktivem WebAccessChecker oder nach dem Löschen des Tests verfügbar sind.

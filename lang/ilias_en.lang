@@ -111,7 +111,7 @@ pass_scored#:#Scored Pass
 pass_selection#:#Test Pass Selection
 passed#:#passed
 pdf_engine#:#PDF Generation
-pdf_engine_browsershot#:#Puppeteer on ILIAS Server
+pdf_engine_local#:#Puppeteer on ILIAS Server
 pdf_engine_local_info#:#For test installations. See <a href="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/TestArchiveCreator/docs/install-puppeteer-local.md">Puppeteer-Installation</a>
 pdf_engine_none#:#None
 pdf_engine_none_info#:#Only HTML files are generated. You should then include the local media in the archive so that they are also available when WebAccessChecker is active or after the test has been deleted.
