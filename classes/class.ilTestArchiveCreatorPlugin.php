@@ -5,6 +5,7 @@
 use ILIAS\DI\Container;
 use ILIAS\Cron\CronJob;
 use ILIAS\Cron\Job\JobProvider;
+use ILIAS\Plugin\TestArchiveCreator\DBUpdateSteps11;
 
 /**
  * Basic plugin file
@@ -42,6 +43,20 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin implements Jo
 
     protected ?CronJob $cron_job = null;
 
+    public function install(): void
+    {
+        global $DIC;
+        parent::install();
+        (new DBUpdateSteps11())->install($DIC->database());
+    }
+
+    public function uninstall(): bool
+    {
+        global $DIC;
+        parent::uninstall();
+        (new DBUpdateSteps11())->uninstall($DIC->database());
+        return true;
+    }
 
     /**
      * Get the plugin name
