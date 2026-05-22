@@ -40,12 +40,12 @@ The archive containes separate PDF files for the questions in the test and the t
 
 ## Planned Creation
 
-Archive creation may take a long time for large tests. For this reason the plugin allows to configure a planned creation of the archive in each test. This requires two additional setups.
+Archive creation may take a long time for large tests. For this reason the plugin allows a planned creation of the archive in each test. This requires some setup steps.
 
-You need to set up a call of the ILIAS cron jobs on your web server, see the ILIAS installation guide:
+Set up a call of the ILIAS cron jobs on your web server, see the ILIAS installation guide:
 https://www.ilias.de/docu/goto_docu_pg_8240_367.html
 
-You also need to set a HTTP path in the file `ilias.ini.php`.This path is needed to load images for the archive and it can't
+Set a HTTP path in the file `ilias.ini.php`.This path is needed to load images for the archive and it can't
 be automatically determined in the context of a cron job. It must point to the public directory of ilias without a slash at the end.
 
 ````
@@ -53,18 +53,14 @@ be automatically determined in the context of a cron job. It must point to the p
 http_path = "https://ilias.your.domain/public"
 ````
 
-Additionally, you need to install the cron job plugin TestArchiveCron:
-https://github.com/DatabayAG/TestArchiveCron
+Configure the cron job:
 
-1. Install and activate this plugin.
-2. Go to Administration > General Settings > Cron Jobs
-3. Activate the 'Test Archive Creation' job
-4. Set a reasonable schedule for the job, e.h. hourly.
+1. Open Administration / System Settings and Maintenance / Cron Jobs 
+2. Activate the 'Test Archive Creation' job
+3. Set a reasonable schedule for the job, e.h. daily.
 
 Now you can set a time in the settings of the archive creation. When the cron job is called and the time is due, it
 will create the archive.
-
-
 
 
 ## Debugging of the PDF generation
