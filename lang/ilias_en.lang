@@ -91,7 +91,7 @@ not_passed#:#not passed
 notification_message#:#The archive files have been created. You can download them here:
 notification_subject#:#ILIAS Test Archive Files created
 notifications#:#Notifications
-notifications_info#:#Sent notifications to users (enter login)
+notifications_info#:#Sent notifications to users (enter logins comma-separated)
 number_passes#:#Number of Passes:
 object_defaults#:#Default Settings for Test Objects
 one_archive_created#:#1 archive created.

@@ -1,37 +1,42 @@
 <?php
 
 // Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3, see LICENSE
-use ILIAS\DI\UIServices as UIServices;
-use ILIAS\HTTP\Services as HttpServices;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
+use ILIAS\HTTP\Services as HTTPServices;
 use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\UICore\GlobalTemplate;
 use ILIAS\Cron\Job\Schedule\JobScheduleType;
+use ILIAS\Filesystem\Stream\Streams;
 
 /**
- * GUI for Limited Media Control
+ * GUI for Test Archive Creator Settings
  *
  * @author Fred Neumann <fred.neumann@fau.de>
  * @version $Id$
  *
  * @ilCtrl_IsCalledBy ilTestArchiveCreatorSettingsGUI: ilUIPluginRouterGUI
- * @ilCtrl_Calls ilTestArchiveCreatorSettingsGUI: ilAssQuestionPageGUI, ilTestEvaluationGUI, ilTestPageGUI
  */
 class ilTestArchiveCreatorSettingsGUI
 {
-    private HttpServices $http;
+    private HTTPServices $http;
     private Refinery $refinery;
-    protected ilAccessHandler $access;
-    protected ilCtrl $ctrl;
-    protected ilLanguage $lng;
-    protected ilTabsGUI $tabs;
-    protected ilToolbarGUI $toolbar;
-    protected ilGlobalTemplateInterface $tpl;
-    protected UIServices $ui_services;
+    private Factory $ui_factory;
+    private Renderer $ui_renderer;
+    private ilLocatorGUI $locator;
+    private ilAccessHandler $access;
+    private ilObjUser $user;
+    private ilCtrl $ctrl;
+    private ilLanguage $lng;
+    private ilToolbarGUI $toolbar;
+    private ilGlobalTemplateInterface $tpl;
+
     /** @var ilTestArchiveCreatorPlugin */
-    protected ilPlugin $plugin;
-    protected ilTestArchiveCreatorConfig $config;
-    protected ilTestArchiveCreatorSettings $settings;
-    protected ilObjTest $testObj;
+    private ilPlugin $plugin;
+    private ilTestArchiveCreatorConfig $config;
+    private ilTestArchiveCreatorSettings $settings;
+    private ilObjTest $testObj;
 
     /**
      * Constructor.
@@ -41,19 +46,21 @@ class ilTestArchiveCreatorSettingsGUI
         global $DIC;
 
         $this->access = $DIC->access();
+        $this->user = $DIC->user();
         $this->ctrl = $DIC->ctrl();
         $this->lng = $DIC->language();
-        $this->tabs = $DIC->tabs();
         $this->toolbar = $DIC->toolbar();
-        $this->tpl = $DIC['tpl'];
-        $this->ui_services = $DIC->ui();
+        $this->tpl = $DIC->ui()->mainTemplate();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
+        $this->locator = $DIC["ilLocator"];
 
         $this->lng->loadLanguageModule('assessment');
         $this->lng->loadLanguageModule('cron');
 
-        $ref_id = $DIC->http()->wrapper()->query()->retrieve('ref_id', $DIC->refinery()->kindlyTo()->int());
+        $ref_id = $this->http->wrapper()->query()->retrieve('ref_id', $this->refinery->kindlyTo()->int());
         $this->testObj = new ilObjTest($ref_id, true);
 
         /** @var ilComponentFactory $factory */
@@ -69,7 +76,6 @@ class ilTestArchiveCreatorSettingsGUI
      */
     public function modifyExportToolbar()
     {
-
         if (empty($this->toolbar->getItems())) {
             // e.g delete confirmation is shown
             return;
@@ -89,7 +95,7 @@ class ilTestArchiveCreatorSettingsGUI
                             $links[] = $link;
                         }
                     }
-                    $tb_item['component'] = $this->ui_services->factory()->dropdown()->standard($links)
+                    $tb_item['component'] = $this->ui_factory->dropdown()->standard($links)
                     ->withLabel($this->lng->txt("exp_export_dropdown"));
                 };
                 $new_items[] = $tb_item;
@@ -109,7 +115,8 @@ class ilTestArchiveCreatorSettingsGUI
         } elseif ($this->plugin->isCronJobActive()) {
             switch ($this->settings->status) {
                 case ilTestArchiveCreatorPlugin::STATUS_PLANNED:
-                    $text .= sprintf($this->plugin->txt('tb_archive_planned'), isset($this->settings->schedule) ? ilDatePresentation::formatDate($this->settings->schedule) : '');
+                    $text .= sprintf($this->plugin->txt('tb_archive_planned'), isset($this->settings->schedule) ?
+                        ilDatePresentation::formatDate(new ilDateTime($this->settings->schedule->getTimestamp(), IL_CAL_UNIX)) : '');
                     break;
                 case ilTestArchiveCreatorPlugin::STATUS_FINISHED:
                     $text .= $this->plugin->txt('tb_archive_finished');
@@ -168,9 +175,6 @@ class ilTestArchiveCreatorSettingsGUI
         $cmd = $this->ctrl->getCmd('editSettings');
 
         switch ($cmd) {
-            case "doAutoComplete":
-                $this->$cmd();
-                break;
 
             case "editSettings":
                 $this->prepareOutput();
@@ -201,13 +205,9 @@ class ilTestArchiveCreatorSettingsGUI
      */
     protected function prepareOutput()
     {
-        /** @var ilLocatorGUI $ilLocator */
-        /** @var ilLanguage $lng */
-        global $ilLocator, $lng;
-
         $this->ctrl->setParameterByClass('ilObjTestGUI', 'ref_id', $this->testObj->getRefId());
-        $ilLocator->addRepositoryItems($this->testObj->getRefId());
-        $ilLocator->addItem($this->testObj->getTitle(), $this->ctrl->getLinkTargetByClass('ilObjTestGUI'));
+        $this->locator->addRepositoryItems($this->testObj->getRefId());
+        $this->locator->addItem($this->testObj->getTitle(), $this->ctrl->getLinkTargetByClass('ilObjTestGUI'));
 
         // $this->tpl->getStandardTemplate();
         //https://github.com/ILIAS-eLearning/ILIAS/commit/0c199948c24dc454f36d6dc3fca3765dfa39e5a4
@@ -216,7 +216,7 @@ class ilTestArchiveCreatorSettingsGUI
         $this->tpl->setLocator();
         $this->tpl->setTitle($this->testObj->getPresentationTitle());
         $this->tpl->setDescription($this->testObj->getLongDescription());
-        $this->tpl->setTitleIcon(ilObject::_getIcon(0, 'big', 'tst'), $lng->txt('obj_tst'));
+        $this->tpl->setTitleIcon(ilObject::_getIcon(0, 'big', 'tst'), $this->lng->txt('obj_tst'));
 
         return true;
     }
@@ -224,132 +224,127 @@ class ilTestArchiveCreatorSettingsGUI
     /**
      * Init the settings form
      */
-    protected function initSettingsForm()
+    protected function initSettingsForm(): Standard
     {
-        $form = new ilPropertyFormGUI();
-        $form->setFormAction($this->ctrl->getFormAction($this, 'editSettings'));
-        $form->setTitle($this->plugin->txt('edit_archive_settings'));
+        $f = $this->ui_factory->input()->field();
 
-        $st_inactive = new ilRadioOption($this->plugin->txt('status_inactive'), ilTestArchiveCreatorPlugin::STATUS_INACTIVE);
-        $st_planned = new ilRadioOption($this->plugin->txt('status_planned'), ilTestArchiveCreatorPlugin::STATUS_PLANNED);
-        $st_finished = new ilRadioOption($this->plugin->txt('status_finished'), ilTestArchiveCreatorPlugin::STATUS_FINISHED);
-        $st_finished->setDisabled(true);
-
-        $status = new ilRadioGroupInputGUI($this->plugin->txt('status'), 'status');
-        $status->addOption($st_inactive);
-        $status->addOption($st_planned);
-        $status->addOption($st_finished);
-        $status->setValue($this->settings->status);
-        $form->addItem($status);
-
-        $schedule = new ilDateTimeInputGUI($this->plugin->txt('schedule'), 'schedule');
-        $schedule->setShowTime(true);
-        $schedule->setMinuteStepSize(10);
-        $schedule->setDate($this->settings->schedule);
-        $schedule->setInfo($this->plugin->txt('schedule_info'));
-        $schedule->setRequired(true);
-        $st_planned->addSubItem($schedule);
+        $planned_group_inputs = [
+            'schedule' => $f->dateTime(
+                $this->plugin->txt('schedule'),
+                $this->plugin->txt('schedule_info')
+                . ($this->plugin->isCronJobActive() ? '<br>' . $this->getCronInfo() : '')
+            )->withUseTime(true)
+              ->withRequired(true)
+             ->withValue($this->settings->schedule?->setTimezone(new DateTimeZone($this->user->getTimeZone()))),
+        ];
 
         if ($this->config->support_notifications) {
-            $notifications = new ilTextInputGUI($this->plugin->txt('notifications'), 'notifications');
-            $notifications->setInfo($this->plugin->txt('notifications_info'));
-            $notifications->setMulti(true);
-            $notifications->setDataSource($this->ctrl->getLinkTarget($this, "doAutoComplete", "", true));
-            $logins = $this->settings->getNotificationLogins();
-            if (!empty($logins)) {
-                $notifications->setValue($logins[0]);
-                $notifications->setMultiValues($logins);
-            }
-            $st_planned->addSubItem($notifications);
+            $planned_group_inputs['notifications'] = $f->text($this->plugin->txt('notifications'), $this->plugin->txt('notifications_info'))
+            ->withValue($this->settings->getNotificationLogins())
+                ->withAdditionalTransformation(
+                    $this->refinery->custom()->constraint(
+                        $this->settings->checkNotificationLogins(...),
+                        $this->settings->getNotificationLoginsError(...)
+                    )
+                );
         }
 
-        if ($this->plugin->isCronJobActive()) {
-            $schedule->setInfo($schedule->getInfo() . '<br>' . $this->getCronInfo());
-        } else {
-            $status->setDisabled(true);
-            $status->setInfo($this->plugin->txt('message_cron_job_inactive'));
-            $schedule->setInfo($this->plugin->txt('message_cron_job_inactive'));
-            $schedule->setDisabled(true);
+        $inputs['status_group'] = $f->switchableGroup(
+            [
+                ilTestArchiveCreatorPlugin::STATUS_INACTIVE => $f->group([])
+                    ->withLabel($this->plugin->txt('status_inactive')),
+                ilTestArchiveCreatorPlugin::STATUS_PLANNED => $f->group($planned_group_inputs)
+                    ->withLabel($this->plugin->txt('status_planned')),
+                ilTestArchiveCreatorPlugin::STATUS_FINISHED => $f->group([])
+                    ->withLabel($this->plugin->txt('status_finished'))
+                    ->withDisabled(true)
+            ],
+            $this->plugin->txt('status')
+        )->withValue($this->settings->status);
+
+        if (!$this->plugin->isCronJobActive()) {
+            $inputs['status_group'] = $inputs['status_group']
+                ->withDisabled(true)
+                ->withByline($this->plugin->txt('message_cron_job_inactive'));
         }
 
         if ($this->config->support_file_prefix) {
-            $prefix = new ilTextInputGUI($this->plugin->txt('file_prefix'), 'file_prefix');
-            $prefix->setInfo($this->plugin->txt('file_prefix_info'));
-            $prefix->setMaxLength(8);
-            $prefix->setValue($this->settings->file_prefix);
-            $form->addItem($prefix);
+            $inputs['file_prefix'] = $f->text($this->plugin->txt('file_prefix'), $this->plugin->txt('file_prefix_info'))
+               ->withMaxLength(8)
+               ->withValue($this->settings->file_prefix)
+                ->withAdditionalTransformation(
+                    $this->refinery->custom()->constraint(
+                        $this->settings->checkFilePrefix(...),
+                        $this->plugin->txt("wrong_file_prefix")
+                    )
+                );
         }
 
-        $questions = new ilCheckboxInputGUI($this->plugin->txt('include_questions'), 'include_questions');
-        $questions->setInfo($this->plugin->txt('include_questions_info'));
-        $questions->setChecked($this->settings->include_questions);
-        $form->addItem($questions);
-
+        $question_group_inputs = [];
+        $question_group_values = [];
         if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
-            $random_questions = new ilSelectInputGUI($this->plugin->txt('random_questions'), 'random_questions');
-            $random_questions->setOptions(array(
-                ilTestArchiveCreatorPlugin::RANDOM_ALL => $this->plugin->txt('random_questions_all'),
-                ilTestArchiveCreatorPlugin::RANDOM_USED => $this->plugin->txt('random_questions_used'),
-            ));
-            $random_questions->setValue($this->settings->random_questions);
-            $questions->addSubItem($random_questions);
+            $question_group_inputs['random_questions'] = $f->radio($this->plugin->txt('random_questions'), )
+                                                           ->withOption(ilTestArchiveCreatorPlugin::RANDOM_ALL, $this->plugin->txt('random_questions_all'))
+                                                           ->withOption(ilTestArchiveCreatorPlugin::RANDOM_USED, $this->plugin->txt('random_questions_used'))
+                                                           ->withValue($this->settings->random_questions);
+            $question_group_values['random_questions'] = $this->settings->random_questions;
         }
+        $question_group_inputs['questions_with_best_solution'] = $f->checkbox(
+            $this->plugin->txt('questions_with_best_solution'),
+            $this->plugin->txt('questions_with_best_solution_info')
+        )->withValue($this->settings->questions_with_best_solution);
+        $question_group_values['questions_with_best_solution'] = $this->settings->questions_with_best_solution;
 
-        $qbest = new ilCheckboxInputGUI($this->plugin->txt('questions_with_best_solution'), 'questions_with_best_solution');
-        $qbest->setInfo($this->plugin->txt('questions_with_best_solution_info'));
-        $qbest->setChecked($this->settings->questions_with_best_solution);
-        $questions->addSubItem($qbest);
+        $inputs['include_questions'] = $f->optionalGroup(
+            $question_group_inputs,
+            $this->plugin->txt('include_questions'),
+            $this->plugin->txt('include_questions_info')
+        )->withValue($this->settings->include_questions ? $question_group_values : null);
 
+        $answer_group_inputs = [
+            'pass_selection' => $f->radio(
+                $this->plugin->txt('pass_selection')
+            )->withOption(ilTestArchiveCreatorPlugin::PASS_SCORED, $this->plugin->txt('pass_scored'))
+              ->withOption(ilTestArchiveCreatorPlugin::PASS_ALL, $this->plugin->txt('pass_all'))
+              ->withValue($this->settings->pass_selection),
+            'answers_with_best_solution' => $f->checkbox(
+                $this->plugin->txt('answers_with_best_solution'),
+                $this->plugin->txt('answers_with_best_solution_info')
+            )->withValue($this->settings->answers_with_best_solution)
+        ];
+        $answer_group_values = [
+            'pass_selection' => $this->settings->pass_selection,
+            'answers_with_best_solution' => $this->settings->answers_with_best_solution
+        ];
 
-        $answers = new ilCheckboxInputGUI($this->plugin->txt('include_answers'), 'include_answers');
-        $answers->setInfo($this->plugin->txt('include_answers_info'));
-        $answers->setChecked($this->settings->include_answers);
-        $form->addItem($answers);
+        $inputs['include_answers'] = $f->optionalGroup(
+            $answer_group_inputs,
+            $this->plugin->txt('include_answers'),
+            $this->plugin->txt('include_answers_info')
+        )->withValue($this->settings->include_answers ? $answer_group_values : null);
 
-        $pass_selection = new ilSelectInputGUI($this->plugin->txt('pass_selection'), 'pass_selection');
-        $pass_selection->setOptions(array(
-            ilTestArchiveCreatorPlugin::PASS_SCORED => $this->plugin->txt('pass_scored'),
-            ilTestArchiveCreatorPlugin::PASS_ALL => $this->plugin->txt('pass_all'),
-        ));
-        $pass_selection->setValue($this->settings->pass_selection);
-        $answers->addSubItem($pass_selection);
+        $inputs['orientation'] = $f->radio($this->plugin->txt('orientation'))
+          ->withOption(ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT, $this->plugin->txt('orientation_portrait'))
+          ->withOption(ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE, $this->plugin->txt('orientation_landscape'))
+          ->withValue($this->settings->orientation);
 
-        $abest = new ilCheckboxInputGUI($this->plugin->txt('answers_with_best_solution'), 'answers_with_best_solution');
-        $abest->setInfo($this->plugin->txt('answers_with_best_solution_info'));
-        $abest->setChecked($this->settings->answers_with_best_solution);
-        $answers->addSubItem($abest);
+        $inputs['zoom_factor'] = $f->numeric($this->plugin->txt('zoom_factor'))
+                                   ->withValue((int) ($this->settings->zoom_factor * 100));
 
-
-        $orientation = new ilSelectInputGUI($this->plugin->txt('orientation'), 'orientation');
-        $orientation->setOptions(array(
-            ilTestArchiveCreatorPlugin::ORIENTATION_PORTRAIT => $this->plugin->txt('orientation_portrait'),
-            ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE => $this->plugin->txt('orientation_landscape'),
-        ));
-        $orientation->setValue($this->settings->orientation);
-        $form->addItem($orientation);
-
-        $zoom_factor = new ilNumberInputGUI($this->plugin->txt('zoom_factor'), 'zoom_factor');
-        $zoom_factor->setSize(5);
-        $zoom_factor->allowDecimals(false);
-        $zoom_factor->setValue($this->settings->zoom_factor * 100);
-        $form->addItem($zoom_factor);
-
-        $form->addCommandButton('saveSettings', $this->lng->txt('save'));
-        $form->addCommandButton('cancelSettings', $this->lng->txt('cancel'));
-
-        return $form;
+        return $this->ui_factory->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, 'saveSettings'),
+            $inputs
+        );
     }
 
 
     /**
      * Edit the archive settings
      */
-    protected function editSettings()
+    protected function editSettings(): void
     {
         $form = $this->initSettingsForm();
-        $this->tpl->setContent($form->getHTML());
-        // https://github.com/ILIAS-eLearning/ILIAS/commit/84424ec7abfb0fa61acf3a606754ce654f70ca61
-        // $this->tpl->show();
+        $this->tpl->setContent($this->ui_renderer->render($form));
         $this->tpl->printToStdout();
     }
 
@@ -357,83 +352,52 @@ class ilTestArchiveCreatorSettingsGUI
     /**
      * Save the archive settings
      */
-    protected function saveSettings()
+    protected function saveSettings(): void
     {
         $form = $this->initSettingsForm();
-        $ok = $form->checkInput();
-        $form->setValuesByPost();
+        $request = $this->http->request();
+        $form = $form->withRequest($request);
+        $data = $form->getData();
 
-        if ($ok) {
-            $this->settings->status = $form->getInput('status');
-            $this->settings->schedule = $form->getItemByPostVar('schedule')->getDate();
-
-            $this->settings->include_questions = $form->getInput('include_questions');
-            $this->settings->include_answers = $form->getInput('include_answers');
-            $this->settings->questions_with_best_solution = $form->getInput('questions_with_best_solution');
-            $this->settings->answers_with_best_solution = $form->getInput('answers_with_best_solution');
-
-            $this->settings->pass_selection = $form->getInput('pass_selection');
-            if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
-                $this->settings->random_questions = $form->getInput('random_questions');
-            }
-
-            $this->settings->orientation = $form->getInput('orientation');
-            $this->settings->zoom_factor = $form->getInput('zoom_factor') / 100;
-
-            if ($this->config->support_file_prefix) {
-                if (!$this->settings->setFilePrefix($form->getInput('file_prefix'))) {
-                    $form->getItemByPostVar('file_prefix')->setAlert($this->settings->getFilePrefixError());
-                    $ok = false;
-                }
-            }
-
-            if ($this->settings->status == ilTestArchiveCreatorPlugin::STATUS_PLANNED) {
-                if ($this->config->support_notifications) {
-                    if (!$this->settings->setNotificationLogins($form->getItemByPostVar('notifications')->getMultiValues())) {
-                        $form->getItemByPostVar('notifications')->setAlert($this->settings->getNotificationLoginsError());
-                        $ok = false;
-                    }
-                }
-            }
-        }
-
-        if ($ok) {
-            $this->settings->save();
-            $this->tpl->setOnScreenMessage('success', $this->lng->txt("settings_saved"), true);
-            $this->returnToExport();
-        } else {
+        if (!$data) {
             $this->prepareOutput();
-            $this->tpl->setOnScreenMessage('failure', $this->plugin->txt("form_validation_errors"), false);
-            $this->tpl->setContent($form->getHTML());
+            $this->tpl->setOnScreenMessage(GlobalTemplate::MESSAGE_TYPE_FAILURE, $this->plugin->txt("form_validation_errors"), false);
+            $this->tpl->setContent($this->ui_renderer->render($form));
             $this->tpl->printToStdout();
+            return;
         }
+
+        $this->settings->status = $data['status_group'][0];
+        if ($this->settings->status == ilTestArchiveCreatorPlugin::STATUS_PLANNED) {
+            $this->settings->schedule = $data['status_group'][1]['schedule'];
+            if ($this->config->support_notifications) {
+                $this->settings->setNotificationLogins($data['status_group'][1]['notifications']);
+            }
+        }
+
+        $this->settings->include_questions = (bool) $data['include_questions'];
+        if ($this->settings->include_questions) {
+            if ($this->testObj->getQuestionSetType() == ilObjTest::QUESTION_SET_TYPE_RANDOM) {
+                $this->settings->random_questions = $data['include_questions']['random_questions'];
+            }
+            $this->settings->questions_with_best_solution = $data['include_questions']['questions_with_best_solution'];
+        }
+
+        $this->settings->include_answers = (bool) $data['include_answers'];
+        if ($this->settings->include_answers) {
+            $this->settings->pass_selection = $data['include_answers']['pass_selection'];
+            $this->settings->answers_with_best_solution = $data['include_answers']['answers_with_best_solution'];
+        }
+
+        $this->settings->orientation = $data['orientation'];
+        $this->settings->zoom_factor = $data['zoom_factor'] / 100;
+        $this->settings->file_prefix = $data['file_prefix'];
+
+        $this->settings->save();
+        $this->tpl->setOnScreenMessage(GlobalTemplate::MESSAGE_TYPE_SUCCESS, $this->lng->txt("settings_saved"), true);
+        $this->returnToExport();
     }
 
-    /**
-     * Called async to complete entered login names
-     */
-    public function doAutoComplete(): void
-    {
-        $fields = array('login','firstname','lastname');
-
-        $auto = new ilUserAutoComplete();
-        $auto->setSearchFields($fields);
-        $auto->setResultField('login');
-        $auto->enableFieldSearchableCheck(true);
-        $auto->setMoreLinkAvailable(true);
-        $auto->setPrivacyMode(ilUserAutoComplete::PRIVACY_MODE_RESPECT_USER_SETTING);
-        $auto->setLimit(ilUserAutoComplete::MAX_ENTRIES);
-
-        $this->http->saveResponse($this->http->response()->withBody(
-            Streams::ofString(
-                $auto->getList($this->http->wrapper()->query()->retrieve(
-                    'term',
-                    $this->refinery->kindlyTo()->string()
-                ))
-            )
-        ));
-        $this->http->sendResponse();
-    }
 
     /**
      * Get info about the cron job

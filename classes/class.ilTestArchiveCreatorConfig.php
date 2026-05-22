@@ -268,7 +268,7 @@ class ilTestArchiveCreatorConfig
         return false;
     }
 
-    private function matchPdfEngine(?string $engine): string
+    public function matchPdfEngine(?string $engine): string
     {
         return match($engine) {
             'browsershot' => self::ENGINE_LOCAL,                    // backward compatibility
@@ -277,7 +277,7 @@ class ilTestArchiveCreatorConfig
         };
     }
 
-    private function matchUserAllow(?string $allow): string
+    public function matchUserAllow(?string $allow): string
     {
         return match($allow) {
             self::ALLOW_PLANNED, self::ALLOW_NONE => $allow,
@@ -285,7 +285,7 @@ class ilTestArchiveCreatorConfig
         };
     }
 
-    private function matchRandomQuestions(?string $random): string
+    public function matchRandomQuestions(?string $random): string
     {
         return match($random) {
             ilTestArchiveCreatorPlugin::RANDOM_ALL => $random,
@@ -293,7 +293,7 @@ class ilTestArchiveCreatorConfig
         };
     }
 
-    private function matchPassSelection(?string $selection): string
+    public function matchPassSelection(?string $selection): string
     {
         return match($selection) {
             ilTestArchiveCreatorPlugin::PASS_ALL => $selection,
@@ -301,7 +301,7 @@ class ilTestArchiveCreatorConfig
         };
     }
 
-    private function matchOrientation(?string $orientation): string
+    public function matchOrientation(?string $orientation): string
     {
         return match($orientation) {
             ilTestArchiveCreatorPlugin::ORIENTATION_LANDSCAPE => $orientation,
