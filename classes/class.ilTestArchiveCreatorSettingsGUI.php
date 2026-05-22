@@ -255,19 +255,12 @@ class ilTestArchiveCreatorSettingsGUI
                 ilTestArchiveCreatorPlugin::STATUS_INACTIVE => $f->group([])
                     ->withLabel($this->plugin->txt('status_inactive')),
                 ilTestArchiveCreatorPlugin::STATUS_PLANNED => $f->group($planned_group_inputs)
-                    ->withLabel($this->plugin->txt('status_planned')),
-                ilTestArchiveCreatorPlugin::STATUS_FINISHED => $f->group([])
-                    ->withLabel($this->plugin->txt('status_finished'))
-                    ->withDisabled(true)
+                    ->withLabel($this->plugin->txt('status_planned'))
+                    ->withDisabled(!$this->plugin->isCronJobActive())
+                    ->withByline(!$this->plugin->isCronJobActive() ? $this->plugin->txt('message_cron_job_inactive') : '')
             ],
             $this->plugin->txt('status')
-        )->withValue($this->settings->status);
-
-        if (!$this->plugin->isCronJobActive()) {
-            $inputs['status_group'] = $inputs['status_group']
-                ->withDisabled(true)
-                ->withByline($this->plugin->txt('message_cron_job_inactive'));
-        }
+        )->withValue($this->settings->selectedStatus());
 
         if ($this->config->support_file_prefix) {
             $inputs['file_prefix'] = $f->text($this->plugin->txt('file_prefix'), $this->plugin->txt('file_prefix_info'))

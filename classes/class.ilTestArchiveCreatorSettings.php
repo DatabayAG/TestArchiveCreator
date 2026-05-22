@@ -210,15 +210,23 @@ class ilTestArchiveCreatorSettings
         return false;
     }
 
-
-
-
     public function matchStatus(?string $status): string
     {
         return match($status) {
             ilTestArchiveCreatorPlugin::STATUS_PLANNED,
             ilTestArchiveCreatorPlugin::STATUS_RUNNING,
             ilTestArchiveCreatorPlugin::STATUS_FINISHED => $status,
+            default => ilTestArchiveCreatorPlugin::STATUS_INACTIVE
+        };
+    }
+
+    /**
+     * This is used to set the value in the settings GUI
+     */
+    public function selectedStatus(): string
+    {
+        return match($this->status) {
+            ilTestArchiveCreatorPlugin::STATUS_PLANNED => $this->status,
             default => ilTestArchiveCreatorPlugin::STATUS_INACTIVE
         };
     }
