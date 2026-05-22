@@ -2,6 +2,14 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 11.0.0 for ILIAS 11 (2026-05-22)
+- compatibility with ILIAS 11, PHP 8.3 and 8.4
+- refactor db update steps
+- allow installation via setup
+- change config and settings forms to the UI component
+- integrate cron job (separate plugin is obsolete)
+- export of mathjax to the archive
+
 ## 10.0.3 for ILIAS 10 (2026-03-02)
 - Fix: Deactivate for anonymous tests
 
