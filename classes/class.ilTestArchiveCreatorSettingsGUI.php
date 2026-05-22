@@ -17,6 +17,7 @@ use ILIAS\Filesystem\Stream\Streams;
  * @version $Id$
  *
  * @ilCtrl_IsCalledBy ilTestArchiveCreatorSettingsGUI: ilUIPluginRouterGUI
+ * @ilCtrl_Calls ilTestArchiveCreatorSettingsGUI: ilAssQuestionPageGUI, ilTestEvaluationGUI, ilTestPageGUI
  */
 class ilTestArchiveCreatorSettingsGUI
 {
