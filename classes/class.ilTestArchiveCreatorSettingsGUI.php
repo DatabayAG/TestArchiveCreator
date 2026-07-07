@@ -15,6 +15,7 @@ use ILIAS\Cron\Schedule\CronJobScheduleType;
  *
  * @ilCtrl_IsCalledBy ilTestArchiveCreatorSettingsGUI: ilUIPluginRouterGUI
  * @ilCtrl_Calls ilTestArchiveCreatorSettingsGUI: ilAssQuestionPageGUI, ilTestEvaluationGUI, ilTestPageGUI
+ * @ilCtrl_Calls ilAssGenFeedbackPageGUI, ilAssSpecFeedbackPageGUI
  */
 class ilTestArchiveCreatorSettingsGUI
 {
