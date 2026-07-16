@@ -2,6 +2,9 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 11.0.1 for ILIAS 11 (2026-07-16)
+- Fix 0048031: TAC Export with all question types throws error
+
 ## 11.0.0 for ILIAS 11 (2026-05-22)
 - compatibility with ILIAS 11, PHP 8.3 and 8.4
 - refactor db update steps
