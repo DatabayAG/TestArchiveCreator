@@ -2,6 +2,9 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 10.0.4 for ILIAS 10 (2026-07-16)
+- Fix 0048031: TAC Export with all question types throws error
+
 ## 10.0.3 for ILIAS 10 (2026-03-02)
 - Fix: Deactivate for anonymous tests
 
