@@ -7,11 +7,11 @@ $id = "tarc_ui";
 
 // code version; must be changed for all code changes
 // ILIAS version . new features version . bugfix version
-$version = "11.0.1";
+$version = "11.0.2";
 
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
-$ilias_min_version = "11.0";
+$ilias_min_version = "11.2";
 $ilias_max_version = "11.999";
 
 // optional, but useful: Add one or more responsible persons and a contact email

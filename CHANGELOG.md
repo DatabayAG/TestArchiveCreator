@@ -2,6 +2,9 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
+## 11.0.2 for ILIAS II (2026-07-02)
+- Fix 0046441: Use random temporary directory to avoid process conflicts
+
 ## 11.0.1 for ILIAS 11 (2026-07-16)
 - Fix 0048031: TAC Export with all question types throws error
 
