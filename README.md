@@ -65,8 +65,6 @@ Now you can set a time in the settings of the archive creation. When the cron jo
 will create the archive.
 
 
-
-
 ## Debugging of the PDF generation
 If the PDF generation fails for some reason you may want to test it manually on the server to get additional debugging output.
 
@@ -77,3 +75,7 @@ If the PDF generation fails for some reason you may want to test it manually on 
 5. Open a shell on your server and move to the root folder of your ILIAS installation
 6. Paste the command and run it
 7. Look at the debugging output
+
+
+## Directory Cleanup
+With version 10.0.5 the archive generation is done in a subdirectory of the ILIAS temporary directory. The name of the working directory is random to avoid conflicts between two creation processes for the same test. This directory will be deleted after 10 days if the ILIAS cron job 'Clean Temp Directory' is active, even if "Keep Directory" is set in the plugin administration.
