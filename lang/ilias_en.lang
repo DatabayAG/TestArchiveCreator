@@ -68,7 +68,7 @@ is_scored#:#Scored
 job_description#:#Executes planned creations of test archives.
 job_title#:#Test Archive Creation
 keep_creation_directory#:#Keep Directory
-keep_creation_directory_info#:#Don't delete the creation directory after zipping. It is found in the protected ILIAS data directory under tst_data/archive_plugin/tst_123 with 123 being the object ID of the test.
+keep_creation_directory_info#:#Don't delete the creation directory after zipping. It is found in the protected ILIAS data directory under temp/tarc_ui/123/ with 123 being the object ID of the test. It will be deleted after 10 days when you activated the ILIAS cron job 'Clean Temp Directory'
 keep_jobfile#:#Keep Jobfiles
 keep_jobfile_info#:#Keep the temporary files for PDF generation in the creation directory. They can be used for debugging purposes.
 label_generated#:#Generated:

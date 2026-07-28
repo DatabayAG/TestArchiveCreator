@@ -12,7 +12,7 @@ class ilTestArchiveCreatorAssets
 {
     protected ilTestArchiveCreatorFileSystems $filesystems;
     protected ilTestArchiveCreatorList $assets;
-    protected Filesystem $storage;
+    protected Filesystem $temp;
 
     protected Services $resource_storage;
 
@@ -20,11 +20,8 @@ class ilTestArchiveCreatorAssets
     /** @var string url for loading assets for PDF generation */
     protected string $assets_url;
 
-    /** @var string path to the assets directory in the storage */
+    /** @var string path to the assets directory in the temp directory */
     protected string $assets_path;
-
-    /** @var string path to the node_modules directory in the storage */
-    protected string $node_modules_path;
 
     /** @var string relative path for linking the assets from a processed file */
     protected string $linking_path = '';
@@ -37,7 +34,7 @@ class ilTestArchiveCreatorAssets
 
     /**
      * Constructor
-     * @param string $workdir storage of working directory for the archive creation
+     * @param string $workdir working directory for the archive creation (subdir in temp filesystem)
      * @param string $assets_url url for loading assets for PDF generation
      */
     public function __construct(ilTestArchiveCreatorList $assets, string $workdir, string $assets_url)
@@ -45,7 +42,7 @@ class ilTestArchiveCreatorAssets
         global $DIC;
 
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
-        $this->storage = $this->filesystems->getPureStorage();
+        $this->temp = $this->filesystems->getPureTemp();
         $this->assets = $assets;
 
         $this->assets_path = $workdir . '/assets';
@@ -61,7 +58,7 @@ class ilTestArchiveCreatorAssets
     {
         $source_fs = $this->filesystems->node_modules;
 
-        if (!$source_fs->hasDir('mathjax') || $this->storage->hasDir($this->assets_path . '/mathjax')) {
+        if (!$source_fs->hasDir('mathjax') || $this->temp->hasDir($this->assets_path . '/mathjax')) {
             return;
         }
 
@@ -70,7 +67,7 @@ class ilTestArchiveCreatorAssets
             if ($item->isFile()) {
                 try {
                     $target_path = $this->assets_path . '/' . $item->getPath();
-                    $this->storage->writeStream($target_path, $source_fs->readStream($item->getPath()));
+                    $this->temp->writeStream($target_path, $source_fs->readStream($item->getPath()));
                 } catch (FileAlreadyExistsException) {
                     // Do nothing with that type of exception
                 }
@@ -212,7 +209,7 @@ class ilTestArchiveCreatorAssets
                     if ($this->needsCopy($asset_name)
                     ) {
                         $consumer = $this->resource_storage->consume()->stream($identification);
-                        $this->storage->writeStream($this->assets_path . '/' . $asset_name, $consumer->getStream());
+                        $this->temp->writeStream($this->assets_path . '/' . $asset_name, $consumer->getStream());
                     }
                 }
             } elseif (
@@ -239,7 +236,7 @@ class ilTestArchiveCreatorAssets
                     if ($temp_file !== null) {
                         $fs = $this->filesystems->deriveFilesystemFrom($temp_file);
                         $path = $this->filesystems->createRelativePath($temp_file);
-                        $this->storage->writeStream($this->assets_path . '/' . $asset_name, $fs->readStream($path));
+                        $this->temp->writeStream($this->assets_path . '/' . $asset_name, $fs->readStream($path));
                     }
                 }
             } elseif (!empty($parsed['path'])) {
@@ -265,9 +262,9 @@ class ilTestArchiveCreatorAssets
 
                         if ($this->needsCopy($asset_name)) {
                             if (isset($content)) {
-                                $this->storage->write($this->assets_path . '/' . $asset_name, $content);
+                                $this->temp->write($this->assets_path . '/' . $asset_name, $content);
                             } else {
-                                $this->storage->writeStream($this->assets_path . '/' . $asset_name, $system->readStream($path));
+                                $this->temp->writeStream($this->assets_path . '/' . $asset_name, $system->readStream($path));
                             }
                         }
                     }
@@ -314,8 +311,8 @@ class ilTestArchiveCreatorAssets
     private function needsCopy(string $asset_name): bool
     {
         return $this->copy_assets
-            && !$this->storage->has($this->assets_path . '/' . $asset_name)
-            && !$this->storage->has($this->assets_path . '/' . $asset_name . '.sec');
+            && !$this->temp->has($this->assets_path . '/' . $asset_name)
+            && !$this->temp->has($this->assets_path . '/' . $asset_name . '.sec');
     }
 
     /**

@@ -97,20 +97,13 @@ class ilTestArchiveCreatorPlugin extends ilUserInterfaceHookPlugin implements Jo
         return $this->settings[$obj_id];
     }
 
-    /**
-     * Get the working directory as relative path in the storage file system
-     */
-    public function getWorkdir(int $obj_id): string
-    {
-        return 'tst_data/archive_plugin/tst_' . $obj_id;
-    }
 
     /**
      * Get the url for loading assets
      */
-    public function getAssetsUrl(int $obj_id): string
+    public function getAssetsUrl(int $obj_id, string $temp_id): string
     {
-        return ILIAS_HTTP_PATH . '/' . self::PATH_IN_PUBLIC . '/assets.php/' . $obj_id;
+        return ILIAS_HTTP_PATH . '/' . self::PATH_IN_PUBLIC . '/assets.php/' . $obj_id . '/' . $temp_id;
     }
 
     /**

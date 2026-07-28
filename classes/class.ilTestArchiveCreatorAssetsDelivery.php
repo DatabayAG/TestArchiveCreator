@@ -35,18 +35,22 @@ class ilTestArchiveCreatorAssetsDelivery
             $data_dir = $ini->readVariable("clients", "datadir");
             $client_id = $ini->readVariable("clients", "default");
 
-            // url is .../assets.php/obj_id/name
+            // url is .../assets.php/obj_id/temp_id/name
             $parts = explode('/', $this->http->request()->getUri()->getPath());
             $count = count($parts);
-            $obj_id = (int) ($parts[$count - 2] ?? '');
+            $obj_id = (int) ($parts[$count - 3] ?? '');
+            $temp_id = (string) ($parts[$count - 2] ?? '');
             $name = basename($parts[$count - 1] ?? '');
 
             // check if file exists in asset directory and deliver it
-            $asset_dir = $data_dir . '/' . $client_id . '/tst_data/archive_plugin/tst_' . $obj_id . '/assets';
-            $assets = array_diff(scandir($asset_dir), ['.', '..']);
-            if (in_array($name, $assets)) {
-                $this->deliver($asset_dir . '/' . $name);
+            $asset_dir = $data_dir . '/' . $client_id . '/temp/tarc_ui/' . $obj_id . '/' . $temp_id . '/tst_' . $obj_id . '/assets';
+            if (is_dir($asset_dir)) {
+                $assets = array_diff(scandir($asset_dir), ['.', '..']);
+                if (in_array($name, $assets)) {
+                    $this->deliver($asset_dir . '/' . $name);
+                }
             }
+
 
         } catch (Exception $e) {
             $this->error($e->getMessage());

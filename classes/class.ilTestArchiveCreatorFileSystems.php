@@ -59,13 +59,13 @@ class ilTestArchiveCreatorFileSystems
     }
 
     /**
-     * Get the storage filesystem without whitelist decorator
+     * Get the temporary filesystem without whitelist decorator
      * Used to prevent .sec files written when fonts are copied to the archive
      */
-    public function getPureStorage(): Filesystem
+    public function getPureTemp(): Filesystem
     {
         $factory = new FlySystemFilesystemFactory();
-        return $factory->getLocal(new LocalConfig(CLIENT_DATA_DIR));
+        return $factory->getLocal(new LocalConfig(CLIENT_DATA_DIR . '/temp'));
     }
 
 
