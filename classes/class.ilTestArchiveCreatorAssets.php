@@ -12,7 +12,7 @@ class ilTestArchiveCreatorAssets
 {
     protected ilTestArchiveCreatorFileSystems $filesystems;
     protected ilTestArchiveCreatorList $assets;
-    protected Filesystem $storage;
+    protected Filesystem $temp;
 
     protected Services $resource_storage;
 
@@ -20,8 +20,8 @@ class ilTestArchiveCreatorAssets
     /** @var string url for loading assets for PDF generation */
     protected string $assets_url;
 
-    /** @var string path to the assets directory in the storage */
-    protected string $storage_path;
+    /** @var string path to the assets directory in the temp directory */
+    protected string $assets_path;
 
     /** @var string relative path for linking the assets from a processed file */
     protected string $linking_path = '';
@@ -34,7 +34,7 @@ class ilTestArchiveCreatorAssets
 
     /**
      * Constructor
-     * @param string $workdir storage of working directory for the archive creation
+     * @param string $workdir working directory for the archive creation (subdir in temp filesystem)
      * @param string $assets_url url for loading assets for PDF generation
      */
     public function __construct(ilTestArchiveCreatorList $assets, string $workdir, string $assets_url)
@@ -42,10 +42,10 @@ class ilTestArchiveCreatorAssets
         global $DIC;
 
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
-        $this->storage = $this->filesystems->getPureStorage();
+        $this->temp = $this->filesystems->getPureTemp();
         $this->assets = $assets;
 
-        $this->storage_path = $workdir . '/assets';
+        $this->assets_path = $workdir . '/assets';
         $this->assets_url = $assets_url;
 
         $this->resource_storage = $DIC->resourceStorage();
@@ -181,7 +181,7 @@ class ilTestArchiveCreatorAssets
                     if ($this->needsCopy($asset_name)
                     ) {
                         $consumer = $this->resource_storage->consume()->stream($identification);
-                        $this->storage->writeStream($this->storage_path . '/' . $asset_name, $consumer->getStream());
+                        $this->temp->writeStream($this->assets_path . '/' . $asset_name, $consumer->getStream());
                     }
                 }
             } elseif (
@@ -208,7 +208,7 @@ class ilTestArchiveCreatorAssets
                     if ($temp_file !== null) {
                         $fs = $this->filesystems->deriveFilesystemFrom($temp_file);
                         $path = $this->filesystems->createRelativePath($temp_file);
-                        $this->storage->writeStream($this->storage_path . '/' . $asset_name, $fs->readStream($path));
+                        $this->temp->writeStream($this->assets_path . '/' . $asset_name, $fs->readStream($path));
                     }
                 }
             } elseif (!empty($parsed['path'])) {
@@ -234,9 +234,9 @@ class ilTestArchiveCreatorAssets
 
                         if ($this->needsCopy($asset_name)) {
                             if (isset($content)) {
-                                $this->storage->write($this->storage_path . '/' . $asset_name, $content);
+                                $this->temp->write($this->assets_path . '/' . $asset_name, $content);
                             } else {
-                                $this->storage->writeStream($this->storage_path . '/' . $asset_name, $system->readStream($path));
+                                $this->temp->writeStream($this->assets_path . '/' . $asset_name, $system->readStream($path));
                             }
                         }
                     }
@@ -283,8 +283,8 @@ class ilTestArchiveCreatorAssets
     private function needsCopy(string $asset_name): bool
     {
         return $this->copy_assets
-            && !$this->storage->has($this->storage_path . '/' . $asset_name)
-            && !$this->storage->has($this->storage_path . '/' . $asset_name . '.sec');
+            && !$this->temp->has($this->assets_path . '/' . $asset_name)
+            && !$this->temp->has($this->assets_path . '/' . $asset_name . '.sec');
     }
 
     /**
