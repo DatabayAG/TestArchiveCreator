@@ -2,7 +2,10 @@
 
 Plugin versions for different ILIAS releases are provided in separate branches of this repository.
 
-## 9.3.8 for ILIAS 9 (2026-07-02)
+## 9.3.9 for ILIAS 9 (2026-07-29)
+- Fix error for missing 'archive_export' directory
+
+## 9.3.8 for ILIAS 9 (2026-07-28)
 - Fix #46441: Use random temporary directory to avoid process conflicts
 
 ## 9.3.7 for ILIAS 9 (2026-03-02)

@@ -13,6 +13,7 @@ class ilTestArchiveCreator
     protected ilDBInterface $db;
     protected ilLanguage $lng;
     protected Filesystem $temp;
+    protected Filesystem $zip_storage;
     protected QuestionInfoService $question_info;
     protected LegacyArchives $legacy_archives;
     protected ilSetting $ilias_settings;
@@ -78,6 +79,7 @@ class ilTestArchiveCreator
         $this->settings = $plugin->getSettings($obj_id);
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
         $this->temp = $this->filesystems->getPureTemp();
+        $this->zip_storage = $DIC->filesystem()->storage();
 
         $this->obj_id = $obj_id;
         $this->testObj = new ilTestArchiveCreatorTest($obj_id, false, 0);
@@ -939,8 +941,8 @@ class ilTestArchiveCreator
         $zip_file = 'test_archive_obj_' . $this->testObj->getId() . '_' . time() . '_plugin.zip';
 
         try {
-            if (!$this->temp->hasDir($export_dir)) {
-                $this->temp->createDir($export_dir);
+            if (!$this->zip_storage->hasDir($export_dir)) {
+                $this->zip_storage->createDir($export_dir);
             }
 
             $this->legacy_archives->zip(
