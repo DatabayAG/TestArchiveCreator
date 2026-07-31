@@ -12,7 +12,8 @@ class ilTestArchiveCreator
 {
     protected ilDBInterface $db;
     protected ilLanguage $lng;
-    protected Filesystem $storage;
+    protected Filesystem $temp;
+    protected Filesystem $zip_storage;
     protected QuestionInfoService $question_info;
     protected LegacyArchives $legacy_archives;
     protected ilSetting $ilias_settings;
@@ -36,7 +37,18 @@ class ilTestArchiveCreator
     protected $obj_id;
     public ilObjTest $testObj;
 
-    /** @var string relative path of the working directory in the storage */
+    /**
+     * Relative path of the creation directory in the temp filesystem
+     * This is a randomly named directory
+     * @var string
+     */
+    protected string $tempdir;
+
+    /**
+     * Relative path of the working directory in the temp filesystem
+     * This is a subdirectory of tempdir and is compressed to the ZIP file
+     * @var string
+     */
     protected string $workdir;
 
     /** @var string[] error messages collected during generation */
@@ -55,7 +67,7 @@ class ilTestArchiveCreator
 
         $this->db = $DIC->database();
         $this->lng = $DIC->language();
-        $this->storage = $DIC->filesystem()->storage();
+
         $this->question_info = $DIC->testQuestionPool()->questionInfo();
         $this->legacy_archives = $DIC->legacyArchives();
         $this->ilias_settings = $DIC->settings();
@@ -66,10 +78,14 @@ class ilTestArchiveCreator
         $this->config = $plugin->getConfig();
         $this->settings = $plugin->getSettings($obj_id);
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
+        $this->temp = $this->filesystems->getPureTemp();
+        $this->zip_storage = $DIC->filesystem()->storage();
 
         $this->obj_id = $obj_id;
         $this->testObj = new ilTestArchiveCreatorTest($obj_id, false, 0);
-        $this->workdir = $this->plugin->getWorkdir($this->testObj->getId());
+
+        $this->tempdir = 'tarc_ui/' . $this->testObj->getId() . '/' . uniqid();
+        $this->workdir = $this->tempdir . '/tst_' . $this->testObj->getId();
 
         $this->questions = new ilTestArchiveCreatorList($this, new ilTestArchiveCreatorQuestion($this));
         $this->questions->setTitle($this->plugin->txt('questions'));
@@ -110,11 +126,6 @@ class ilTestArchiveCreator
         $relativeDates = ilDatePresentation::useRelativeDates();
         ilDatePresentation::setUseRelativeDates(false);
 
-        // cleanup an old generation
-        if ($this->storage->hasDir($this->workdir)) {
-            $this->storage->deleteDir($this->workdir);
-        }
-
         $this->handleServerData();
         $this->handleSettings();
         $this->handleIntroduction();
@@ -152,14 +163,14 @@ class ilTestArchiveCreator
         $this->handleMainIndex();
 
         // assets may have been copied for pdf generation only, don't put into zip
-        if ($this->storage->hasDir($this->workdir . '/assets') && !$this->config->embed_assets) {
-            $this->storage->deleteDir($this->workdir . '/assets');
+        if ($this->temp->hasDir($this->workdir . '/assets') && !$this->config->embed_assets) {
+            $this->temp->deleteDir($this->workdir . '/assets');
         }
 
         $success = $this->createZipFile();
 
-        if ($this->storage->hasDir($this->workdir) && !$this->config->keep_creation_directory) {
-            $this->storage->deleteDir($this->workdir);
+        if ($this->temp->hasDir($this->tempdir) && !$this->config->keep_creation_directory) {
+            $this->temp->deleteDir($this->tempdir);
         }
 
         ilDatePresentation::setUseRelativeDates($relativeDates);
@@ -181,16 +192,16 @@ class ilTestArchiveCreator
         $tpl->setVariable('TXT_SETTINGS_HTML', $this->plugin->txt('settings_html'));
         $tpl->setVariable('TXT_INTRODUCTION_HTML', $this->plugin->txt('introduction_html'));
 
-        if ($this->storage->has($this->workdir . '/testlog.html')) {
+        if ($this->temp->has($this->workdir . '/testlog.html')) {
             $tpl->setVariable('TXT_TEST_LOG_HTML', $this->plugin->txt('test_log_html'));
             $tpl->setVariable('TXT_TEST_LOG_CSV', $this->plugin->txt('test_log_csv'));
         }
 
-        if ($this->storage->has($this->workdir . '/examination_protocol.html')) {
+        if ($this->temp->has($this->workdir . '/examination_protocol.html')) {
             $tpl->setVariable('TXT_EXAMINATION_PROTOCOL_HTML', $this->plugin->txt('examination_protocol_html'));
         }
 
-        if ($this->storage->has($this->workdir . '/results.csv')) {
+        if ($this->temp->has($this->workdir . '/results.csv')) {
             $tpl->setVariable('TXT_TEST_RESULTS_XLSX', $this->plugin->txt('test_results_xlsx'));
             $tpl->setVariable('TXT_TEST_RESULTS_CSV', $this->plugin->txt('test_results_csv'));
         }
@@ -336,7 +347,8 @@ class ilTestArchiveCreator
             ->withResultsPage()
             ->withUserPages()
             ->getContent();
-        $worksheet->writeToFile(CLIENT_DATA_DIR . '/' . $this->workdir . '/results.xlsx');
+
+        $worksheet->writeToFile(CLIENT_DATA_DIR . '/temp/' . $this->workdir . '/results.xlsx');
     }
 
     /**
@@ -462,7 +474,6 @@ class ilTestArchiveCreator
                     false,
                     true,
                     false,
-
                 );
                 $content = $this->addILIASPage((int) $question_id, $content);
 
@@ -605,7 +616,9 @@ class ilTestArchiveCreator
                             $html_answer = $this->addILIASPage((int) $row['qid'], $html_answer);
 
                             if ($this->settings->answers_with_best_solution) {
-                                $html_solution = $question_gui->getSolutionOutput($active_id, $pass,
+                                $html_solution = $question_gui->getSolutionOutput(
+                                    $active_id,
+                                    $pass,
                                     false,
                                     false,
                                     true,
@@ -680,20 +693,20 @@ class ilTestArchiveCreator
     {
         /** @var ilTestArchiveCreatorParticipant $participant */
         foreach ($this->participants->elements as $participant) {
-            if ($this->storage->has($this->workdir . '/' . $participant->answers_file . '.pdf')) {
+            if ($this->temp->has($this->workdir . '/' . $participant->answers_file . '.pdf')) {
                 $file = $participant->answers_file . '.pdf';
                 $participant->setHasPdf(true);
             } else {
                 $file = $participant->answers_file . '.html';
                 $participant->setHasPdf(false);
             }
-            $content = $this->storage->read($this->workdir . '/' . $file);
+            $content = $this->temp->read($this->workdir . '/' . $file);
             $participant->answers_hash = sha1($content);
         }
 
         /** @var ilTestArchiveCreatorQuestion $question */
         foreach ($this->questions->elements as $question) {
-            $question->setHasPdf($this->storage->has($this->workdir . '/' . $question->presentation . '.pdf'));
+            $question->setHasPdf($this->temp->has($this->workdir . '/' . $question->presentation . '.pdf'));
         }
 
         // questions
@@ -909,10 +922,10 @@ class ilTestArchiveCreator
 
         try {
             // prevent FileAlreadyExistsException and ensure newest content
-            if ($this->storage->has($path)) {
-                $this->storage->delete($path);
+            if ($this->temp->has($path)) {
+                $this->temp->delete($path);
             }
-            $this->storage->write($path, $content);
+            $this->temp->write($path, $content);
         } catch (Exception $exception) {
             $this->errors[] = "ERROR writing $file :" . $exception->getMessage();
         }
@@ -928,12 +941,12 @@ class ilTestArchiveCreator
         $zip_file = 'test_archive_obj_' . $this->testObj->getId() . '_' . time() . '_plugin.zip';
 
         try {
-            if (!$this->storage->hasDir($export_dir)) {
-                $this->storage->createDir($export_dir);
+            if (!$this->zip_storage->hasDir($export_dir)) {
+                $this->zip_storage->createDir($export_dir);
             }
 
             $this->legacy_archives->zip(
-                CLIENT_DATA_DIR . '/' . $this->workdir,
+                CLIENT_DATA_DIR . '/temp/' . $this->workdir,
                 CLIENT_DATA_DIR . '/' . $export_dir . '/' . $zip_file,
                 true
             );

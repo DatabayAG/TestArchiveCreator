@@ -20,7 +20,7 @@ The puppeteer installation will automatically add the headless chrome to the hom
 useradd -d /srv/puppeteer -m -s /bin/bash puppeteer
 su puppeteer
 cd /srv/puppeteer
-npm install puppeteer --no-scripts
+npm install puppeteer --ignore-scripts
 npm audit
 ````
 The last command should produce 'found 0 vulnerabilities'. You may also use a tool like Snyk to check for vulnerabilities. If everything looks fine, continue with the installation.

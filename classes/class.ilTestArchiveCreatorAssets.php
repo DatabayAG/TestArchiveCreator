@@ -10,7 +10,7 @@ class ilTestArchiveCreatorAssets
 {
     protected ilTestArchiveCreatorFileSystems $filesystems;
     protected ilTestArchiveCreatorList $assets;
-    protected Filesystem $storage;
+    protected Filesystem $temp;
 
     protected Services $resource_storage;
 
@@ -18,8 +18,8 @@ class ilTestArchiveCreatorAssets
     /** @var string url for loading assets for PDF generation */
     protected string $assets_url;
 
-    /** @var string path to the assets directory in the storage */
-    protected string $storage_path;
+    /** @var string path to the assets directory in the temp filesystem */
+    protected string $temp_path;
 
     /** @var string relative path for linking the assets from a processed file */
     protected string $linking_path = '';
@@ -40,10 +40,10 @@ class ilTestArchiveCreatorAssets
         global $DIC;
 
         $this->filesystems = new ilTestArchiveCreatorFileSystems();
-        $this->storage = $this->filesystems->getPureStorage();
+        $this->temp = $this->filesystems->getPureTemp();
         $this->assets = $assets;
 
-        $this->storage_path = $workdir . '/assets';
+        $this->temp_path = $workdir . '/assets';
         $this->assets_url = $assets_url;
         $this->obj_id = $obj_id;
 
@@ -166,11 +166,11 @@ class ilTestArchiveCreatorAssets
                     $sec_name = sha1($resource_id) . '.' . $extension . '.sec';
 
                     if ($this->copy_assets
-                        && !$this->storage->has($this->storage_path . '/' . $asset_name)
-                        && !$this->storage->has($this->storage_path . '/' . $sec_name)
+                        && !$this->temp->has($this->temp_path . '/' . $asset_name)
+                        && !$this->temp->has($this->temp_path . '/' . $sec_name)
                     ) {
                         $consumer = $this->resource_storage->consume()->stream($identification);
-                        $this->storage->writeStream($this->storage_path . '/' . $asset_name, $consumer->getStream());
+                        $this->temp->writeStream($this->temp_path . '/' . $asset_name, $consumer->getStream());
                     }
                 }
             } elseif (isset($parsed['path'])) {
@@ -195,12 +195,12 @@ class ilTestArchiveCreatorAssets
                         }
 
                         if ($this->copy_assets
-                            && !$this->storage->has($this->storage_path . '/' . $asset_name)
-                            && !$this->storage->has($this->storage_path . '/' . $sec_name)) {
+                            && !$this->temp->has($this->temp_path . '/' . $asset_name)
+                            && !$this->temp->has($this->temp_path . '/' . $sec_name)) {
                             if (isset($content)) {
-                                $this->storage->write($this->storage_path . '/' . $asset_name, $content);
+                                $this->temp->write($this->temp_path . '/' . $asset_name, $content);
                             } else {
-                                $this->storage->writeStream($this->storage_path . '/' . $asset_name, $system->readStream($path));
+                                $this->temp->writeStream($this->temp_path . '/' . $asset_name, $system->readStream($path));
                             }
                         }
                     }
