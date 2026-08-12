@@ -386,7 +386,10 @@ class ilTestArchiveCreatorSettingsGUI
 
         $this->settings->orientation = $data['orientation'];
         $this->settings->zoom_factor = $data['zoom_factor'] / 100;
-        $this->settings->file_prefix = $data['file_prefix'];
+
+        if ($this->config->support_file_prefix) {
+            $this->settings->file_prefix = $data['file_prefix'];
+        }
 
         $this->settings->save();
         $this->tpl->setOnScreenMessage(GlobalTemplate::MESSAGE_TYPE_SUCCESS, $this->lng->txt("settings_saved"), true);
